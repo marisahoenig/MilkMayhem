@@ -1,0 +1,1 @@
+void updateCat(CAT* c);
