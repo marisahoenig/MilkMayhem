@@ -1,7 +1,10 @@
 // #define SCORESPRITE 48 //stored in 48-49 ShadowOA
 #define CATNUM 2
-#define CATSPRITE 1
-#define LIVESPRITE 4
+#define CATSPRITE 1 //1-3
+#define LIVESPRITE 4 //4-6
+//health = 7
+#define HEALTHNUM 2
+
 
 void init();
 void update();
@@ -58,3 +61,13 @@ typedef struct {
 	int height;
 	int active;
 } CAT;
+
+typedef struct {
+	int row;
+	int col;
+	int rd;
+	int cd;
+	int width;
+	int height;
+	int active;
+} HEALTH;

@@ -20,3 +20,19 @@ void collisionEnemyPlayer(PLAYER* p, CAT* c) {
 		lives--; //if collide, lose a life
 	}
 }
+
+void updateHealth(HEALTH* health, PLAYER* p) {
+	if (health->active) {
+		health->col -= health->cd;
+		if ((p->row <= health->row && p->row + p->height >= health->row + health->height)
+			&& (p->col + p->width >= health->col)) {
+			health->active = 0;
+			// if (lives < 3) {
+			// 	lives++;
+			// }	
+		}
+		if (health->row <= 0) {
+			health->active = 0;
+		}
+	}
+}

@@ -2,7 +2,7 @@
 # 1 "<built-in>"
 # 1 "<command-line>"
 # 1 "main.c"
-# 10 "main.c"
+# 17 "main.c"
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 1 3
 # 10 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 3
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/machine/ieeefp.h" 1 3
@@ -457,13 +457,9 @@ extern long double wcstold (const wchar_t *, wchar_t **);
 
 
 
-# 11 "main.c" 2
+# 18 "main.c" 2
 # 1 "main.h" 1
-
-
-
-
-
+# 9 "main.h"
 void init();
 void update();
 void draw();
@@ -519,7 +515,17 @@ typedef struct {
  int height;
  int active;
 } CAT;
-# 12 "main.c" 2
+
+typedef struct {
+ int row;
+ int col;
+ int rd;
+ int cd;
+ int width;
+ int height;
+ int active;
+} HEALTH;
+# 19 "main.c" 2
 # 1 "mylib.h" 1
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -570,11 +576,12 @@ typedef struct {
     int row;
     int col;
 } Sprite;
-# 13 "main.c" 2
+# 20 "main.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
 void collisionEnemyPlayer(PLAYER* p, CAT* c);
-# 14 "main.c" 2
+void updateHealth(HEALTH* health, PLAYER* p);
+# 21 "main.c" 2
 # 1 "splashscreen.h" 1
 # 22 "splashscreen.h"
 extern const unsigned short splashscreenTiles[2752];
@@ -584,56 +591,56 @@ extern const unsigned short splashscreenMap[1024];
 
 
 extern const unsigned short splashscreenPal[256];
-# 15 "main.c" 2
+# 22 "main.c" 2
 # 1 "instructions.h" 1
 # 21 "instructions.h"
 extern const unsigned short instructionsTiles[880];
 
 
 extern const unsigned short instructionsMap[1024];
-# 16 "main.c" 2
+# 23 "main.c" 2
 # 1 "spritesheet.h" 1
 # 21 "spritesheet.h"
 extern const unsigned short spritesheetTiles[16384];
 
 
 extern const unsigned short spritesheetPal[256];
-# 17 "main.c" 2
+# 24 "main.c" 2
 # 1 "background.h" 1
 # 21 "background.h"
 extern const unsigned short backgroundTiles[48];
 
 
 extern const unsigned short backgroundMap[1024];
-# 18 "main.c" 2
+# 25 "main.c" 2
 # 1 "winscreen.h" 1
 # 21 "winscreen.h"
 extern const unsigned short winscreenTiles[1088];
 
 
 extern const unsigned short winscreenMap[1024];
-# 19 "main.c" 2
+# 26 "main.c" 2
 # 1 "losescreen.h" 1
 # 21 "losescreen.h"
 extern const unsigned short losescreenTiles[1424];
 
 
 extern const unsigned short losescreenMap[1024];
-# 20 "main.c" 2
+# 27 "main.c" 2
 # 1 "pausescreen.h" 1
 # 21 "pausescreen.h"
 extern const unsigned short pausescreenTiles[1568];
 
 
 extern const unsigned short pausescreenMap[1024];
-# 21 "main.c" 2
+# 28 "main.c" 2
 # 1 "movebackground.h" 1
 # 21 "movebackground.h"
 extern const unsigned short movebackgroundTiles[17680];
 
 
 extern const unsigned short movebackgroundMap[4096];
-# 22 "main.c" 2
+# 29 "main.c" 2
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -644,6 +651,8 @@ PLAYER p;
 CAT c;
 CAT cats[2];
 int timeToNextCat;
+HEALTH health;
+HEALTH hearts[2];
 
 int state;
 
@@ -662,7 +671,6 @@ int main() {
  while(1) {
   oldButtons = buttons;
   buttons = (*(volatile unsigned int *)0x04000130);
-
 
 
   switch(state) {
@@ -727,9 +735,6 @@ void updateInstructions() {
 void initGame() {
  (*(u16 *)0x4000000) = 0 | (1<<8)| (1 << 12);
 
-
-
-
     DMANow(3, spritesheetPal, ((unsigned short*)(0x5000200)), 256);
     DMANow(3, spritesheetTiles, &((charblock *)0x6000000)[4], 32768/2);
 
@@ -764,7 +769,19 @@ void initGame() {
  for (int i = 0; i < 2; i++) {
   cats[i] = c;
  }
-# 160 "main.c"
+
+ health.row = 140;
+ health.col = 220;
+ health.rd = 0;
+ health.cd = 1;
+ health.width = 10;
+ health.height = 8;
+ health.active = 0;
+
+ for (int i = 0; i < 2; i++) {
+  hearts[i] = health;
+ }
+
  hOff = 0;
  lives = 3;
 }
@@ -772,7 +789,6 @@ void initGame() {
 void goToGame() {
 
  (*(u16 *)0x4000000) = 0 | (1<<8) | (1 << 12);
-
  *(volatile unsigned short *)0x04000010 = hOff;
  state = GAMESCREEN;
 }
@@ -844,13 +860,10 @@ void updateLose() {
 void update() {
 
 
-
-
  if(!((~((*(volatile unsigned int *)0x04000130)) & 16) && !((~((*(volatile unsigned int *)0x04000130)) & 32)))) {
 
   p.moveState = PNORM;
  }
-# 257 "main.c"
  if (p.moveState == PNORM) {
   p.currFrame = 0;
   p.moveState = p.prevMoveState;
@@ -864,10 +877,6 @@ void update() {
  if (p.col <= 0) {
   p.col = 1;
  }
-
-
-
-
 
  if ((~((*(volatile unsigned int *)0x04000130)) & 16) || (~((*(volatile unsigned int *)0x04000130)) & 32)) {
   if ((~((*(volatile unsigned int *)0x04000130)) & 16)) {
@@ -911,7 +920,25 @@ void update() {
    collisionEnemyPlayer(&p, c);
   }
  }
-# 343 "main.c"
+
+
+ if (time++ % rand()%100) {
+  for (int i = 0; i < 2; i++) {
+   HEALTH * h = &hearts[i];
+   if (!h->active) {
+    h->active = 1;
+    break;
+   }
+  }
+ }
+
+ for (int i = 0; i < 2; i++) {
+  HEALTH * h = &hearts[i];
+  if (h->active) {
+   updateHealth(h, &p);
+  }
+ }
+
  *(volatile unsigned short *)0x04000010 = hOff;
 
  if ((!(~oldButtons&(1))&&(~buttons&(1)))) {
@@ -921,7 +948,7 @@ void update() {
   goToLose();
  }
 
- if (lives == 0) {
+ if (lives <= 0) {
   goToLose();
  }
 }
@@ -931,7 +958,8 @@ void draw() {
  shadowOAM[0].attr0 = p.row | (2 << 14);
  shadowOAM[0].attr1 = (2 << 14) | p.col;
  shadowOAM[0].attr2 = (0)*32+(p.currFrame*2);
-# 388 "main.c"
+
+
  for(int i = 0; i < 2; i++) {
   CAT * c = &cats[i];
   if (c->active) {
@@ -944,30 +972,34 @@ void draw() {
  }
 
 
-
-
-
-
  for (int i = 0; i < 3; i++) {
   if (i + 1 <= lives) {
    shadowOAM[4 + i].attr0 = 5 | (1 << 14);
-   shadowOAM[4 + i].attr1 = (1 << 14) | (24 + (10*i));
+   shadowOAM[4 + i].attr1 = (0 << 14) | (24 + (10*i));
    shadowOAM[4 + i].attr2 = (0)*32+(12);
   } else {
    shadowOAM[4 + i].attr0 = (2 << 8);
   }
  }
 
+ for (int i = 0; i < 2; i++) {
+  HEALTH * h = &hearts[i];
+  if (h->active) {
+   shadowOAM[7 + i].attr0 = (1 << 14) | h->row;
+   shadowOAM[7 + i].attr1 = (0 << 14) | h->col;
+   shadowOAM[7 + i].attr2 = (0)*32+(12);
+  } else {
+   shadowOAM[7 + i].attr0 = (2 << 8);
+  }
+ }
+
+
 
  DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 512);
 
  waitForVblank();
-
-
-
-
 }
-# 454 "main.c"
+
 void hideSprites() {
 
     for (int num = 1; num < 128; num++) {

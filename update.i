@@ -3,11 +3,7 @@
 # 1 "<command-line>"
 # 1 "update.c"
 # 1 "main.h" 1
-
-
-
-
-
+# 9 "main.h"
 void init();
 void update();
 void draw();
@@ -38,6 +34,7 @@ int prevScore;
 int lives;
 int time;
 int hOff;
+int gamehOff;
 
 typedef struct {
  int row;
@@ -62,10 +59,21 @@ typedef struct {
  int height;
  int active;
 } CAT;
+
+typedef struct {
+ int row;
+ int col;
+ int rd;
+ int cd;
+ int width;
+ int height;
+ int active;
+} HEALTH;
 # 2 "update.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
 void collisionEnemyPlayer(PLAYER* p, CAT* c);
+void updateHealth(HEALTH* health, PLAYER* p);
 # 3 "update.c" 2
 
 
@@ -85,5 +93,21 @@ void collisionEnemyPlayer(PLAYER* p, CAT* c) {
   && (p->col + p->width >= c->col)) {
   c->active = 0;
   lives--;
+ }
+}
+
+void updateHealth(HEALTH* health, PLAYER* p) {
+ if (health->active) {
+  health->col -= health->cd;
+  if ((p->row <= health->row && p->row + p->height >= health->row + health->height)
+   && (p->col + p->width >= health->col)) {
+   health->active = 0;
+
+
+
+  }
+  if (health->row <= 0) {
+   health->active = 0;
+  }
  }
 }

@@ -1,13 +1,18 @@
 
-    /*****************************************
-    I am making a game where the milk carton (player) is trying to reach the refridgerator
-    at the end of a scrolling background. There will be platforms and enemies (cats) involved
-    which the milk must battle to get past and not lose lives.
+/*****************************************
+I am making a game where the milk carton (player) is trying to reach the refridgerator
+at the end of a scrolling background. There will be platforms and enemies (cats) involved
+which the milk must battle to get past and not lose lives.
 
-    Currently, if the milk loses 3 lives, it will lose. However, it can collect hearts to boost
-    its life. In the next iteration, these will turn into milk that will replenish the milk level of the
-    carton.
-    ******************************************/
+Currently, if the milk loses 3 lives, it will lose. However, it can collect hearts to boost
+its life. Right now, it can only run and get hurt by enemies without fighting back.
+
+Eventually, the hearts will be milk levels, and the milk will be able to fight the cats, but I am
+debating between punching them and shooting 'water' at them. The milk will also be able to jump.
+
+To see example Win screen, press A. Lose screen, press B.
+Controls are left and right to move.
+******************************************/
 
 #include <stdlib.h>
 #include "main.h"
@@ -31,6 +36,8 @@ PLAYER p;
 CAT c;
 CAT cats[CATNUM];
 int timeToNextCat;
+HEALTH health;
+HEALTH hearts[HEALTHNUM];
 
 int state;
 // state enums
@@ -50,7 +57,6 @@ int main() {
 		oldButtons = buttons;
 		buttons = BUTTONS;
 
-		// REG_BG0VOFS = vOff;
 		//switch between states
 		switch(state) {
         	case SPLASHSCREEN:
@@ -112,10 +118,7 @@ void updateInstructions() {
 
 //initialize everything
 void initGame() {
-	REG_DISPCTL = MODE0 | BG0_ENABLE| SPRITE_ENABLE; //enable both backgrounds for gameplay
-	// REG_BG1CNT = BG_SIZE0 | CBB(1) | SBB(29);
-	// DMANow(3, backgroundTiles, &CHARBLOCKBASE[1], backgroundTilesLen/2);
- //    DMANow(3, backgroundMap, &SCREENBLOCKBASE[29], backgroundMapLen/2);
+	REG_DISPCTL = MODE0 | BG0_ENABLE| SPRITE_ENABLE; //enable background
 
     DMANow(3, spritesheetPal, SPRITE_PALETTE, 256);
     DMANow(3, spritesheetTiles, &CHARBLOCKBASE[4], spritesheetTilesLen/2);  
@@ -152,12 +155,17 @@ void initGame() {
 		cats[i] = c;
 	}
 
-	//initialize score, lives
-	// score = 0;
-	// prevScore = 0;
-	// ones = 0;
-	// tens = 0;
-	// lives = 3;
+	health.row = 140;
+	health.col = 220;
+	health.rd = 0;
+	health.cd = 1;
+	health.width = 10;
+	health.height = 8;
+	health.active = 0;
+
+	for (int i = 0; i < HEALTHNUM; i++) {
+		hearts[i] = health;
+	}
 
 	hOff = 0;
 	lives = 3;
@@ -166,7 +174,6 @@ void initGame() {
 void goToGame() {
 	//enable both backgrounds
 	REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE;
-	// vOff = gamevOff; //go back to gamevOff
 	REG_BG0HOFS = hOff;
 	state = GAMESCREEN;
 }
@@ -202,7 +209,7 @@ void updatePause() {
 	}
 }
 
-void goToWin() { //can write on same CBB because never displaying both backgrounds at once
+void goToWin() { 
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
 	REG_BG0HOFS = 0;
@@ -212,7 +219,7 @@ void goToWin() { //can write on same CBB because never displaying both backgroun
 }
 
 void updateWin() {
-	if (BUTTON_PRESSED(BUTTON_START)) { //can return to splash
+	if (BUTTON_PRESSED(BUTTON_START)) { //return to splash
 		goToSplash();
 	}
 }
@@ -237,25 +244,11 @@ void updateLose() {
 
 void update() {
 	//causes moving background to move up
-	// gamevOff++; //only increment game counter so when switch states, starts at same spot
-	// vOff = gamevOff;
 
 	if(!(BUTTON_HELD(BUTTON_RIGHT) && !(BUTTON_HELD(BUTTON_LEFT)))) {
 		//if neither is held, be at the normal state
 		p.moveState = PNORM;
 	}
-	// if(BUTTON_HELD(BUTTON_LEFT)) {
-	// 	p.moveState = PLEFT;
-	// 	p.col -= p.cd;
-	// }
-	// if(BUTTON_HELD(BUTTON_RIGHT)) {
-	// 	p.moveState = PRIGHT;
-	// 	p.col += p.cd;
-	// }
-	// if (BUTTON_PRESSED(BUTTON_UP)) {
-	// 	p.moveState = PJUMP;
-	// }
-
 	if (p.moveState == PNORM) {
 		p.currFrame = 0;
 		p.moveState = p.prevMoveState;
@@ -269,10 +262,6 @@ void update() {
 	if (p.col <= 0) {
 		p.col = 1;
 	}
-
-// else if (p.moveState = PJUMP) {
-// 		p.currFrame = 3;
-// 	} 
 
 	if (BUTTON_HELD(BUTTON_RIGHT) || BUTTON_HELD(BUTTON_LEFT)) {
 		if (BUTTON_HELD(BUTTON_RIGHT)) {
@@ -317,31 +306,24 @@ void update() {
 		}
 	}
 
-	// //any active enemies should be moving
-	// //checks enemies to see if all have been destroyed
-	// gameWin = 1; //assume game would be won
-	// for(int i = 0; i < ENEMYNUM; i++) {
-	// 	ENEMY * e = &enemies[i];
-	// 	if (e->active) {
-	// 		updateEnemy(e); //move active enemies
-	// 		//only check enemy and player collision if far enough down screen
-	// 		if (e->row + e->height >= 135) { 
-	// 			collisionEnemyPlayer(e, &p);
-	// 		}
-	// 		for(int i = 0; i < BULLETNUM; i++) { 
-	// 			BULLET * b = &bullets[i];
-	// 			if(b->active) {
-	// 				collisionCheckEnemy(b, e); //check if any active bullets have hit the enemies
-	// 			}			
-	// 		}
-	// 		gameWin = 0; //if any are active, you have not won yet	
-	// 	}
-	// }
+	// HEALTH
+	if (time++ % rand()%100) {
+		for (int i = 0; i < HEALTHNUM; i++) {
+			HEALTH * h = &hearts[i];
+			if (!h->active) {
+				h->active = 1;
+				break;
+			}
+		}
+	}
 
-	//only update the score if it has changed
-// 	if (prevScore != score) {
-// 		updateScore();
-// 	}
+	for (int i = 0; i < HEALTHNUM; i++) {
+		HEALTH * h = &hearts[i];
+		if (h->active) {
+			updateHealth(h, &p);
+		}
+	}
+
 	REG_BG0HOFS = hOff;
 
 	if (BUTTON_PRESSED(BUTTON_A)) {
@@ -351,7 +333,7 @@ void update() {
 		goToLose();
 	}
 
-	if (lives == 0) {
+	if (lives <= 0) {
 		goToLose();
 	}
 }
@@ -361,30 +343,6 @@ void draw() {
 	shadowOAM[0].attr0 = p.row | ATTR0_TALL;
 	shadowOAM[0].attr1 = ATTR1_SIZE32 | p.col;
 	shadowOAM[0].attr2 = SPRITEOFFSET16(0, p.currFrame*2); //ref to sprite sheet
-
-	// //draw all the active enemies, hide inactive
-	// for(int i = 0; i < ENEMYNUM; i++) { 
-	// 	ENEMY * e = &enemies[i];
-	// 	if (e->active) { 	// enemy sprites stored in shadowOAM1-25
-	// 		shadowOAM[ENEMYSPRITE + i].attr0 = e->row;
-	// 		shadowOAM[ENEMYSPRITE + i].attr1 = ATTR1_SIZE16 | e->col;
-	// 		shadowOAM[ENEMYSPRITE + i].attr2 = SPRITEOFFSET16((enemies[i].type)*2, 0);
-	// 	} else {
-	// 		shadowOAM[ENEMYSPRITE + i].attr0 = ATTR0_HIDE;
-	// 	}
-	// }  
-
-	// //draw all the active bullets, hide inactive
-	// for(int i = 0; i < BULLETNUM; i++) { 
-	// 	BULLET * b = &bullets[i];
-	// 	if (b->active) { 	// //player bullets stored in shadowOAM 26-36
-	// 		shadowOAM[BULLETSPRITE + i].attr0 = b->row;
-	// 		shadowOAM[BULLETSPRITE + i].attr1 = ATTR1_SIZE8 | b->col;
-	// 		shadowOAM[BULLETSPRITE + i].attr2 = SPRITEOFFSET16(0, 8);
-	// 	} else {
-	// 		shadowOAM[BULLETSPRITE + i].attr0 = ATTR0_HIDE;
-	// 	}
-	// }   	
 
 	//draw all active cats, hide inactive
 	for(int i = 0; i < CATNUM; i++) { 
@@ -397,61 +355,35 @@ void draw() {
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_HIDE;
 		}
 	}   
-	
-	// //draw both digits of the score
-	// drawScore(1, ones);
-	// drawScore(0, tens);
 
 	// draw hearts for the lives
 	for (int i = 0; i < 3; i++) { // loop through the 3 lives
 		if (i + 1 <= lives) { //draw the ones that are there
 			shadowOAM[LIVESPRITE + i].attr0 = 5 | ATTR0_WIDE;
-			shadowOAM[LIVESPRITE + i].attr1 = ATTR1_SIZE16 | (24 + (10*i));
+			shadowOAM[LIVESPRITE + i].attr1 = ATTR1_SIZE8 | (24 + (10*i));
 			shadowOAM[LIVESPRITE + i].attr2 = SPRITEOFFSET16(0, 12);
 		} else { //hide any of the other hearts
 			shadowOAM[LIVESPRITE + i].attr0 = ATTR0_HIDE;
 		}
 	}	
 
+	for (int i = 0; i < HEALTHNUM; i++) {
+		HEALTH * h = &hearts[i];
+		if (h->active) { 	// shadowOAM 7
+			shadowOAM[7 + i].attr0 = ATTR0_WIDE | h->row;
+			shadowOAM[7 + i].attr1 = ATTR1_SIZE8 | h->col;
+			shadowOAM[7 + i].attr2 = SPRITEOFFSET16(0, 12);
+		} else {
+			shadowOAM[7 + i].attr0 = ATTR0_HIDE;
+		}
+	}
+	
+  
 	//transfer OAM to shadowOAM
 	DMANow(3, shadowOAM, OAM, 512);
 
-	waitForVblank(); 
-	//if the game was won, go to win screen	
-	// if (gameWin) {
-	// 	goToWin();
-	// }		
+	waitForVblank(); 	
 }
-
-//update the game score based on hits
-// void updateScore() {
-// 	if (score <= 0) { //never get negative score
-// 		score  = 0;
-// 	}
-// 	prevScore = score;
-// 	//determines math for each digit based on score
-// 	ones = score % 10;
-// 	tens = score / 10;
-// }
-
-//drawn in 48 and 49 shadowOAM
-//draw the current score
-// void drawScore(int place, int num) {
-// 	// shadowOAM[SCORESPRITE + place].attr0 = 150;
-// 	// shadowOAM[SCORESPRITE + place].attr1 = ATTR1_SIZE8 | (8*place);
-// 	// shadowOAM[SCORESPRITE + place].attr2 = SPRITEOFFSET16(6, num);
-// }
-
-//draw the hearts indicating lives
-// void drawLives(int lives) {
-// 	// for (int i = 0; i < 3; i++) { // 3 lives
-// 	// 	if (i + 1 <= lives) {
-// 	// 		shadowOAM[LIVESPRITE + i].attr0 = 150 | ATTR0_WIDE;
-// 	// 		shadowOAM[LIVESPRITE + i].attr1 = ATTR1_SIZE16 | (24 + (10*i));
-// 	// 		shadowOAM[LIVESPRITE + i].attr2 = SPRITEOFFSET16(0, 9);
-// 	// 	}
-// 	// }	
-// }
 
 void hideSprites() {
 	//loop through 128 possible sprites and hide
