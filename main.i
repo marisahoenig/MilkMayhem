@@ -463,6 +463,7 @@ extern long double wcstold (const wchar_t *, wchar_t **);
 
 
 
+
 void init();
 void update();
 void draw();
@@ -639,7 +640,7 @@ OBJ_ATTR shadowOAM[128];
 
 PLAYER p;
 CAT c;
-CAT cats[5];
+CAT cats[2];
 int timeToNextCat;
 
 int state;
@@ -688,6 +689,7 @@ int main() {
 
 
 void goToSplash() {
+ (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 31 << 8;
  DMANow(3, splashscreenTiles, &((charblock *)0x6000000)[0], 5504/2);
     DMANow(3, splashscreenMap, &((screenblock *)0x6000000)[31], 2048/2);
@@ -699,6 +701,21 @@ void updateSplash() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
 
   goToInstructions();
+ }
+}
+
+void goToInstructions() {
+ *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
+ DMANow(3, instructionsTiles, &((charblock *)0x6000000)[0], 1760/2);
+    DMANow(3, instructionsMap, &((screenblock *)0x6000000)[30], 2048/2);
+ state = INSTRUCTIONSSCREEN;
+}
+
+void updateInstructions() {
+ if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
+
+  initGame();
+  goToGame();
  }
 }
 
@@ -735,27 +752,17 @@ void initGame() {
  c.row = 144;
  c.col = 200;
  c.rd = 0;
- c.cd = 4;
+ c.cd = 1;
  c.width = 32;
  c.height = 16;
  c.active = 0;
-# 138 "main.c"
- hOff = 0;
-}
 
-void goToInstructions() {
- *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
- DMANow(3, instructionsTiles, &((charblock *)0x6000000)[0], 1760/2);
-    DMANow(3, instructionsMap, &((screenblock *)0x6000000)[30], 2048/2);
- state = INSTRUCTIONSSCREEN;
-}
-
-void updateInstructions() {
- if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
-
-  initGame();
-  goToGame();
+ for (int i = 0; i < 2; i++) {
+  cats[i] = c;
  }
+# 158 "main.c"
+ hOff = 0;
+ lives = 3;
 }
 
 void goToGame() {
@@ -772,6 +779,9 @@ void updateGame() {
 
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
      goToPause();
+    }
+    if ((!(~oldButtons&(4))&&(~buttons&(4)))) {
+     goToSplash();
     }
 }
 
@@ -835,7 +845,7 @@ void update() {
 
   p.moveState = PNORM;
  }
-# 245 "main.c"
+# 254 "main.c"
  if (p.moveState == PNORM) {
   p.currFrame = 0;
   p.moveState = p.prevMoveState;
@@ -875,25 +885,31 @@ void update() {
 
 
  if (!(time++ % timeToNextCat)) {
-  for(int i = 0; i < 5; i++) {
+  for(int i = 0; i < 2; i++) {
    CAT * c = &cats[i];
    if(!c->active) {
     c->active = 1;
     c->row = 128;
     c->col = 220;
-    timeToNextCat = rand()%30 + 80;
+    timeToNextCat = rand()%200 + 87;
     break;
    }
   }
  }
 
- for(int i = 0; i < 5; i++) {
+ for(int i = 0; i < 2; i++) {
   CAT * c = &cats[i];
   if(c->active) {
    updateCat(c);
   }
  }
-# 328 "main.c"
+# 338 "main.c"
+ if ((!(~oldButtons&(1))&&(~buttons&(1)))) {
+  goToWin();
+ }
+ if ((!(~oldButtons&(2))&&(~buttons&(2)))) {
+  goToLose();
+ }
 }
 
 void draw() {
@@ -901,8 +917,8 @@ void draw() {
  shadowOAM[0].attr0 = p.row | (2 << 14);
  shadowOAM[0].attr1 = (2 << 14) | p.col;
  shadowOAM[0].attr2 = (0)*32+(p.currFrame*2);
-# 361 "main.c"
- for(int i = 0; i < 5; i++) {
+# 377 "main.c"
+ for(int i = 0; i < 2; i++) {
   CAT * c = &cats[i];
   if (c->active) {
    shadowOAM[1 + i].attr0 = (1 << 14) | c->row;
@@ -912,7 +928,23 @@ void draw() {
    shadowOAM[1 + i].attr0 = (2 << 8);
   }
  }
-# 388 "main.c"
+
+
+
+
+
+
+ for (int i = 0; i < 3; i++) {
+  if (i + 1 <= lives) {
+   shadowOAM[4 + i].attr0 = 5 | (1 << 14);
+   shadowOAM[4 + i].attr1 = (1 << 14) | (24 + (10*i));
+   shadowOAM[4 + i].attr2 = (0)*32+(12);
+  } else {
+   shadowOAM[4 + i].attr0 = (2 << 8);
+  }
+ }
+
+
  DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 512);
 
  waitForVblank();
@@ -921,7 +953,7 @@ void draw() {
 
 
 }
-# 427 "main.c"
+# 443 "main.c"
 void hideSprites() {
 
     for (int num = 1; num < 128; num++) {

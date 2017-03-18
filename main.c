@@ -76,6 +76,7 @@ int main() {
 /** STATES **/
 
 void goToSplash() {
+	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(31);
 	DMANow(3, splashscreenTiles, &CHARBLOCKBASE[0], splashscreenTilesLen/2);
     DMANow(3, splashscreenMap, &SCREENBLOCKBASE[31], splashscreenMapLen/2);
@@ -87,6 +88,21 @@ void updateSplash() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
 		//press start to go to instructions
 		goToInstructions();
+	}
+}
+
+void goToInstructions() {
+	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
+	DMANow(3, instructionsTiles, &CHARBLOCKBASE[0], instructionsTilesLen/2);
+    DMANow(3, instructionsMap, &SCREENBLOCKBASE[30], instructionsMapLen/2);
+	state = INSTRUCTIONSSCREEN;
+}
+
+void updateInstructions() {
+	if (BUTTON_PRESSED(BUTTON_START)) {
+		//press start to init and go to game
+		initGame();
+		goToGame(); 
 	}
 }
 
@@ -123,10 +139,14 @@ void initGame() {
 	c.row = 144;
 	c.col = 200;
 	c.rd = 0;
-	c.cd = 4;
+	c.cd = 1;
 	c.width = 32;
 	c.height = 16;
 	c.active = 0;
+
+	for (int i = 0; i < CATNUM; i++) {
+		cats[i] = c;
+	}
 
 	//initialize score, lives
 	// score = 0;
@@ -136,21 +156,7 @@ void initGame() {
 	// lives = 3;
 
 	hOff = 0;
-}
-
-void goToInstructions() {
-	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
-	DMANow(3, instructionsTiles, &CHARBLOCKBASE[0], instructionsTilesLen/2);
-    DMANow(3, instructionsMap, &SCREENBLOCKBASE[30], instructionsMapLen/2);
-	state = INSTRUCTIONSSCREEN;
-}
-
-void updateInstructions() {
-	if (BUTTON_PRESSED(BUTTON_START)) {
-		//press start to init and go to game
-		initGame();
-		goToGame(); 
-	}
+	lives = 3;
 }
 
 void goToGame() {
@@ -167,6 +173,9 @@ void updateGame() {
 
 	if (BUTTON_PRESSED(BUTTON_START)) {
     	goToPause();
+    }
+    if (BUTTON_PRESSED(BUTTON_SELECT)) {
+    	goToSplash();
     }
 }
 
@@ -287,7 +296,7 @@ void update() {
 				c->active = 1; 		// setting active to TRUE
 				c->row = 128;
 				c->col = 220;
-				timeToNextCat = rand()%30 + 80;
+				timeToNextCat = rand()%200 + 87;
 				break;
 			}	
 		}
@@ -325,6 +334,13 @@ void update() {
 // 	if (prevScore != score) {
 // 		updateScore();
 // 	}
+
+	if (BUTTON_PRESSED(BUTTON_A)) {
+		goToWin();
+	}
+	if (BUTTON_PRESSED(BUTTON_B)) {
+		goToLose();
+	}
 }
 
 void draw() {
@@ -357,10 +373,10 @@ void draw() {
 	// 	}
 	// }   	
 
-	//draw all active seeds (enemy bullets), hide inactive
+	//draw all active cats, hide inactive
 	for(int i = 0; i < CATNUM; i++) { 
 		CAT * c = &cats[i];
-		if (c->active) { 	// cat sprites in shadowOAM 1-10
+		if (c->active) { 	// cat sprites in shadowOAM 1-3
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_WIDE | c->row;
 			shadowOAM[CATSPRITE + i].attr1 = ATTR1_SIZE32 | c->col;
 			shadowOAM[CATSPRITE + i].attr2 = SPRITEOFFSET16(0, 8);
@@ -373,16 +389,16 @@ void draw() {
 	// drawScore(1, ones);
 	// drawScore(0, tens);
 
-	// // draw hearts for the lives
-	// for (int i = 0; i < 3; i++) { // loop through the 3 lives
-	// 	if (i + 1 <= lives) { //draw the ones that are there
-	// 		shadowOAM[LIVESPRITE + i].attr0 = 150 | ATTR0_WIDE;
-	// 		shadowOAM[LIVESPRITE + i].attr1 = ATTR1_SIZE16 | (24 + (10*i));
-	// 		shadowOAM[LIVESPRITE + i].attr2 = SPRITEOFFSET16(0, 9);
-	// 	} else { //hide any of the other hearts
-	// 		shadowOAM[LIVESPRITE + i].attr0 = ATTR0_HIDE;
-	// 	}
-	// }	
+	// draw hearts for the lives
+	for (int i = 0; i < 3; i++) { // loop through the 3 lives
+		if (i + 1 <= lives) { //draw the ones that are there
+			shadowOAM[LIVESPRITE + i].attr0 = 5 | ATTR0_WIDE;
+			shadowOAM[LIVESPRITE + i].attr1 = ATTR1_SIZE16 | (24 + (10*i));
+			shadowOAM[LIVESPRITE + i].attr2 = SPRITEOFFSET16(0, 12);
+		} else { //hide any of the other hearts
+			shadowOAM[LIVESPRITE + i].attr0 = ATTR0_HIDE;
+		}
+	}	
 
 	//transfer OAM to shadowOAM
 	DMANow(3, shadowOAM, OAM, 512);

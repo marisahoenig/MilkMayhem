@@ -1,6 +1,7 @@
 // #define SCORESPRITE 48 //stored in 48-49 ShadowOA
-#define CATNUM 5
+#define CATNUM 2
 #define CATSPRITE 1
+#define LIVESPRITE 4
 
 void init();
 void update();

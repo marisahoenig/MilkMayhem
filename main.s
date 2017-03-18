@@ -19,6 +19,8 @@ goToSplash:
 	@ frame_needed = 0, uses_anonymous_args = 0
 	stmfd	sp!, {r4, lr}
 	mov	ip, #67108864
+	mov	lr, #256	@ movhi
+	strh	lr, [ip, #0]	@ movhi
 	mov	lr, #7936	@ movhi
 	mov	r0, #3
 	ldr	r1, .L2
@@ -49,100 +51,6 @@ goToSplash:
 	.word	state
 	.size	goToSplash, .-goToSplash
 	.align	2
-	.global	initGame
-	.type	initGame, %function
-initGame:
-	@ Function supports interworking.
-	@ args = 0, pretend = 0, frame = 0
-	@ frame_needed = 0, uses_anonymous_args = 0
-	stmfd	sp!, {r3, r4, r5, lr}
-	mov	ip, #4352	@ movhi
-	mov	r5, #67108864
-	mov	r2, #83886080
-	ldr	r4, .L8
-	strh	ip, [r5, #0]	@ movhi
-	mov	r0, #3
-	ldr	r1, .L8+4
-	add	r2, r2, #512
-	mov	r3, #256
-	mov	lr, pc
-	bx	r4
-	mov	r2, #100663296
-	mov	r0, #3
-	ldr	r1, .L8+8
-	add	r2, r2, #65536
-	mov	r3, #16384
-	mov	lr, pc
-	bx	r4
-	mov	ip, #55808
-	mov	r3, #17664
-	mov	r0, #3
-	ldr	r1, .L8+12
-	mov	r2, #100663296
-	add	r3, r3, #16
-	strh	ip, [r5, #8]	@ movhi
-	mov	lr, pc
-	bx	r4
-	mov	r2, #100663296
-	add	r2, r2, #53248
-	mov	r3, #4096
-	mov	r0, #3
-	ldr	r1, .L8+16
-	mov	lr, pc
-	bx	r4
-	ldr	r3, .L8+20
-	add	r2, r3, #1016
-.L5:
-	mov	r1, #512	@ movhi
-	strh	r1, [r3, #8]!	@ movhi
-	cmp	r3, r2
-	bne	.L5
-	ldr	r3, .L8+24
-	mov	r5, #128
-	ldr	r1, .L8+28
-	mov	r2, #0
-	str	r5, [r3, #0]
-	mov	r4, #1
-	mov	r0, #16
-	mov	ip, #32
-	mov	r5, #112
-	str	r5, [r3, #4]
-	str	r2, [r3, #8]
-	str	r4, [r3, #12]
-	str	r0, [r3, #16]
-	str	ip, [r3, #20]
-	str	r2, [r3, #24]
-	str	r2, [r3, #32]
-	str	r2, [r3, #36]
-	str	r4, [r3, #40]
-	mov	r3, #144
-	str	r3, [r1, #0]
-	mov	r3, #200
-	str	r3, [r1, #4]
-	mov	r3, #4
-	str	r3, [r1, #12]
-	ldr	r3, .L8+32
-	str	r2, [r1, #8]
-	str	ip, [r1, #16]
-	str	r0, [r1, #20]
-	str	r2, [r1, #24]
-	str	r2, [r3, #0]
-	ldmfd	sp!, {r3, r4, r5, lr}
-	bx	lr
-.L9:
-	.align	2
-.L8:
-	.word	DMANow
-	.word	spritesheetPal
-	.word	spritesheetTiles
-	.word	movebackgroundTiles
-	.word	movebackgroundMap
-	.word	shadowOAM
-	.word	p
-	.word	c
-	.word	hOff
-	.size	initGame, .-initGame
-	.align	2
 	.global	goToInstructions
 	.type	goToInstructions, %function
 goToInstructions:
@@ -153,10 +61,10 @@ goToInstructions:
 	mov	ip, #67108864
 	mov	lr, #7680	@ movhi
 	mov	r0, #3
-	ldr	r1, .L11
+	ldr	r1, .L5
 	mov	r2, #100663296
 	mov	r3, #880
-	ldr	r4, .L11+4
+	ldr	r4, .L5+4
 	strh	lr, [ip, #8]	@ movhi
 	mov	lr, pc
 	bx	r4
@@ -164,17 +72,17 @@ goToInstructions:
 	add	r2, r2, #61440
 	mov	r3, #1024
 	mov	r0, #3
-	ldr	r1, .L11+8
+	ldr	r1, .L5+8
 	mov	lr, pc
 	bx	r4
-	ldr	r3, .L11+12
+	ldr	r3, .L5+12
 	mov	r2, #1
 	str	r2, [r3, #0]
 	ldmfd	sp!, {r4, lr}
 	bx	lr
-.L12:
+.L6:
 	.align	2
-.L11:
+.L5:
 	.word	instructionsTiles
 	.word	DMANow
 	.word	instructionsMap
@@ -188,21 +96,130 @@ updateSplash:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
-	ldr	r3, .L15
+	ldr	r3, .L10
 	ldr	r3, [r3, #0]
 	tst	r3, #8
 	bxeq	lr
-	ldr	r3, .L15+4
+	ldr	r3, .L10+4
 	ldr	r3, [r3, #0]
 	tst	r3, #8
 	bxne	lr
 	b	goToInstructions
-.L16:
+.L11:
 	.align	2
-.L15:
+.L10:
 	.word	oldButtons
 	.word	buttons
 	.size	updateSplash, .-updateSplash
+	.align	2
+	.global	initGame
+	.type	initGame, %function
+initGame:
+	@ Function supports interworking.
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	stmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+	mov	ip, #4352	@ movhi
+	mov	r5, #67108864
+	mov	r2, #83886080
+	ldr	r4, .L15
+	strh	ip, [r5, #0]	@ movhi
+	mov	r0, #3
+	ldr	r1, .L15+4
+	add	r2, r2, #512
+	mov	r3, #256
+	mov	lr, pc
+	bx	r4
+	mov	r2, #100663296
+	mov	r0, #3
+	ldr	r1, .L15+8
+	add	r2, r2, #65536
+	mov	r3, #16384
+	mov	lr, pc
+	bx	r4
+	mov	ip, #55808
+	mov	r3, #17664
+	mov	r0, #3
+	ldr	r1, .L15+12
+	mov	r2, #100663296
+	add	r3, r3, #16
+	strh	ip, [r5, #8]	@ movhi
+	mov	lr, pc
+	bx	r4
+	mov	r2, #100663296
+	add	r2, r2, #53248
+	mov	r3, #4096
+	mov	r0, #3
+	ldr	r1, .L15+16
+	mov	lr, pc
+	bx	r4
+	ldr	r3, .L15+20
+	add	r2, r3, #1016
+.L13:
+	mov	r1, #512	@ movhi
+	strh	r1, [r3, #8]!	@ movhi
+	cmp	r3, r2
+	bne	.L13
+	ldr	ip, .L15+24
+	mov	r3, #144
+	mov	r5, #0
+	str	r3, [ip, #0]
+	mov	r6, #1
+	mov	r3, #200
+	stmib	ip, {r3, r5, r6}	@ phole stm
+	ldr	r7, .L15+28
+	mov	r9, ip
+	ldmia	r9!, {r0, r1, r2, r3}
+	mov	r4, r7
+	stmia	r4!, {r0, r1, r2, r3}
+	mov	r8, #16
+	mov	sl, #32
+	str	sl, [ip, #16]
+	str	r8, [ip, #20]
+	str	r5, [ip, #24]
+	ldmia	r9, {r0, r1, r2}
+	mov	r3, r4
+	ldr	r4, .L15+32
+	stmia	r3, {r0, r1, r2}
+	ldmia	ip!, {r0, r1, r2, r3}
+	mov	ip, #128
+	str	ip, [r4, #0]
+	add	r7, r7, #28
+	mov	ip, #112
+	str	ip, [r4, #4]
+	str	r5, [r4, #8]
+	str	r6, [r4, #12]
+	str	r8, [r4, #16]
+	str	sl, [r4, #20]
+	str	r5, [r4, #24]
+	str	r5, [r4, #32]
+	str	r5, [r4, #36]
+	stmia	r7!, {r0, r1, r2, r3}
+	ldr	r3, .L15+36
+	ldmia	r9, {r0, r1, r2}
+	str	r5, [r3, #0]
+	ldr	r3, .L15+40
+	stmia	r7, {r0, r1, r2}
+	mov	r2, #3
+	str	r6, [r4, #40]
+	str	r2, [r3, #0]
+	ldmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+	bx	lr
+.L16:
+	.align	2
+.L15:
+	.word	DMANow
+	.word	spritesheetPal
+	.word	spritesheetTiles
+	.word	movebackgroundTiles
+	.word	movebackgroundMap
+	.word	shadowOAM
+	.word	c
+	.word	cats
+	.word	p
+	.word	hOff
+	.word	lives
+	.size	initGame, .-initGame
 	.align	2
 	.global	updateInstructions
 	.type	updateInstructions, %function
@@ -475,16 +492,16 @@ update:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	stmfd	sp!, {r3, r4, r5, r6, r7, lr}
 	mov	r3, #67108864
+	stmfd	sp!, {r4, r5, r6, lr}
 	ldr	r2, [r3, #304]
 	tst	r2, #16
-	bne	.L73
+	bne	.L74
 	ldr	r3, [r3, #304]
 	tst	r3, #32
-	bne	.L71
-.L73:
-	ldr	r3, .L76
+	bne	.L72
+.L74:
+	ldr	r3, .L79
 .L50:
 	ldr	r2, [r3, #28]
 	mov	r1, #0
@@ -496,7 +513,7 @@ update:
 	add	r0, r1, r2
 	cmp	r0, #239
 	rsbgt	r2, r1, #240
-	ldrgt	r1, .L76
+	ldrgt	r1, .L79
 	strgt	r2, [r1, #4]
 	cmp	r2, #0
 	movle	r2, #1
@@ -509,43 +526,52 @@ update:
 	tst	r2, #32
 	beq	.L55
 .L56:
-	ldr	r4, .L76+4
-	ldr	r6, .L76+8
+	ldr	r4, .L79+4
+	ldr	r6, .L79+8
 	ldr	r5, [r4, #0]
 	ldr	r1, [r6, #0]
 	mov	r0, r5
-	ldr	r3, .L76+12
+	ldr	r3, .L79+12
 	mov	lr, pc
 	bx	r3
 	add	r5, r5, #1
 	cmp	r1, #0
 	str	r5, [r4, #0]
-	ldrne	r7, .L76+16
+	ldrne	r4, .L79+16
 	bne	.L60
-	ldr	r7, .L76+16
-	mov	r3, r7
-.L63:
-	ldr	r2, [r3, #24]
-	cmp	r2, #0
-	beq	.L74
-	add	r1, r1, #1
-	cmp	r1, #5
-	add	r3, r3, #28
-	bne	.L63
-.L60:
-	ldr	r5, .L76+16
-	ldr	r6, .L76+20
-	mov	r4, #0
-.L62:
-	ldr	r3, [r5, #24]
+	ldr	r4, .L79+16
+	ldr	r3, [r4, #24]
 	cmp	r3, #0
-	bne	.L75
-.L64:
-	add	r4, r4, #1
-	cmp	r4, #5
-	add	r5, r5, #28
-	bne	.L62
-	ldmfd	sp!, {r3, r4, r5, r6, r7, lr}
+	beq	.L61
+	ldr	r3, [r4, #52]
+	cmp	r3, #0
+	beq	.L75
+.L62:
+	ldr	r3, .L79+20
+	ldr	r0, .L79+16
+	mov	lr, pc
+	bx	r3
+	ldr	r3, [r4, #52]
+	cmp	r3, #0
+	beq	.L64
+.L78:
+	ldr	r4, .L79+24
+	ldr	r3, .L79+20
+	ldr	r0, .L79+28
+	mov	lr, pc
+	bx	r3
+	ldr	r3, [r4, #0]
+	tst	r3, #1
+	bne	.L76
+.L65:
+	tst	r3, #2
+	beq	.L49
+	ldr	r3, .L79+32
+	ldr	r3, [r3, #0]
+	tst	r3, #2
+	beq	.L77
+.L49:
+	ldmfd	sp!, {r4, r5, r6, lr}
 	bx	lr
 .L55:
 	mov	r2, #67108864
@@ -571,14 +597,14 @@ update:
 	str	r2, [r3, #4]
 .L58:
 	ldr	r3, [r3, #36]
-	ldr	r2, .L76+24
+	ldr	r2, .L79+36
 	smull	r1, r2, r3, r2
 	mov	r1, r3, asr #31
 	add	r2, r2, r3
 	rsb	r2, r1, r2, asr #4
 	rsb	r2, r2, r2, asl #4
 	subs	r3, r3, r2, asl #1
-	ldr	r1, .L76
+	ldr	r1, .L79
 	bne	.L56
 	ldr	r0, [r1, #32]
 	cmp	r0, #1
@@ -589,13 +615,50 @@ update:
 	streq	r3, [r1, #32]
 	b	.L56
 .L75:
-	rsb	r0, r4, r4, asl #3
-	add	r0, r7, r0, asl #2
+	mov	r3, #1
+.L61:
+	rsb	r3, r3, r3, asl #3
+	add	r2, r4, r3, asl #2
+	mov	r1, #1
+	str	r1, [r2, #24]
+	mov	r1, #128
+	str	r1, [r4, r3, asl #2]
+	mov	r3, #220
+	str	r3, [r2, #4]
+	ldr	r3, .L79+40
 	mov	lr, pc
-	bx	r6
-	b	.L64
-.L71:
-	ldr	r3, .L76
+	bx	r3
+	ldr	r2, .L79+44
+	smull	r3, r2, r0, r2
+	mov	r3, r0, asr #31
+	rsb	r3, r3, r2, asr #6
+	add	r3, r3, r3, asl #2
+	add	r3, r3, r3, asl #2
+	sub	r3, r0, r3, asl #3
+	add	r3, r3, #87
+	str	r3, [r6, #0]
+.L60:
+	ldr	r3, [r4, #24]
+	cmp	r3, #0
+	bne	.L62
+	ldr	r3, [r4, #52]
+	cmp	r3, #0
+	bne	.L78
+.L64:
+	ldr	r4, .L79+24
+	ldr	r3, [r4, #0]
+	tst	r3, #1
+	beq	.L65
+.L76:
+	ldr	r2, .L79+32
+	ldr	r2, [r2, #0]
+	tst	r2, #1
+	bne	.L65
+	bl	goToWin
+	ldr	r3, [r4, #0]
+	b	.L65
+.L72:
+	ldr	r3, .L79
 	ldr	r2, [r3, #24]
 	cmp	r2, #0
 	beq	.L50
@@ -603,39 +666,24 @@ update:
 	add	r2, r2, #1
 	str	r2, [r3, #36]
 	b	.L52
-.L74:
-	rsb	r1, r1, r1, asl #3
-	add	r3, r7, r1, asl #2
-	mov	r2, #1
-	str	r2, [r3, #24]
-	mov	r2, #128
-	str	r2, [r7, r1, asl #2]
-	mov	r2, #220
-	str	r2, [r3, #4]
-	ldr	r3, .L76+28
-	mov	lr, pc
-	bx	r3
-	ldr	r2, .L76+24
-	smull	r3, r2, r0, r2
-	mov	r3, r0, asr #31
-	add	r2, r2, r0
-	rsb	r3, r3, r2, asr #4
-	rsb	r3, r3, r3, asl #4
-	sub	r3, r0, r3, asl #1
-	add	r3, r3, #80
-	str	r3, [r6, #0]
-	b	.L60
 .L77:
+	ldmfd	sp!, {r4, r5, r6, lr}
+	b	goToLose
+.L80:
 	.align	2
-.L76:
+.L79:
 	.word	p
 	.word	time
 	.word	timeToNextCat
 	.word	__aeabi_idivmod
 	.word	cats
 	.word	updateCat
+	.word	oldButtons
+	.word	cats+28
+	.word	buttons
 	.word	-2004318071
 	.word	rand
+	.word	1374389535
 	.size	update, .-update
 	.align	2
 	.global	draw
@@ -645,59 +693,116 @@ draw:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	stmfd	sp!, {r3, lr}
-	ldr	r3, .L83
-	ldmia	r3, {r0, r1}	@ phole ldm
-	ldr	r3, [r3, #32]
-	ldr	r2, .L83+4
+	ldr	r3, .L94
+	ldr	r2, .L94+4
+	ldr	r0, [r3, #4]
+	ldr	ip, [r3, #0]
+	ldr	lr, [r2, #24]
+	ldr	r1, [r3, #32]
 	mvn	r0, r0, asl #17
-	mov	r3, r3, asl #1
-	mvn	r1, r1, asl #17
+	ldr	r3, .L94+8
 	mvn	r0, r0, lsr #17
-	mvn	r1, r1, lsr #17
-	strh	r3, [r2, #4]	@ movhi
-	strh	r0, [r2, #0]	@ movhi
-	ldr	r3, .L83+8
-	strh	r1, [r2, #2]	@ movhi
-	mov	r1, #1
-.L81:
-	ldr	r0, [r3, #0]
-	cmp	r0, #0
+	cmp	lr, #0
+	mvn	ip, ip, asl #17
+	mvn	ip, ip, lsr #17
+	mov	r1, r1, asl #1
+	strh	r0, [r3, #2]	@ movhi
 	moveq	r0, #512	@ movhi
-	streqh	r0, [r2, #8]	@ movhi
-	beq	.L80
-	ldr	r0, [r3, #-20]
-	ldr	ip, [r3, #-24]
-	mvn	r0, r0, asl #17
-	mvn	r0, r0, lsr #17
-	orr	ip, ip, #16384
-	strh	r0, [r2, #10]	@ movhi
-	mov	r0, #8	@ movhi
-	strh	ip, [r2, #8]	@ movhi
-	strh	r0, [r2, #12]	@ movhi
-.L80:
-	add	r1, r1, #1
-	cmp	r1, #6
-	add	r3, r3, #28
-	add	r2, r2, #8
-	bne	.L81
+	strh	ip, [r3, #0]	@ movhi
+	strh	r1, [r3, #4]	@ movhi
+	streqh	r0, [r3, #8]	@ movhi
+	beq	.L83
+	ldmia	r2, {r0, r1}	@ phole ldm
+	mvn	r1, r1, asl #17
+	mvn	r1, r1, lsr #17
+	orr	r0, r0, #16384
+	strh	r1, [r3, #10]	@ movhi
+	mov	r1, #8	@ movhi
+	strh	r0, [r3, #8]	@ movhi
+	strh	r1, [r3, #12]	@ movhi
+.L83:
+	ldr	r2, [r2, #52]
+	cmp	r2, #0
+	ldr	r2, .L94+4
+	moveq	r2, #512	@ movhi
+	streqh	r2, [r3, #16]	@ movhi
+	bne	.L92
+	ldr	r2, .L94+12
+	ldr	r0, [r2, #0]
+	cmp	r0, #0
+	movle	r0, #512	@ movhi
+	strleh	r0, [r3, #32]	@ movhi
+	ble	.L87
+.L93:
+	mov	r1, #16384
+	mov	ip, r1
+	add	ip, ip, #24
+	add	r1, r1, #5
+	strh	ip, [r3, #34]	@ movhi
+	cmp	r0, #1
+	mov	ip, #12	@ movhi
+	ldr	r2, .L94+8
+	strh	r1, [r3, #32]	@ movhi
+	strh	ip, [r3, #36]	@ movhi
+	ble	.L87
+	mov	ip, #16384
+	add	ip, ip, #34
+	strh	ip, [r2, #42]	@ movhi
+	cmp	r0, #2
+	mov	ip, #12	@ movhi
+	strh	r1, [r2, #40]	@ movhi
+	strh	ip, [r2, #44]	@ movhi
+	ble	.L89
+	mov	r3, #16384
+	add	r3, r3, #44
+	strh	r1, [r2, #48]	@ movhi
+	mov	r1, #12	@ movhi
+	strh	r3, [r2, #50]	@ movhi
+	strh	r1, [r2, #52]	@ movhi
+.L91:
 	mov	r0, #3
-	ldr	r1, .L83+4
+	ldr	r1, .L94+8
 	mov	r2, #117440512
 	mov	r3, #512
-	ldr	ip, .L83+12
+	ldr	ip, .L94+16
 	mov	lr, pc
 	bx	ip
-	ldr	r3, .L83+16
+	ldr	r3, .L94+20
 	mov	lr, pc
 	bx	r3
 	ldmfd	sp!, {r3, lr}
 	bx	lr
-.L84:
+.L87:
+	mov	r0, #512	@ movhi
+	strh	r0, [r3, #40]	@ movhi
+.L89:
+	mov	r0, #512	@ movhi
+	strh	r0, [r3, #48]	@ movhi
+	b	.L91
+.L92:
+	ldr	r0, [r2, #32]
+	ldr	r1, [r2, #28]
+	mvn	r2, r0, asl #17
+	mvn	r2, r2, lsr #17
+	strh	r2, [r3, #18]	@ movhi
+	ldr	r2, .L94+12
+	ldr	r0, [r2, #0]
+	cmp	r0, #0
+	orr	r1, r1, #16384
+	mov	ip, #8	@ movhi
+	movle	r0, #512	@ movhi
+	strh	r1, [r3, #16]	@ movhi
+	strh	ip, [r3, #20]	@ movhi
+	strleh	r0, [r3, #32]	@ movhi
+	ble	.L87
+	b	.L93
+.L95:
 	.align	2
-.L83:
+.L94:
 	.word	p
+	.word	cats
 	.word	shadowOAM
-	.word	cats+24
+	.word	lives
 	.word	DMANow
 	.word	waitForVblank
 	.size	draw, .-draw
@@ -709,30 +814,41 @@ updateGame:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	stmfd	sp!, {r4, lr}
+	ldr	r4, .L101
 	bl	update
-	ldr	r3, .L88
+	ldr	r3, .L101+4
 	mov	lr, pc
 	bx	r3
 	bl	draw
-	ldr	r3, .L88+4
-	ldr	r3, [r3, #0]
+	ldr	r3, [r4, #0]
 	tst	r3, #8
-	beq	.L85
-	ldr	r3, .L88+8
+	beq	.L97
+	ldr	r2, .L101+8
+	ldr	r2, [r2, #0]
+	tst	r2, #8
+	beq	.L99
+.L97:
+	tst	r3, #4
+	beq	.L96
+	ldr	r3, .L101+8
 	ldr	r3, [r3, #0]
-	tst	r3, #8
-	beq	.L87
-.L85:
+	tst	r3, #4
+	beq	.L100
+.L96:
 	ldmfd	sp!, {r4, lr}
 	bx	lr
-.L87:
+.L100:
 	ldmfd	sp!, {r4, lr}
-	b	goToPause
-.L89:
+	b	goToSplash
+.L99:
+	bl	goToPause
+	ldr	r3, [r4, #0]
+	b	.L97
+.L102:
 	.align	2
-.L88:
-	.word	waitForVblank
+.L101:
 	.word	oldButtons
+	.word	waitForVblank
 	.word	buttons
 	.size	updateGame, .-updateGame
 	.align	2
@@ -745,53 +861,53 @@ main:
 	stmfd	sp!, {r3, r4, r5, r6, r7, lr}
 	mov	r3, #4352	@ movhi
 	mov	r4, #67108864
-	ldr	r0, .L103
+	ldr	r0, .L116
 	strh	r3, [r4, #0]	@ movhi
-	ldr	r3, .L103+4
+	ldr	r3, .L116+4
 	mov	lr, pc
 	bx	r3
 	bl	goToSplash
-	ldr	r5, .L103+8
-	ldr	r7, .L103+12
-	ldr	r6, .L103+16
-.L102:
+	ldr	r5, .L116+8
+	ldr	r7, .L116+12
+	ldr	r6, .L116+16
+.L115:
 	ldr	r3, [r5, #0]
 	ldr	r2, [r7, #0]
-.L92:
+.L105:
 	str	r3, [r6, #0]
 	ldr	r3, [r4, #304]
 	str	r3, [r5, #0]
 	cmp	r2, #5
 	ldrls	pc, [pc, r2, asl #2]
-	b	.L92
-.L99:
-	.word	.L93
-	.word	.L94
-	.word	.L95
-	.word	.L96
-	.word	.L97
-	.word	.L98
-.L98:
+	b	.L105
+.L112:
+	.word	.L106
+	.word	.L107
+	.word	.L108
+	.word	.L109
+	.word	.L110
+	.word	.L111
+.L111:
 	bl	updatePause
-	b	.L102
-.L97:
+	b	.L115
+.L110:
 	bl	updateWin
-	b	.L102
-.L96:
+	b	.L115
+.L109:
 	bl	updateLose
-	b	.L102
-.L95:
+	b	.L115
+.L108:
 	bl	updateGame
-	b	.L102
-.L94:
+	b	.L115
+.L107:
 	bl	updateInstructions
-	b	.L102
-.L93:
+	b	.L115
+.L106:
 	bl	updateSplash
-	b	.L102
-.L104:
+	b	.L115
+.L117:
 	.align	2
-.L103:
+.L116:
 	.word	splashscreenPal
 	.word	loadPalette
 	.word	buttons
@@ -806,17 +922,17 @@ hideSprites:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
-	ldr	r3, .L108
+	ldr	r3, .L121
 	add	r2, r3, #1016
-.L106:
+.L119:
 	mov	r1, #512	@ movhi
 	strh	r1, [r3, #8]!	@ movhi
 	cmp	r3, r2
-	bne	.L106
+	bne	.L119
 	bx	lr
-.L109:
+.L122:
 	.align	2
-.L108:
+.L121:
 	.word	shadowOAM
 	.size	hideSprites, .-hideSprites
 	.comm	score,4,4
@@ -829,7 +945,7 @@ hideSprites:
 	.comm	shadowOAM,1024,4
 	.comm	p,44,4
 	.comm	c,28,4
-	.comm	cats,140,4
+	.comm	cats,56,4
 	.comm	timeToNextCat,4,4
 	.comm	state,4,4
 	.comm	currFrame,4,4

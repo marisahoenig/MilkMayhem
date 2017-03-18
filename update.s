@@ -20,16 +20,14 @@ updateCat:
 	@ link register save eliminated.
 	ldr	r3, [r0, #24]
 	cmp	r3, #0
-	ldrne	r2, [r0, #4]
-	ldrne	r3, [r0, #12]
-	ldreq	r3, [r0, #4]
-	rsbne	r3, r3, r2
-	ldr	r2, [r0, #16]
-	strne	r3, [r0, #4]
-	add	r3, r3, r2
+	bxeq	lr
+	ldr	r3, [r0, #4]
 	cmp	r3, #0
-	movle	r3, #0
-	strle	r3, [r0, #24]
+	movle	r2, #0
+	strle	r2, [r0, #24]
+	ldr	r2, [r0, #12]
+	rsb	r3, r2, r3
+	str	r3, [r0, #4]
 	bx	lr
 	.size	updateCat, .-updateCat
 	.comm	score,4,4

@@ -66,12 +66,13 @@ typedef struct {
 void updateCat(CAT* c);
 # 3 "update.c" 2
 
+
 void updateCat(CAT* c) {
  if (c->active) {
-  c->col -= c->cd;
- }
- if (c->col + c->width <= 0) {
+  if (c->col <= 0) {
 
-  c->active = 0;
+   c->active = 0;
+  }
+  c->col -= c->cd;
  }
 }
