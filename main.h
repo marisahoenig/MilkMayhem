@@ -33,6 +33,7 @@ int prevScore;
 int lives;
 int time;
 int hOff;
+int gamehOff;
 
 typedef struct {
 	int row;

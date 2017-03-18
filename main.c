@@ -4,7 +4,9 @@
     at the end of a scrolling background. There will be platforms and enemies (cats) involved
     which the milk must battle to get past and not lose lives.
 
-    
+    Currently, if the milk loses 3 lives, it will lose. However, it can collect hearts to boost
+    its life. In the next iteration, these will turn into milk that will replenish the milk level of the
+    carton.
     ******************************************/
 
 #include <stdlib.h>
@@ -78,6 +80,7 @@ int main() {
 void goToSplash() {
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(31);
+	REG_BG0HOFS = 0;
 	DMANow(3, splashscreenTiles, &CHARBLOCKBASE[0], splashscreenTilesLen/2);
     DMANow(3, splashscreenMap, &SCREENBLOCKBASE[31], splashscreenMapLen/2);
 	state = SPLASHSCREEN;
@@ -93,6 +96,7 @@ void updateSplash() {
 
 void goToInstructions() {
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
+	REG_BG0HOFS = 0;
 	DMANow(3, instructionsTiles, &CHARBLOCKBASE[0], instructionsTilesLen/2);
     DMANow(3, instructionsMap, &SCREENBLOCKBASE[30], instructionsMapLen/2);
 	state = INSTRUCTIONSSCREEN;
@@ -136,7 +140,7 @@ void initGame() {
 	p.aniCounter = 0;
 	p.active = 1;
 
-	c.row = 144;
+	c.row = 140;
 	c.col = 200;
 	c.rd = 0;
 	c.cd = 1;
@@ -163,6 +167,7 @@ void goToGame() {
 	//enable both backgrounds
 	REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE;
 	// vOff = gamevOff; //go back to gamevOff
+	REG_BG0HOFS = hOff;
 	state = GAMESCREEN;
 }
 
@@ -182,7 +187,7 @@ void updateGame() {
 void goToPause() {
 	REG_DISPCTL = MODE0 | BG2_ENABLE; //enable Pause background in BG2
 	REG_BG2CNT = BG_SIZE0 | CBB(2) | SBB(30); //because 256x256 pixels
-	// vOff = 0;
+	REG_BG2HOFS = 0;
 	DMANow(3, pausescreenTiles, &CHARBLOCKBASE[2], pausescreenTilesLen/2);
     DMANow(3, pausescreenMap, &SCREENBLOCKBASE[30], pausescreenMapLen/2);
 	state = PAUSESCREEN;
@@ -200,7 +205,7 @@ void updatePause() {
 void goToWin() { //can write on same CBB because never displaying both backgrounds at once
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
-	// vOff = 0;
+	REG_BG0HOFS = 0;
 	DMANow(3, winscreenTiles, &CHARBLOCKBASE[0], winscreenTilesLen/2);
     DMANow(3, winscreenMap, &SCREENBLOCKBASE[30], winscreenMapLen/2);
 	state = WINSCREEN;
@@ -215,7 +220,7 @@ void updateWin() {
 void goToLose() {
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
-	// vOff = 0;
+	REG_BG0HOFS = 0;
 	DMANow(3, losescreenTiles, &CHARBLOCKBASE[0], losescreenTilesLen/2);
     DMANow(3, losescreenMap, &SCREENBLOCKBASE[30], losescreenMapLen/2);
 	state = LOSESCREEN;
@@ -272,11 +277,13 @@ void update() {
 	if (BUTTON_HELD(BUTTON_RIGHT) || BUTTON_HELD(BUTTON_LEFT)) {
 		if (BUTTON_HELD(BUTTON_RIGHT)) {
 			p.moveState = PRIGHT;
-			p.col += p.cd;
+			// p.col += p.cd;
+			hOff++;
 		}
 		if (BUTTON_HELD(BUTTON_LEFT)) {
 			p.moveState = PLEFT;
-			p.col -= p.cd;
+			// p.col -= p.cd;
+			hOff--;
 		}
 		if(p.aniCounter % 30 == 0) {
 			// goes through the 3 frames 
@@ -294,7 +301,7 @@ void update() {
 			CAT * c = &cats[i];
 			if(!c->active) { // the first inactive cat 
 				c->active = 1; 		// setting active to TRUE
-				c->row = 128;
+				// c->row = 128;
 				c->col = 220;
 				timeToNextCat = rand()%200 + 87;
 				break;
@@ -306,6 +313,7 @@ void update() {
 		CAT * c = &cats[i];
 		if(c->active) {
 			updateCat(c);
+			collisionEnemyPlayer(&p, c);
 		}
 	}
 
@@ -334,11 +342,16 @@ void update() {
 // 	if (prevScore != score) {
 // 		updateScore();
 // 	}
+	REG_BG0HOFS = hOff;
 
 	if (BUTTON_PRESSED(BUTTON_A)) {
 		goToWin();
 	}
 	if (BUTTON_PRESSED(BUTTON_B)) {
+		goToLose();
+	}
+
+	if (lives == 0) {
 		goToLose();
 	}
 }

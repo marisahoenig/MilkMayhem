@@ -494,6 +494,7 @@ int prevScore;
 int lives;
 int time;
 int hOff;
+int gamehOff;
 
 typedef struct {
  int row;
@@ -572,6 +573,7 @@ typedef struct {
 # 13 "main.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
+void collisionEnemyPlayer(PLAYER* p, CAT* c);
 # 14 "main.c" 2
 # 1 "splashscreen.h" 1
 # 22 "splashscreen.h"
@@ -691,6 +693,7 @@ int main() {
 void goToSplash() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 31 << 8;
+ *(volatile unsigned short *)0x04000010 = 0;
  DMANow(3, splashscreenTiles, &((charblock *)0x6000000)[0], 5504/2);
     DMANow(3, splashscreenMap, &((screenblock *)0x6000000)[31], 2048/2);
  state = SPLASHSCREEN;
@@ -706,6 +709,7 @@ void updateSplash() {
 
 void goToInstructions() {
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
+ *(volatile unsigned short *)0x04000010 = 0;
  DMANow(3, instructionsTiles, &((charblock *)0x6000000)[0], 1760/2);
     DMANow(3, instructionsMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = INSTRUCTIONSSCREEN;
@@ -749,7 +753,7 @@ void initGame() {
  p.aniCounter = 0;
  p.active = 1;
 
- c.row = 144;
+ c.row = 140;
  c.col = 200;
  c.rd = 0;
  c.cd = 1;
@@ -760,7 +764,7 @@ void initGame() {
  for (int i = 0; i < 2; i++) {
   cats[i] = c;
  }
-# 158 "main.c"
+# 160 "main.c"
  hOff = 0;
  lives = 3;
 }
@@ -769,6 +773,7 @@ void goToGame() {
 
  (*(u16 *)0x4000000) = 0 | (1<<8) | (1 << 12);
 
+ *(volatile unsigned short *)0x04000010 = hOff;
  state = GAMESCREEN;
 }
 
@@ -788,7 +793,7 @@ void updateGame() {
 void goToPause() {
  (*(u16 *)0x4000000) = 0 | (1<<10);
  *(volatile unsigned short*)0x400000C = 0<<14 | 2 << 2 | 30 << 8;
-
+ *(volatile unsigned short *)0x04000018 = 0;
  DMANow(3, pausescreenTiles, &((charblock *)0x6000000)[2], 3136/2);
     DMANow(3, pausescreenMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = PAUSESCREEN;
@@ -806,7 +811,7 @@ void updatePause() {
 void goToWin() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
-
+ *(volatile unsigned short *)0x04000010 = 0;
  DMANow(3, winscreenTiles, &((charblock *)0x6000000)[0], 2176/2);
     DMANow(3, winscreenMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = WINSCREEN;
@@ -821,7 +826,7 @@ void updateWin() {
 void goToLose() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
-
+ *(volatile unsigned short *)0x04000010 = 0;
  DMANow(3, losescreenTiles, &((charblock *)0x6000000)[0], 2848/2);
     DMANow(3, losescreenMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = LOSESCREEN;
@@ -845,7 +850,7 @@ void update() {
 
   p.moveState = PNORM;
  }
-# 254 "main.c"
+# 257 "main.c"
  if (p.moveState == PNORM) {
   p.currFrame = 0;
   p.moveState = p.prevMoveState;
@@ -867,11 +872,13 @@ void update() {
  if ((~((*(volatile unsigned int *)0x04000130)) & 16) || (~((*(volatile unsigned int *)0x04000130)) & 32)) {
   if ((~((*(volatile unsigned int *)0x04000130)) & 16)) {
    p.moveState = PRIGHT;
-   p.col += p.cd;
+
+   hOff++;
   }
   if ((~((*(volatile unsigned int *)0x04000130)) & 32)) {
    p.moveState = PLEFT;
-   p.col -= p.cd;
+
+   hOff--;
   }
   if(p.aniCounter % 30 == 0) {
 
@@ -889,7 +896,7 @@ void update() {
    CAT * c = &cats[i];
    if(!c->active) {
     c->active = 1;
-    c->row = 128;
+
     c->col = 220;
     timeToNextCat = rand()%200 + 87;
     break;
@@ -901,13 +908,20 @@ void update() {
   CAT * c = &cats[i];
   if(c->active) {
    updateCat(c);
+   collisionEnemyPlayer(&p, c);
   }
  }
-# 338 "main.c"
+# 343 "main.c"
+ *(volatile unsigned short *)0x04000010 = hOff;
+
  if ((!(~oldButtons&(1))&&(~buttons&(1)))) {
   goToWin();
  }
  if ((!(~oldButtons&(2))&&(~buttons&(2)))) {
+  goToLose();
+ }
+
+ if (lives == 0) {
   goToLose();
  }
 }
@@ -917,7 +931,7 @@ void draw() {
  shadowOAM[0].attr0 = p.row | (2 << 14);
  shadowOAM[0].attr1 = (2 << 14) | p.col;
  shadowOAM[0].attr2 = (0)*32+(p.currFrame*2);
-# 377 "main.c"
+# 388 "main.c"
  for(int i = 0; i < 2; i++) {
   CAT * c = &cats[i];
   if (c->active) {
@@ -953,7 +967,7 @@ void draw() {
 
 
 }
-# 443 "main.c"
+# 454 "main.c"
 void hideSprites() {
 
     for (int num = 1; num < 128; num++) {

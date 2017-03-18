@@ -30,6 +30,45 @@ updateCat:
 	str	r3, [r0, #4]
 	bx	lr
 	.size	updateCat, .-updateCat
+	.align	2
+	.global	collisionEnemyPlayer
+	.type	collisionEnemyPlayer, %function
+collisionEnemyPlayer:
+	@ Function supports interworking.
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	r4, [sp, #-4]!
+	ldr	r2, [r0, #0]
+	ldr	r3, [r1, #0]
+	cmp	r2, r3
+	bgt	.L5
+	ldr	r4, [r0, #20]
+	ldr	ip, [r1, #20]
+	add	r2, r2, r4
+	add	r3, r3, ip
+	cmp	r2, r3
+	blt	.L5
+	ldr	ip, [r0, #16]
+	ldr	r2, [r0, #4]
+	ldr	r3, [r1, #4]
+	add	r2, ip, r2
+	cmp	r2, r3
+	blt	.L5
+	ldr	r3, .L7
+	ldr	r2, [r3, #0]
+	mov	r0, #0
+	sub	r2, r2, #1
+	str	r0, [r1, #24]
+	str	r2, [r3, #0]
+.L5:
+	ldmfd	sp!, {r4}
+	bx	lr
+.L8:
+	.align	2
+.L7:
+	.word	lives
+	.size	collisionEnemyPlayer, .-collisionEnemyPlayer
 	.comm	score,4,4
 	.comm	prevScore,4,4
 	.comm	lives,4,4

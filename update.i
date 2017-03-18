@@ -7,6 +7,7 @@
 
 
 
+
 void init();
 void update();
 void draw();
@@ -64,6 +65,7 @@ typedef struct {
 # 2 "update.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
+void collisionEnemyPlayer(PLAYER* p, CAT* c);
 # 3 "update.c" 2
 
 
@@ -74,5 +76,14 @@ void updateCat(CAT* c) {
    c->active = 0;
   }
   c->col -= c->cd;
+ }
+}
+
+
+void collisionEnemyPlayer(PLAYER* p, CAT* c) {
+ if ((p->row <= c->row && p->row + p->height >= c->row + c->height)
+  && (p->col + p->width >= c->col)) {
+  c->active = 0;
+  lives--;
  }
 }
