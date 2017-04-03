@@ -5,12 +5,14 @@ unsigned short * videoBuffer = (unsigned short *)0x6000000;
 unsigned short *frontBuffer = (u16 *)0x6000000;
 unsigned short *backBuffer =  (u16 *)0x600A000;
 
+DMA *dma = (DMA *)0x40000B0;
+
 // Functions
 
 void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control) {
-    DMA[channel].src = source;
-    DMA[channel].dst = destination;
-    DMA[channel].cnt = DMA_ON | control;
+    dma[channel].src = source;
+    dma[channel].dst = destination;
+    dma[channel].cnt = DMA_ON | control;
 }
 
 //allows use of color palette

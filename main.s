@@ -229,7 +229,13 @@ initGame:
 	strh	r7, [r3, #8]!	@ movhi
 	cmp	r3, r2
 	bne	.L20
-	ldr	ip, .L22+24
+	ldr	r3, .L22+24
+	mov	lr, pc
+	bx	r3
+	ldr	r3, .L22+28
+	mov	lr, pc
+	bx	r3
+	ldr	ip, .L22+32
 	mov	r4, #0
 	mov	r5, #1
 	mov	r9, #140
@@ -237,13 +243,13 @@ initGame:
 	str	r5, [ip, #12]
 	str	r9, [ip, #0]
 	stmib	ip, {r3, r4}	@ phole stm
-	ldr	r8, .L22+28
+	ldr	r8, .L22+36
 	mov	sl, ip
 	ldmia	sl!, {r0, r1, r2, r3}
 	mov	r7, r8
 	stmia	r7!, {r0, r1, r2, r3}
 	mov	r6, #16
-	ldr	r3, .L22+32
+	ldr	r3, .L22+40
 	str	r7, [sp, #4]
 	mov	r7, #32
 	str	r7, [ip, #16]
@@ -273,13 +279,13 @@ initGame:
 	ldmia	ip!, {r0, r1, r2, r3}
 	add	r8, r8, #28
 	stmia	r8!, {r0, r1, r2, r3}
-	ldr	ip, .L22+36
+	ldr	ip, .L22+44
 	mov	r3, #220
 	str	r5, [ip, #12]
 	ldmia	sl, {r0, r1, r2}
 	str	r9, [ip, #0]
 	stmib	ip, {r3, r4}	@ phole stm
-	ldr	r6, .L22+40
+	ldr	r6, .L22+48
 	mov	r5, ip
 	stmia	r8, {r0, r1, r2}
 	ldmia	r5!, {r0, r1, r2, r3}
@@ -295,14 +301,14 @@ initGame:
 	ldmia	ip!, {r0, r1, r2, r3}
 	add	r6, r6, #28
 	stmia	r6!, {r0, r1, r2, r3}
-	ldr	r3, .L22+44
+	ldr	r3, .L22+52
 	ldmia	r5, {r0, r1, r2}
 	str	r4, [r3, #0]
-	ldr	r3, .L22+48
+	ldr	r3, .L22+56
 	stmia	r6, {r0, r1, r2}
 	mov	r2, #3
 	str	r2, [r3, #0]
-	ldr	r3, .L22+52
+	ldr	r3, .L22+60
 	str	r4, [r3, #0]
 	add	sp, sp, #12
 	ldmfd	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
@@ -316,6 +322,8 @@ initGame:
 	.word	movebackgroundTiles
 	.word	movebackgroundMap
 	.word	shadowOAM
+	.word	setupInterrupts
+	.word	setupSounds
 	.word	c
 	.word	cats
 	.word	p
@@ -326,68 +334,70 @@ initGame:
 	.word	score
 	.size	initGame, .-initGame
 	.align	2
-	.global	updateControls
-	.type	updateControls, %function
-updateControls:
-	@ Function supports interworking.
-	@ args = 0, pretend = 0, frame = 0
-	@ frame_needed = 0, uses_anonymous_args = 0
-	stmfd	sp!, {r3, lr}
-	ldr	r3, .L27
-	ldr	r3, [r3, #0]
-	tst	r3, #8
-	beq	.L24
-	ldr	r3, .L27+4
-	ldr	r3, [r3, #0]
-	tst	r3, #8
-	beq	.L26
-.L24:
-	ldmfd	sp!, {r3, lr}
-	bx	lr
-.L26:
-	bl	initGame
-	ldr	r3, .L27+8
-	ldrh	r2, [r3, #0]
-	mov	r3, #67108864
-	strh	r2, [r3, #16]	@ movhi
-	ldr	r2, .L27+12
-	mov	r1, #3
-	str	r1, [r2, #0]
-	mov	r2, #4352	@ movhi
-	strh	r2, [r3, #0]	@ movhi
-	b	.L24
-.L28:
-	.align	2
-.L27:
-	.word	oldButtons
-	.word	buttons
-	.word	hOff
-	.word	state
-	.size	updateControls, .-updateControls
-	.align	2
 	.global	goToGame
 	.type	goToGame, %function
 goToGame:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	@ link register save eliminated.
-	ldr	r3, .L30
-	ldrh	r2, [r3, #0]
-	mov	r3, #67108864
-	strh	r2, [r3, #16]	@ movhi
-	ldr	r2, .L30+4
-	mov	r1, #3
-	str	r1, [r2, #0]
-	mov	r2, #4352	@ movhi
-	strh	r2, [r3, #0]	@ movhi
+	ldr	r3, .L25
+	stmfd	sp!, {r4, lr}
+	ldrh	lr, [r3, #0]
+	mov	ip, #67108864
+	mov	r1, #193536
+	mov	r2, #11008
+	mov	r4, #4352	@ movhi
+	add	r2, r2, #17
+	mov	r3, #1
+	strh	r4, [ip, #0]	@ movhi
+	strh	lr, [ip, #16]	@ movhi
+	ldr	r0, .L25+4
+	sub	r1, r1, #223
+	ldr	ip, .L25+8
+	mov	lr, pc
+	bx	ip
+	ldr	r3, .L25+12
+	mov	r2, #3
+	str	r2, [r3, #0]
+	ldmfd	sp!, {r4, lr}
 	bx	lr
+.L26:
+	.align	2
+.L25:
+	.word	hOff
+	.word	uke
+	.word	playSoundA
+	.word	state
+	.size	goToGame, .-goToGame
+	.align	2
+	.global	updateControls
+	.type	updateControls, %function
+updateControls:
+	@ Function supports interworking.
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	ldr	r3, .L30
+	stmfd	sp!, {r4, lr}
+	ldr	r3, [r3, #0]
+	tst	r3, #8
+	beq	.L27
+	ldr	r3, .L30+4
+	ldr	r3, [r3, #0]
+	tst	r3, #8
+	beq	.L29
+.L27:
+	ldmfd	sp!, {r4, lr}
+	bx	lr
+.L29:
+	bl	initGame
+	ldmfd	sp!, {r4, lr}
+	b	goToGame
 .L31:
 	.align	2
 .L30:
-	.word	hOff
-	.word	state
-	.size	goToGame, .-goToGame
+	.word	oldButtons
+	.word	buttons
+	.size	updateControls, .-updateControls
 	.align	2
 	.global	goToPause
 	.type	goToPause, %function
@@ -438,9 +448,9 @@ updatePause:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	@ link register save eliminated.
-	ldr	r3, .L40
-	ldr	r3, [r3, #0]
+	stmfd	sp!, {r4, lr}
+	ldr	r4, .L40
+	ldr	r3, [r4, #0]
 	tst	r3, #8
 	beq	.L36
 	ldr	r2, .L40+4
@@ -449,33 +459,26 @@ updatePause:
 	beq	.L38
 .L36:
 	tst	r3, #4
-	bxeq	lr
-.L39:
+	beq	.L35
 	ldr	r3, .L40+4
 	ldr	r3, [r3, #0]
 	tst	r3, #4
-	bxne	lr
+	beq	.L39
+.L35:
+	ldmfd	sp!, {r4, lr}
+	bx	lr
+.L39:
+	ldmfd	sp!, {r4, lr}
 	b	goToSplash
 .L38:
-	ldr	r2, .L40+8
-	ldrh	r1, [r2, #0]
-	mov	r2, #67108864
-	strh	r1, [r2, #16]	@ movhi
-	ldr	r1, .L40+12
-	mov	r0, #3
-	str	r0, [r1, #0]
-	tst	r3, #4
-	mov	r1, #4352	@ movhi
-	strh	r1, [r2, #0]	@ movhi
-	bne	.L39
-	bx	lr
+	bl	goToGame
+	ldr	r3, [r4, #0]
+	b	.L36
 .L41:
 	.align	2
 .L40:
 	.word	oldButtons
 	.word	buttons
-	.word	hOff
-	.word	state
 	.size	updatePause, .-updatePause
 	.align	2
 	.global	goToWin

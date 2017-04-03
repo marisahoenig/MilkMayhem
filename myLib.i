@@ -31,16 +31,31 @@ extern unsigned int buttons;
 void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control);
 
 
+
+
+
+
+
 typedef struct
 {
  const volatile void *src;
  const volatile void *dst;
  u32 cnt;
 } DMA_CONTROLLER;
-# 202 "myLib.h"
+
+
+
+typedef volatile struct {
+        volatile const void *src;
+        volatile const void *dst;
+        volatile unsigned int cnt;
+} DMA;
+
+extern DMA *dma;
+# 215 "myLib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 259 "myLib.h"
+# 276 "myLib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
@@ -59,12 +74,14 @@ unsigned short * videoBuffer = (unsigned short *)0x6000000;
 unsigned short *frontBuffer = (u16 *)0x6000000;
 unsigned short *backBuffer = (u16 *)0x600A000;
 
+DMA *dma = (DMA *)0x40000B0;
+
 
 
 void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control) {
-    ((volatile DMA_CONTROLLER *) 0x040000B0)[channel].src = source;
-    ((volatile DMA_CONTROLLER *) 0x040000B0)[channel].dst = destination;
-    ((volatile DMA_CONTROLLER *) 0x040000B0)[channel].cnt = (1 << 31) | control;
+    dma[channel].src = source;
+    dma[channel].dst = destination;
+    dma[channel].cnt = (1 << 31) | control;
 }
 
 

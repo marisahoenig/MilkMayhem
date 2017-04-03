@@ -2,7 +2,7 @@
 # 1 "<built-in>"
 # 1 "<command-line>"
 # 1 "main.c"
-# 18 "main.c"
+# 17 "main.c"
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 1 3
 # 10 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 3
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/machine/ieeefp.h" 1 3
@@ -457,7 +457,7 @@ extern long double wcstold (const wchar_t *, wchar_t **);
 
 
 
-# 19 "main.c" 2
+# 18 "main.c" 2
 # 1 "main.h" 1
 # 9 "main.h"
 void init();
@@ -481,7 +481,6 @@ void goToLose();
 void updateLose();
 
 void hideSprites();
-
 
 
 
@@ -540,7 +539,7 @@ typedef struct {
  int width;
  int height;
 } FRIDGE;
-# 20 "main.c" 2
+# 19 "main.c" 2
 # 1 "mylib.h" 1
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -568,18 +567,18 @@ extern unsigned int oldButtons;
 extern unsigned int buttons;
 # 107 "mylib.h"
 void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control);
+# 116 "mylib.h"
+typedef volatile struct {
+        volatile const void *src;
+        volatile const void *dst;
+        volatile unsigned int cnt;
+} DMA;
 
-
-typedef struct
-{
- const volatile void *src;
- const volatile void *dst;
- u32 cnt;
-} DMA_CONTROLLER;
-# 202 "mylib.h"
+extern DMA *dma;
+# 207 "mylib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 263 "mylib.h"
+# 268 "mylib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
@@ -591,12 +590,12 @@ typedef struct {
     int row;
     int col;
 } Sprite;
-# 21 "main.c" 2
+# 20 "main.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
-# 22 "main.c" 2
+# 21 "main.c" 2
 # 1 "splashscreen.h" 1
 # 22 "splashscreen.h"
 extern const unsigned short splashscreenTiles[2752];
@@ -606,63 +605,93 @@ extern const unsigned short splashscreenMap[1024];
 
 
 extern const unsigned short splashscreenPal[256];
-# 23 "main.c" 2
+# 22 "main.c" 2
 # 1 "instructions.h" 1
 # 21 "instructions.h"
 extern const unsigned short instructionsTiles[5408];
 
 
 extern const unsigned short instructionsMap[1024];
-# 24 "main.c" 2
+# 23 "main.c" 2
 # 1 "spritesheet.h" 1
 # 21 "spritesheet.h"
 extern const unsigned short spritesheetTiles[16384];
 
 
 extern const unsigned short spritesheetPal[256];
-# 25 "main.c" 2
+# 24 "main.c" 2
 # 1 "background.h" 1
 # 21 "background.h"
 extern const unsigned short backgroundTiles[48];
 
 
 extern const unsigned short backgroundMap[1024];
-# 26 "main.c" 2
+# 25 "main.c" 2
 # 1 "winscreen.h" 1
 # 21 "winscreen.h"
 extern const unsigned short winscreenTiles[1088];
 
 
 extern const unsigned short winscreenMap[1024];
-# 27 "main.c" 2
+# 26 "main.c" 2
 # 1 "losescreen.h" 1
 # 21 "losescreen.h"
 extern const unsigned short losescreenTiles[1424];
 
 
 extern const unsigned short losescreenMap[1024];
-# 28 "main.c" 2
+# 27 "main.c" 2
 # 1 "pausescreen.h" 1
 # 21 "pausescreen.h"
 extern const unsigned short pausescreenTiles[1568];
 
 
 extern const unsigned short pausescreenMap[1024];
-# 29 "main.c" 2
+# 28 "main.c" 2
 # 1 "movebackground.h" 1
 # 21 "movebackground.h"
 extern const unsigned short movebackgroundTiles[17680];
 
 
 extern const unsigned short movebackgroundMap[4096];
-# 30 "main.c" 2
+# 29 "main.c" 2
 # 1 "controls.h" 1
 # 21 "controls.h"
 extern const unsigned short controlsTiles[4192];
 
 
 extern const unsigned short controlsMap[1024];
+# 30 "main.c" 2
+# 1 "uke.h" 1
+# 20 "uke.h"
+extern const unsigned char uke[193313];
 # 31 "main.c" 2
+# 1 "meow.h" 1
+# 20 "meow.h"
+extern const unsigned char meow[5956];
+# 32 "main.c" 2
+# 1 "sounds.h" 1
+void setupSounds();
+void playSoundA( const unsigned char* sound, int length, int frequency, int loops);
+void playSoundB( const unsigned char* sound, int length, int frequency, int loops);
+void muteSound();
+void unmuteSound();
+void stopSound();
+
+void setupInterrupts();
+void interruptHandler();
+
+typedef struct {
+    const unsigned char* data;
+    int length;
+    int frequency;
+    int isPlaying;
+    int loops;
+    int duration;
+    int priority;
+    int vbCount;
+} SOUND;
+# 33 "main.c" 2
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -788,6 +817,10 @@ void initGame() {
     hideSprites();
 
 
+ setupInterrupts();
+ setupSounds();
+
+
  p.row = ((128) << 8);
  p.col = 112;
  p.rd = 0;
@@ -835,6 +868,7 @@ void goToGame() {
 
  (*(u16 *)0x4000000) = 0 | (1<<8) | (1 << 12);
  *(volatile unsigned short *)0x04000010 = hOff;
+ playSoundA(uke,193313,11025, 1);
  state = GAMESCREEN;
 }
 
@@ -916,7 +950,7 @@ void update() {
  } else {
   p.aniCounter++;
  }
-# 292 "main.c"
+
  if ((~((*(volatile unsigned int *)0x04000130)) & 16) || (~((*(volatile unsigned int *)0x04000130)) & 32)) {
   if ((~((*(volatile unsigned int *)0x04000130)) & 16)) {
    p.moveState = PRIGHT;

@@ -1,4 +1,3 @@
-
 /*****************************************
 I am making a game where the milk carton (player) is trying to reach the refridgerator
 at the end of a scrolling background. There will be platforms and enemies (cats) involved
@@ -28,6 +27,9 @@ Controls are left and right to move.
 #include "pausescreen.h"
 #include "movebackground.h"
 #include "controls.h"
+#include "uke.h"
+#include "meow.h"
+#include "sounds.h"
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -152,6 +154,10 @@ void initGame() {
     //hide all the sprites at beginning
     hideSprites();
 
+    //set up the sounds
+	setupInterrupts();
+	setupSounds();
+
 	//create player
 	p.row = SHIFTUP(128);
 	p.col = 112; //exact middle of screen
@@ -200,6 +206,7 @@ void goToGame() {
 	//enable both backgrounds
 	REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE;
 	REG_BG0HOFS = hOff;
+	playSoundA(uke,UKELEN,UKEFREQ, 1);
 	state = GAMESCREEN;
 }
 

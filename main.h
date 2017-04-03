@@ -31,7 +31,6 @@ void hideSprites();
 
 // void drawScore(int place, int num);
 // // void updateScore(int score, int ones, int tens);
-// void drawLives(int lives);
 
 int score;
 int prevScore;
