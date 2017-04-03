@@ -2,7 +2,7 @@
 # 1 "<built-in>"
 # 1 "<command-line>"
 # 1 "main.c"
-# 17 "main.c"
+# 18 "main.c"
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 1 3
 # 10 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 3
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/machine/ieeefp.h" 1 3
@@ -457,7 +457,7 @@ extern long double wcstold (const wchar_t *, wchar_t **);
 
 
 
-# 18 "main.c" 2
+# 19 "main.c" 2
 # 1 "main.h" 1
 # 9 "main.h"
 void init();
@@ -468,6 +468,8 @@ void goToSplash();
 void updateSplash();
 void goToInstructions();
 void updateInstructions();
+void goToControls();
+void updateControls();
 void initGame();
 void goToGame();
 void updateGame();
@@ -504,6 +506,10 @@ typedef struct {
  int currFrame;
  int aniCounter;
  int active;
+ int stopRange;
+ int maxJumpSpeed;
+ int racc;
+ int possibleRow;
 } PLAYER;
 
 typedef struct {
@@ -525,7 +531,16 @@ typedef struct {
  int height;
  int active;
 } HEALTH;
-# 19 "main.c" 2
+
+typedef struct {
+ int row;
+ int col;
+ int rd;
+ int cd;
+ int width;
+ int height;
+} FRIDGE;
+# 20 "main.c" 2
 # 1 "mylib.h" 1
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -564,7 +579,7 @@ typedef struct
 # 202 "mylib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 259 "mylib.h"
+# 263 "mylib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
@@ -576,12 +591,12 @@ typedef struct {
     int row;
     int col;
 } Sprite;
-# 20 "main.c" 2
+# 21 "main.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
-void collisionEnemyPlayer(PLAYER* p, CAT* c);
+int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
-# 21 "main.c" 2
+# 22 "main.c" 2
 # 1 "splashscreen.h" 1
 # 22 "splashscreen.h"
 extern const unsigned short splashscreenTiles[2752];
@@ -591,56 +606,63 @@ extern const unsigned short splashscreenMap[1024];
 
 
 extern const unsigned short splashscreenPal[256];
-# 22 "main.c" 2
+# 23 "main.c" 2
 # 1 "instructions.h" 1
 # 21 "instructions.h"
-extern const unsigned short instructionsTiles[880];
+extern const unsigned short instructionsTiles[5408];
 
 
 extern const unsigned short instructionsMap[1024];
-# 23 "main.c" 2
+# 24 "main.c" 2
 # 1 "spritesheet.h" 1
 # 21 "spritesheet.h"
 extern const unsigned short spritesheetTiles[16384];
 
 
 extern const unsigned short spritesheetPal[256];
-# 24 "main.c" 2
+# 25 "main.c" 2
 # 1 "background.h" 1
 # 21 "background.h"
 extern const unsigned short backgroundTiles[48];
 
 
 extern const unsigned short backgroundMap[1024];
-# 25 "main.c" 2
+# 26 "main.c" 2
 # 1 "winscreen.h" 1
 # 21 "winscreen.h"
 extern const unsigned short winscreenTiles[1088];
 
 
 extern const unsigned short winscreenMap[1024];
-# 26 "main.c" 2
+# 27 "main.c" 2
 # 1 "losescreen.h" 1
 # 21 "losescreen.h"
 extern const unsigned short losescreenTiles[1424];
 
 
 extern const unsigned short losescreenMap[1024];
-# 27 "main.c" 2
+# 28 "main.c" 2
 # 1 "pausescreen.h" 1
 # 21 "pausescreen.h"
 extern const unsigned short pausescreenTiles[1568];
 
 
 extern const unsigned short pausescreenMap[1024];
-# 28 "main.c" 2
+# 29 "main.c" 2
 # 1 "movebackground.h" 1
 # 21 "movebackground.h"
 extern const unsigned short movebackgroundTiles[17680];
 
 
 extern const unsigned short movebackgroundMap[4096];
-# 29 "main.c" 2
+# 30 "main.c" 2
+# 1 "controls.h" 1
+# 21 "controls.h"
+extern const unsigned short controlsTiles[4192];
+
+
+extern const unsigned short controlsMap[1024];
+# 31 "main.c" 2
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -653,10 +675,11 @@ CAT cats[2];
 int timeToNextCat;
 HEALTH health;
 HEALTH hearts[2];
+FRIDGE fridge;
 
 int state;
 
-enum { SPLASHSCREEN, INSTRUCTIONSSCREEN, GAMESCREEN, LOSESCREEN, WINSCREEN, PAUSESCREEN };
+enum { SPLASHSCREEN, INSTRUCTIONSSCREEN, CONTROLSSCREEN, GAMESCREEN, LOSESCREEN, WINSCREEN, PAUSESCREEN };
 
 int currFrame;
 enum { PNORM, PLEFT, PRIGHT, PJUMP };
@@ -679,6 +702,9 @@ int main() {
           break;
          case INSTRUCTIONSSCREEN:
           updateInstructions();
+          break;
+         case CONTROLSSCREEN:
+          updateControls();
           break;
          case GAMESCREEN:
           updateGame();
@@ -718,12 +744,27 @@ void updateSplash() {
 void goToInstructions() {
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
- DMANow(3, instructionsTiles, &((charblock *)0x6000000)[0], 1760/2);
+ DMANow(3, instructionsTiles, &((charblock *)0x6000000)[0], 10816/2);
     DMANow(3, instructionsMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = INSTRUCTIONSSCREEN;
 }
 
 void updateInstructions() {
+ if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
+
+  goToControls();
+ }
+}
+
+void goToControls() {
+ *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 29 << 8;
+ *(volatile unsigned short *)0x04000010 = 0;
+ DMANow(3, controlsTiles, &((charblock *)0x6000000)[0], 8384/2);
+    DMANow(3, controlsMap, &((screenblock *)0x6000000)[29], 2048/2);
+ state = CONTROLSSCREEN;
+}
+
+void updateControls() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
 
   initGame();
@@ -747,7 +788,7 @@ void initGame() {
     hideSprites();
 
 
- p.row = 128;
+ p.row = ((128) << 8);
  p.col = 112;
  p.rd = 0;
  p.cd = 1;
@@ -757,6 +798,9 @@ void initGame() {
  p.currFrame = PNORM;
  p.aniCounter = 0;
  p.active = 1;
+ p.stopRange = 10;
+ p.maxJumpSpeed = ((5) << 8);
+ p.racc = 40;
 
  c.row = 140;
  c.col = 200;
@@ -784,6 +828,7 @@ void initGame() {
 
  hOff = 0;
  lives = 3;
+ score = 0;
 }
 
 void goToGame() {
@@ -858,7 +903,8 @@ void updateLose() {
 
 
 void update() {
-
+ p.rd += p.racc;
+    p.row += p.rd;
 
  if(!((~((*(volatile unsigned int *)0x04000130)) & 16) && !((~((*(volatile unsigned int *)0x04000130)) & 32)))) {
 
@@ -870,14 +916,7 @@ void update() {
  } else {
   p.aniCounter++;
  }
-
- if (p.col + p.width >= 240) {
-  p.col = 240 - p.width;
- }
- if (p.col <= 0) {
-  p.col = 1;
- }
-
+# 292 "main.c"
  if ((~((*(volatile unsigned int *)0x04000130)) & 16) || (~((*(volatile unsigned int *)0x04000130)) & 32)) {
   if ((~((*(volatile unsigned int *)0x04000130)) & 16)) {
    p.moveState = PRIGHT;
@@ -897,6 +936,35 @@ void update() {
     p.currFrame = 0;
    }
   }
+ }
+
+ if ((~((*(volatile unsigned int *)0x04000130)) & 1)) {
+  for (int i = 0; i < 2; i++) {
+   CAT * c = &cats[i];
+   if (collisionEnemyPlayer(&p, c)) {
+    c->active = 0;
+    score++;
+   }
+  }
+ }
+ if (!((!(~oldButtons&(1))&&(~buttons&(1))))) {
+  for (int i = 0; i < 2; i++) {
+   CAT * c = &cats[i];
+   if (c->active) {
+    if (collisionEnemyPlayer(&p, c)) {
+     c->active = 0;
+     lives--;
+    }
+   }
+  }
+ }
+ if(((p.row) >> 8) >= 160 - p.height - 1) {
+        p.row = ((160 - p.height - 1) << 8);
+        p.rd = 0;
+    }
+
+ if ((!(~oldButtons&(2))&&(~buttons&(2))) && p.rd > -p.stopRange && p.rd < p.stopRange) {
+  p.rd = -p.maxJumpSpeed;
  }
 
 
@@ -941,13 +1009,6 @@ void update() {
 
  *(volatile unsigned short *)0x04000010 = hOff;
 
- if ((!(~oldButtons&(1))&&(~buttons&(1)))) {
-  goToWin();
- }
- if ((!(~oldButtons&(2))&&(~buttons&(2)))) {
-  goToLose();
- }
-
  if (lives <= 0) {
   goToLose();
  }
@@ -955,7 +1016,7 @@ void update() {
 
 void draw() {
 
- shadowOAM[0].attr0 = p.row | (2 << 14);
+ shadowOAM[0].attr0 = ((p.row) >> 8) | (2 << 14);
  shadowOAM[0].attr1 = (2 << 14) | p.col;
  shadowOAM[0].attr2 = (0)*32+(p.currFrame*2);
 
@@ -992,7 +1053,6 @@ void draw() {
    shadowOAM[7 + i].attr0 = (2 << 8);
   }
  }
-
 
 
  DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 512);

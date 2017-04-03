@@ -72,7 +72,7 @@ typedef struct {
 # 2 "update.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
-void collisionEnemyPlayer(PLAYER* p, CAT* c);
+int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
 # 3 "update.c" 2
 
@@ -88,12 +88,12 @@ void updateCat(CAT* c) {
 }
 
 
-void collisionEnemyPlayer(PLAYER* p, CAT* c) {
+int collisionEnemyPlayer(PLAYER* p, CAT* c) {
  if ((p->row <= c->row && p->row + p->height >= c->row + c->height)
   && (p->col + p->width >= c->col)) {
-  c->active = 0;
-  lives--;
+  return 1;
  }
+ return 0;
 }
 
 void updateHealth(HEALTH* health, PLAYER* p) {

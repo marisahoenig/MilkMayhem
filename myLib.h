@@ -256,6 +256,10 @@ typedef struct { u16 tilemap[1024]; } screenblock;
 
 #define SPRITEOFFSET16(r,c) (r)*32+(c)
 
+//for gravity
+#define SHIFTUP(i) ((i) << 8)
+#define SHIFTDOWN(i) ((i) >> 8)
+
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;

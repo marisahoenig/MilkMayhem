@@ -5,9 +5,10 @@ at the end of a scrolling background. There will be platforms and enemies (cats)
 which the milk must battle to get past and not lose lives.
 
 Currently, if the milk loses 3 lives, it will lose. However, it can collect hearts to boost
-its life. Right now, it can only run and get hurt by enemies without fighting back.
+its life. Right now, it can only run and get hurt by enemies. Fight back by holding down A,
+which will be improved.
 
-Eventually, the hearts will be milk levels, and the milk will be able to fight the cats, but I am
+Eventually, the hearts will be milk levels, and the milk will be able to fight the cats better, but I am
 debating between punching them and shooting 'water' at them. The milk will also be able to jump.
 
 To see example Win screen, press A. Lose screen, press B.
@@ -26,6 +27,7 @@ Controls are left and right to move.
 #include "losescreen.h"
 #include "pausescreen.h"
 #include "movebackground.h"
+#include "controls.h"
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -38,10 +40,11 @@ CAT cats[CATNUM];
 int timeToNextCat;
 HEALTH health;
 HEALTH hearts[HEALTHNUM];
+FRIDGE fridge;
 
 int state;
 // state enums
-enum { SPLASHSCREEN, INSTRUCTIONSSCREEN, GAMESCREEN, LOSESCREEN, WINSCREEN, PAUSESCREEN };
+enum { SPLASHSCREEN, INSTRUCTIONSSCREEN, CONTROLSSCREEN, GAMESCREEN, LOSESCREEN, WINSCREEN, PAUSESCREEN };
 
 int currFrame;
 enum { PNORM, PLEFT, PRIGHT, PJUMP };
@@ -64,6 +67,9 @@ int main() {
 	        	break;
 	        case INSTRUCTIONSSCREEN:
 	        	updateInstructions();
+	        	break;
+	        case CONTROLSSCREEN:
+	        	updateControls();
 	        	break;
 	        case GAMESCREEN:
 	        	updateGame();
@@ -110,6 +116,21 @@ void goToInstructions() {
 
 void updateInstructions() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
+		//press start to view controls
+		goToControls();
+	}
+}
+
+void goToControls() {
+	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(29);
+	REG_BG0HOFS = 0;
+	DMANow(3, controlsTiles, &CHARBLOCKBASE[0], controlsTilesLen/2);
+    DMANow(3, controlsMap, &SCREENBLOCKBASE[29], controlsMapLen/2);
+	state = CONTROLSSCREEN;
+}
+
+void updateControls() {
+	if (BUTTON_PRESSED(BUTTON_START)) {
 		//press start to init and go to game
 		initGame();
 		goToGame(); 
@@ -132,7 +153,7 @@ void initGame() {
     hideSprites();
 
 	//create player
-	p.row = 128;
+	p.row = SHIFTUP(128);
 	p.col = 112; //exact middle of screen
 	p.rd = 0;
 	p.cd = 1;
@@ -142,6 +163,9 @@ void initGame() {
 	p.currFrame = PNORM;
 	p.aniCounter = 0;
 	p.active = 1;
+	p.stopRange = 10;
+	p.maxJumpSpeed = SHIFTUP(5);
+	p.racc = 40; //row accel
 
 	c.row = 140;
 	c.col = 200;
@@ -169,6 +193,7 @@ void initGame() {
 
 	hOff = 0;
 	lives = 3;
+	score = 0;
 }
 
 void goToGame() {
@@ -243,7 +268,8 @@ void updateLose() {
 /** OTHER METHODS **/
 
 void update() {
-	//causes moving background to move up
+	p.rd += p.racc;
+    p.row += p.rd;
 
 	if(!(BUTTON_HELD(BUTTON_RIGHT) && !(BUTTON_HELD(BUTTON_LEFT)))) {
 		//if neither is held, be at the normal state
@@ -254,13 +280,6 @@ void update() {
 		p.moveState = p.prevMoveState;
 	} else {
 		p.aniCounter++;
-	}
-
-	if (p.col + p.width >= 240) {
-		p.col = 240 - p.width;
-	}
-	if (p.col <= 0) {
-		p.col = 1;
 	}
 
 	if (BUTTON_HELD(BUTTON_RIGHT) || BUTTON_HELD(BUTTON_LEFT)) {
@@ -282,6 +301,35 @@ void update() {
 				p.currFrame = 0;
 			}
 		}
+	}
+
+	if (BUTTON_HELD(BUTTON_A)) {
+		for (int i = 0; i < CATNUM; i++) {
+			CAT * c = &cats[i];
+			if (collisionEnemyPlayer(&p, c)) {
+				c->active = 0;
+				score++;
+			}
+		}
+	}
+	if (!(BUTTON_PRESSED(BUTTON_A))) {
+		for (int i = 0; i < CATNUM; i++) {
+			CAT * c = &cats[i];
+			if (c->active) {
+				if (collisionEnemyPlayer(&p, c)) {
+					c->active = 0;
+					lives--;
+				}
+			}
+		}
+	}
+	if(SHIFTDOWN(p.row) >= 160 - p.height - 1) { //so it won't go below ground
+        p.row = SHIFTUP(160 - p.height - 1);
+        p.rd = 0;
+    }
+
+	if (BUTTON_PRESSED(BUTTON_B) && p.rd > -p.stopRange && p.rd < p.stopRange) {//jump
+		p.rd = -p.maxJumpSpeed;
 	}
 
 	// CATS (ENEMIES)
@@ -326,13 +374,6 @@ void update() {
 
 	REG_BG0HOFS = hOff;
 
-	if (BUTTON_PRESSED(BUTTON_A)) {
-		goToWin();
-	}
-	if (BUTTON_PRESSED(BUTTON_B)) {
-		goToLose();
-	}
-
 	if (lives <= 0) {
 		goToLose();
 	}
@@ -340,7 +381,7 @@ void update() {
 
 void draw() {
 	//player stored in shadowOAM 0
-	shadowOAM[0].attr0 = p.row | ATTR0_TALL;
+	shadowOAM[0].attr0 = SHIFTDOWN(p.row) | ATTR0_TALL;
 	shadowOAM[0].attr1 = ATTR1_SIZE32 | p.col;
 	shadowOAM[0].attr2 = SPRITEOFFSET16(0, p.currFrame*2); //ref to sprite sheet
 
@@ -378,7 +419,6 @@ void draw() {
 		}
 	}
 	
-  
 	//transfer OAM to shadowOAM
 	DMANow(3, shadowOAM, OAM, 512);
 

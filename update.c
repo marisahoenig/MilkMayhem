@@ -13,12 +13,12 @@ void updateCat(CAT* c) {
 }
 
 //check if enemy hits player
-void collisionEnemyPlayer(PLAYER* p, CAT* c) {
+int collisionEnemyPlayer(PLAYER* p, CAT* c) {
 	if ((p->row <= c->row && p->row + p->height >= c->row + c->height)
 		&& (p->col + p->width >= c->col)) {
-		c->active = 0;
-		lives--; //if collide, lose a life
+		return 1;
 	}
+	return 0;
 }
 
 void updateHealth(HEALTH* health, PLAYER* p) {

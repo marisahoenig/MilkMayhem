@@ -42,32 +42,27 @@ collisionEnemyPlayer:
 	ldr	r2, [r0, #0]
 	ldr	r3, [r1, #0]
 	cmp	r2, r3
-	bgt	.L5
+	bgt	.L8
 	ldr	r4, [r0, #20]
 	ldr	ip, [r1, #20]
 	add	r2, r2, r4
 	add	r3, r3, ip
 	cmp	r2, r3
-	blt	.L5
+	bge	.L9
+.L8:
+	mov	r0, #0
+.L6:
+	ldmfd	sp!, {r4}
+	bx	lr
+.L9:
 	ldr	ip, [r0, #16]
 	ldr	r2, [r0, #4]
 	ldr	r3, [r1, #4]
-	add	r2, ip, r2
-	cmp	r2, r3
-	blt	.L5
-	ldr	r3, .L7
-	ldr	r2, [r3, #0]
-	mov	r0, #0
-	sub	r2, r2, #1
-	str	r0, [r1, #24]
-	str	r2, [r3, #0]
-.L5:
-	ldmfd	sp!, {r4}
-	bx	lr
-.L8:
-	.align	2
-.L7:
-	.word	lives
+	add	r0, ip, r2
+	cmp	r0, r3
+	movlt	r0, #0
+	movge	r0, #1
+	b	.L6
 	.size	collisionEnemyPlayer, .-collisionEnemyPlayer
 	.align	2
 	.global	updateHealth
@@ -80,7 +75,7 @@ updateHealth:
 	stmfd	sp!, {r4, r5}
 	ldr	r3, [r0, #24]
 	cmp	r3, #0
-	beq	.L9
+	beq	.L10
 	ldr	r4, [r0, #4]
 	ldr	r2, [r1, #0]
 	ldr	ip, [r0, #12]
@@ -88,28 +83,28 @@ updateHealth:
 	rsb	ip, ip, r4
 	cmp	r2, r3
 	str	ip, [r0, #4]
-	ble	.L12
-.L11:
+	ble	.L13
+.L12:
 	cmp	r3, #0
 	movle	r3, #0
 	strle	r3, [r0, #24]
-.L9:
+.L10:
 	ldmfd	sp!, {r4, r5}
 	bx	lr
-.L12:
+.L13:
 	ldr	r5, [r1, #20]
 	ldr	r4, [r0, #20]
 	add	r2, r2, r5
 	add	r4, r3, r4
 	cmp	r2, r4
-	blt	.L11
+	blt	.L12
 	ldr	r4, [r1, #16]
 	ldr	r2, [r1, #4]
 	add	r2, r4, r2
 	cmp	ip, r2
 	movle	r2, #0
 	strle	r2, [r0, #24]
-	b	.L11
+	b	.L12
 	.size	updateHealth, .-updateHealth
 	.comm	score,4,4
 	.comm	prevScore,4,4
