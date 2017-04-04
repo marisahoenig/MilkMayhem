@@ -37,6 +37,10 @@ int time;
 int hOff;
 int gamehOff;
 
+
+int catFrame;
+enum {CNORM, CBACK, CFRONT };
+
 typedef struct {
  int row;
  int col;
@@ -63,6 +67,10 @@ typedef struct {
  int width;
  int height;
  int active;
+ int catFrame;
+ int moveState;
+ int prevMoveState;
+ int aniCounter;
 } CAT;
 
 typedef struct {
@@ -162,7 +170,19 @@ void updateCat(CAT* c) {
 
    c->active = 0;
   }
+
   c->col -= c->cd;
+
+  c->aniCounter++;
+
+  if(c->aniCounter % 10 == 0) {
+
+   if (c->catFrame < 2) {
+    c->catFrame += 1;
+   } else if (c->catFrame == 2) {
+    c->catFrame = 1;
+   }
+  }
  }
 }
 

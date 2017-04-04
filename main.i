@@ -493,6 +493,10 @@ int time;
 int hOff;
 int gamehOff;
 
+
+int catFrame;
+enum {CNORM, CBACK, CFRONT };
+
 typedef struct {
  int row;
  int col;
@@ -519,6 +523,10 @@ typedef struct {
  int width;
  int height;
  int active;
+ int catFrame;
+ int moveState;
+ int prevMoveState;
+ int aniCounter;
 } CAT;
 
 typedef struct {
@@ -727,6 +735,7 @@ BULLET bullets[5];
 
 void (*state)();
 
+
 int currFrame;
 enum { PNORM, PLEFT, PRIGHT, PJUMP };
 
@@ -837,6 +846,9 @@ void initGame() {
  c.width = 32;
  c.height = 16;
  c.active = 0;
+ c.moveState = CNORM;
+ c.catFrame = CNORM;
+ c.aniCounter = 0;
 
  for (int i = 0; i < 2; i++) {
   cats[i] = c;
@@ -951,7 +963,6 @@ void updateLose() {
 
 
 
-
 void update() {
  p.rd += p.racc;
     p.row += p.rd;
@@ -960,6 +971,7 @@ void update() {
 
   p.moveState = PNORM;
  }
+
  if (p.moveState == PNORM) {
   p.currFrame = 0;
   p.moveState = p.prevMoveState;
@@ -978,7 +990,7 @@ void update() {
    p.col -= p.cd;
    hOff += p.cd;
   }
-  if(p.aniCounter % 30 == 0) {
+  if(p.aniCounter % 20 == 0) {
 
    if (p.currFrame < 2) {
     p.currFrame += 1;
@@ -1016,6 +1028,7 @@ void update() {
   CAT * c = &cats[i];
   if (c->active) {
    updateCat(c);
+
    if (collisionEnemyPlayer(&p, c)) {
     playSoundB(meow, 4874, 11025, 0);
     c->active = 0;
@@ -1096,7 +1109,7 @@ void draw() {
   if (c->active) {
    shadowOAM[1 + i].attr0 = (1 << 14) | ((0xFF) & c->row);
    shadowOAM[1 + i].attr1 = (2 << 14) | c->col;
-   shadowOAM[1 + i].attr2 = (0)*32+(8);
+   shadowOAM[1 + i].attr2 = ((c->catFrame)*2)*32+(8);
   } else {
    shadowOAM[1 + i].attr0 = (2 << 8);
   }
@@ -1124,7 +1137,7 @@ void draw() {
    shadowOAM[4 + i].attr0 = (2 << 8);
   }
  }
-# 462 "main.c"
+# 467 "main.c"
  if (fridge.active) {
   shadowOAM[10].attr0 = (2 << 14) | ((0xFF) & fridge.row);
   shadowOAM[10].attr1 = (3 << 14) | fridge.col;

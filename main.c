@@ -50,6 +50,7 @@ BULLET bullets[BULLETNUM];
 // function pointers
 void (*state)();
 
+//player different frames for walking
 int currFrame;
 enum { PNORM, PLEFT, PRIGHT, PJUMP };
 
@@ -160,6 +161,9 @@ void initGame() {
 	c.width = 32;
 	c.height = 16;
 	c.active = 0;
+	c.moveState = CNORM;
+	c.catFrame = CNORM;
+	c.aniCounter = 0;
 
 	for (int i = 0; i < CATNUM; i++) {
 		cats[i] = c;
@@ -272,7 +276,6 @@ void updateLose() {
 	}
 }
 
-
 /** OTHER METHODS **/
 
 void update() {
@@ -283,6 +286,7 @@ void update() {
 		//if neither is held, be at the normal state
 		p.moveState = PNORM;
 	}
+
 	if (p.moveState == PNORM) {
 		p.currFrame = 0;
 		p.moveState = p.prevMoveState;
@@ -301,7 +305,7 @@ void update() {
 			p.col -= p.cd;
 			hOff += p.cd;
 		}
-		if(p.aniCounter % 30 == 0) {
+		if(p.aniCounter % 20 == 0) {
 			// goes through the 3 frames 
 			if (p.currFrame < 2) {
 				p.currFrame += 1;
@@ -339,6 +343,7 @@ void update() {
 		CAT * c = &cats[i];
 		if (c->active) {
 			updateCat(c);
+
 			if (collisionEnemyPlayer(&p, c)) {
 				playSoundB(meow, MEOWLEN, MEOWFREQ, 0);
 				c->active = 0;
@@ -419,7 +424,7 @@ void draw() {
 		if (c->active) { 	// cat sprites in shadowOAM 1-3
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_WIDE | (ROWMASK & c->row);
 			shadowOAM[CATSPRITE + i].attr1 = ATTR1_SIZE32 | c->col;
-			shadowOAM[CATSPRITE + i].attr2 = SPRITEOFFSET16(0, 8);
+			shadowOAM[CATSPRITE + i].attr2 = SPRITEOFFSET16((c->catFrame)*2, 8);
 		} else {
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_HIDE;
 		}

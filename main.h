@@ -42,6 +42,10 @@ int time;
 int hOff;
 int gamehOff;
 
+//cat different frames for walking
+int catFrame;
+enum {CNORM, CBACK, CFRONT };
+
 typedef struct {
 	int row;
 	int col;
@@ -68,6 +72,10 @@ typedef struct {
 	int width;
 	int height;
 	int active;
+	int catFrame;
+	int moveState;
+	int prevMoveState;
+	int aniCounter;
 } CAT;
 
 typedef struct {

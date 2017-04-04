@@ -9,7 +9,19 @@ void updateCat(CAT* c) {
 			//if goes offscreen, set cat to inactive
 			c->active = 0;
 		}
-		c->col -= c->cd;
+
+		c->col -= c->cd; //move cat
+
+		c->aniCounter++;
+
+		if(c->aniCounter % 10 == 0) {
+			// goes through the 3 frames 
+			if (c->catFrame < 2) {
+				c->catFrame += 1;
+			} else if (c->catFrame == 2) {
+				c->catFrame = 1;
+			}
+		}
 	}
 }
 
