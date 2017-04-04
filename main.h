@@ -5,6 +5,9 @@
 #define HEALTHNUM 2
 #define FRIDGESPACE 10 //store in 10
 
+#define BULLETNUM 5 //number of bullets you can fire
+#define BULLETSPRITE 11 //store in 11-15
+
 
 void init();
 void update();
@@ -86,3 +89,12 @@ typedef struct {
 	int height;
 	int active;
 } FRIDGE;
+
+typedef struct {
+	int row;
+	int col;
+	int cd;
+	int width;
+	int height;
+	int active;
+} BULLET;

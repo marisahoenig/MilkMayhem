@@ -38,3 +38,25 @@ void updateHealth(HEALTH* health, PLAYER* p) {
 		}
 	}
 }
+
+//allow bullet to move
+//if goes off screen, sets it inactive
+void updateBullet(BULLET* b) {
+	if (b->active) { //check that the bullet is active
+		b->col += b->cd;
+		if(b->col + b->width >= 240) { // if the bullet goes past the screen, it is inactive
+			b->active = 0;
+		}
+	}
+}
+
+//Bullets that hit the enemy - check collision
+void collisionCheckEnemy(BULLET* b, CAT* c) {
+    if ((b->row <= c->row + c->height) && 
+    	((b->col + b->width <= c->col + c->width && b->col + b->width >= c->col) ||
+    		(b->col <= c->col + c->width && b->col >= c->col))) {
+    	score++; //add to score
+    	c->active = 0; //both enemy and bullet inactive
+        b->active = 0;
+    }
+}

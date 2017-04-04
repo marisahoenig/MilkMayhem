@@ -459,7 +459,7 @@ extern long double wcstold (const wchar_t *, wchar_t **);
 
 # 17 "main.c" 2
 # 1 "main.h" 1
-# 9 "main.h"
+# 12 "main.h"
 void init();
 void update();
 void draw();
@@ -540,6 +540,15 @@ typedef struct {
  int height;
  int active;
 } FRIDGE;
+
+typedef struct {
+ int row;
+ int col;
+ int cd;
+ int width;
+ int height;
+ int active;
+} BULLET;
 # 18 "main.c" 2
 # 1 "mylib.h" 1
 typedef unsigned char u8;
@@ -596,6 +605,8 @@ typedef struct {
 void updateCat(CAT* c);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
+void updateBullet(BULLET* b);
+void collisionCheckEnemy(BULLET* b, CAT* c);
 # 20 "main.c" 2
 # 1 "splashscreen.h" 1
 # 22 "splashscreen.h"
@@ -706,6 +717,10 @@ int timeToNextCat;
 HEALTH health;
 HEALTH hearts[2];
 FRIDGE fridge;
+
+
+BULLET bullet;
+BULLET bullets[5];
 
 
 void (*state)();
@@ -844,6 +859,18 @@ void initGame() {
  fridge.width = 32;
  fridge.height = 64;
  fridge.active = 0;
+
+
+ bullet.row = 145;
+ bullet.col = 0;
+ bullet.cd = 2;
+ bullet.width = 8;
+ bullet.height = 8;
+ bullet.active = 0;
+
+ for (int i = 0; i < 5; i++) {
+  bullets[i] = bullet;
+ }
 
  hOff = 0;
  lives = 3;
@@ -1009,6 +1036,32 @@ void update() {
  }
 
 
+ if ((!(~oldButtons&(1))&&(~buttons&(1)))) {
+  for(int i = 0; i < 5; i++) {
+   BULLET * b = &bullets[i];
+   if(!b->active) {
+    b->active = 1;
+    b->row = (((p.row) >> 8) + (p.height/2));
+    b->col = p.col + 8;
+    break;
+   }
+  }
+ }
+
+ for(int i = 0; i < 5; i++) {
+  BULLET * b = &bullets[i];
+  if(b->active) {
+   updateBullet(b);
+   for(int i = 0; i < 2; i++) {
+    CAT * c = &cats[i];
+    if(c->active) {
+     collisionCheckEnemy(b, c);
+    }
+   }
+  }
+ }
+
+
  if (time++ % rand()%100) {
   for (int i = 0; i < 2; i++) {
    HEALTH * h = &hearts[i];
@@ -1052,6 +1105,18 @@ void draw() {
  }
 
 
+ for(int i = 0; i < 5; i++) {
+  BULLET * b = &bullets[i];
+  if (b->active) {
+   shadowOAM[11 + i].attr0 = b->row;
+   shadowOAM[11 + i].attr1 = (0 << 14) | b->col;
+   shadowOAM[11 + i].attr2 = (4)*32+(0);
+  } else {
+   shadowOAM[11 + i].attr0 = (2 << 8);
+  }
+ }
+
+
  for (int i = 0; i < 3; i++) {
   if (i + 1 <= lives) {
    shadowOAM[4 + i].attr0 = 5 | (1 << 14);
@@ -1061,7 +1126,7 @@ void draw() {
    shadowOAM[4 + i].attr0 = (2 << 8);
   }
  }
-# 412 "main.c"
+# 466 "main.c"
  if (fridge.active) {
   shadowOAM[10].attr0 = (2 << 14) | fridge.row;
   shadowOAM[10].attr1 = (3 << 14) | fridge.col;

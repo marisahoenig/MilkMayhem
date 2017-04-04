@@ -43,6 +43,10 @@ HEALTH health;
 HEALTH hearts[HEALTHNUM];
 FRIDGE fridge;
 
+// player bullet
+BULLET bullet;
+BULLET bullets[BULLETNUM];
+
 // function pointers
 void (*state)();
 
@@ -180,6 +184,18 @@ void initGame() {
 	fridge.width = 32;
 	fridge.height = 64;
 	fridge.active = 0;
+
+	//create player's bullets
+	bullet.row = 145;
+	bullet.col = 0;
+	bullet.cd = 2; //move to the right
+	bullet.width = 8;
+	bullet.height = 8;
+	bullet.active = 0;
+
+	for (int i = 0; i < BULLETNUM; i++) {
+		bullets[i] = bullet;
+	}
 
 	hOff = 0;
 	lives = 3;
@@ -344,6 +360,32 @@ void update() {
 		}
 	}
 
+	// bullets shot from the player
+	if (BUTTON_PRESSED(BUTTON_A)) {
+		for(int i = 0; i < BULLETNUM; i++) { 
+			BULLET * b = &bullets[i];
+			if(!b->active) { // the first inactive bullet 
+				b->active = 1; 		// setting active to TRUE
+				b->row = (SHIFTDOWN(p.row) + (p.height/2));	//shoot from mid height of carton
+				b->col = p.col + 8; //shoot from right side of carton
+				break;
+			}
+		}
+	}
+	//make the bullet keep moving if active
+	for(int i = 0; i < BULLETNUM; i++) { 
+		BULLET * b = &bullets[i];
+		if(b->active) {
+			updateBullet(b);
+			for(int i = 0; i < CATNUM; i++) { 
+				CAT * c = &cats[i];
+				if(c->active) {
+					collisionCheckEnemy(b, c);
+				}
+			}	
+		}
+	}
+
 	// HEALTH
 	if (time++ % rand()%100) {
 		for (int i = 0; i < HEALTHNUM; i++) {
@@ -386,6 +428,18 @@ void draw() {
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_HIDE;
 		}
 	}   
+
+	//draw all the active bullets, hide inactive
+	for(int i = 0; i < BULLETNUM; i++) { 
+		BULLET * b = &bullets[i];
+		if (b->active) { 	// //player bullets stored in shadowOAM 26-36
+			shadowOAM[BULLETSPRITE + i].attr0 = b->row;
+			shadowOAM[BULLETSPRITE + i].attr1 = ATTR1_SIZE8 | b->col;
+			shadowOAM[BULLETSPRITE + i].attr2 = SPRITEOFFSET16(4, 0);
+		} else {
+			shadowOAM[BULLETSPRITE + i].attr0 = ATTR0_HIDE;
+		}
+	}  
 
 	// draw hearts for the lives
 	for (int i = 0; i < 3; i++) { // loop through the 3 lives

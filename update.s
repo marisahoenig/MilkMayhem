@@ -111,6 +111,81 @@ updateHealth:
 	strle	r2, [r0, #24]
 	b	.L13
 	.size	updateHealth, .-updateHealth
+	.align	2
+	.global	updateBullet
+	.type	updateBullet, %function
+updateBullet:
+	@ Function supports interworking.
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	@ link register save eliminated.
+	ldr	r3, [r0, #20]
+	cmp	r3, #0
+	bxeq	lr
+	ldmib	r0, {r2, r3}
+	add	r3, r3, r2
+	ldr	r2, [r0, #12]
+	add	r2, r3, r2
+	cmp	r2, #239
+	str	r3, [r0, #4]
+	movgt	r3, #0
+	strgt	r3, [r0, #20]
+	bx	lr
+	.size	updateBullet, .-updateBullet
+	.align	2
+	.global	collisionCheckEnemy
+	.type	collisionCheckEnemy, %function
+collisionCheckEnemy:
+	@ Function supports interworking.
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	r4, [sp, #-4]!
+	ldr	ip, [r1, #20]
+	ldr	r3, [r1, #0]
+	ldr	r2, [r0, #0]
+	add	r3, ip, r3
+	cmp	r2, r3
+	bgt	.L17
+	ldr	r3, [r0, #4]
+	ldr	r4, [r0, #12]
+	ldr	r2, [r1, #4]
+	ldr	ip, [r1, #16]
+	add	r4, r3, r4
+	add	ip, r2, ip
+	cmp	r4, ip
+	ble	.L22
+.L19:
+	cmp	r3, ip
+	bgt	.L17
+	cmp	r3, r2
+	blt	.L17
+	ldr	r2, .L23
+	ldr	ip, [r2, #0]
+	mov	r3, #0
+	add	ip, ip, #1
+	str	r3, [r1, #24]
+	str	ip, [r2, #0]
+	str	r3, [r0, #20]
+.L17:
+	ldmfd	sp!, {r4}
+	bx	lr
+.L22:
+	cmp	r4, r2
+	blt	.L19
+	ldr	r2, .L23
+	ldr	ip, [r2, #0]
+	mov	r3, #0
+	add	ip, ip, #1
+	str	r3, [r1, #24]
+	str	ip, [r2, #0]
+	str	r3, [r0, #20]
+	b	.L17
+.L24:
+	.align	2
+.L23:
+	.word	score
+	.size	collisionCheckEnemy, .-collisionCheckEnemy
 	.comm	score,4,4
 	.comm	prevScore,4,4
 	.comm	lives,4,4

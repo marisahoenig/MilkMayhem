@@ -3,7 +3,7 @@
 # 1 "<command-line>"
 # 1 "update.c"
 # 1 "main.h" 1
-# 9 "main.h"
+# 12 "main.h"
 void init();
 void update();
 void draw();
@@ -84,6 +84,15 @@ typedef struct {
  int height;
  int active;
 } FRIDGE;
+
+typedef struct {
+ int row;
+ int col;
+ int cd;
+ int width;
+ int height;
+ int active;
+} BULLET;
 # 2 "update.c" 2
 # 1 "myLib.h" 1
 typedef unsigned char u8;
@@ -140,6 +149,8 @@ typedef struct {
 void updateCat(CAT* c);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
+void updateBullet(BULLET* b);
+void collisionCheckEnemy(BULLET* b, CAT* c);
 # 4 "update.c" 2
 
 
@@ -177,4 +188,26 @@ void updateHealth(HEALTH* health, PLAYER* p) {
    health->active = 0;
   }
  }
+}
+
+
+
+void updateBullet(BULLET* b) {
+ if (b->active) {
+  b->col += b->cd;
+  if(b->col + b->width >= 240) {
+   b->active = 0;
+  }
+ }
+}
+
+
+void collisionCheckEnemy(BULLET* b, CAT* c) {
+    if ((b->row <= c->row + c->height) &&
+     ((b->col + b->width <= c->col + c->width && b->col + b->width >= c->col) ||
+      (b->col <= c->col + c->width && b->col >= c->col))) {
+     score++;
+     c->active = 0;
+        b->active = 0;
+    }
 }
