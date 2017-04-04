@@ -190,7 +190,7 @@ void goToGame() {
 	//enable both backgrounds
 	REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE;
 	REG_BG0HOFS = hOff;
-	playSoundA(uke,UKELEN,UKEFREQ, 1);
+	playSoundA(uke, UKELEN, UKEFREQ, 1);
 	state = updateGame;
 }
 
@@ -303,14 +303,13 @@ void update() {
 			}
 		}
 	}
-	if (!(BUTTON_PRESSED(BUTTON_A))) {
-		for (int i = 0; i < CATNUM; i++) {
-			CAT * c = &cats[i];
-			if (c->active) {
-				if (collisionEnemyPlayer(&p, c)) {
-					c->active = 0;
-					lives--;
-				}
+	for (int i = 0; i < CATNUM; i++) {
+		CAT * c = &cats[i];
+		if (c->active) {
+			if (collisionEnemyPlayer(&p, c)) {
+				playSoundB(meow, MEOWLEN, MEOWFREQ, 0);
+				c->active = 0;
+				lives--;
 			}
 		}
 	}

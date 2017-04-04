@@ -85,11 +85,62 @@ typedef struct {
  int active;
 } FRIDGE;
 # 2 "update.c" 2
+# 1 "myLib.h" 1
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
+
+extern unsigned short *videoBuffer;
+# 49 "myLib.h"
+extern unsigned short *videoBuffer;
+# 65 "myLib.h"
+void drawRect4(int row, int col, int height, int width, unsigned char colorIndex);
+void waitForVblank();
+int sprintf (char *string, const char *form, ...);
+void flipPage();
+void loadPalette(volatile const unsigned short* palette);
+void drawImage4(volatile const unsigned short* image, int row, int col, int height, int width);
+void drawBackgroundImage4(volatile const unsigned short* image);
+char *short2bin(short x, char arr[]);
+
+
+
+
+
+
+extern unsigned int oldButtons;
+extern unsigned int buttons;
+# 107 "myLib.h"
+void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control);
+# 116 "myLib.h"
+typedef volatile struct {
+        volatile const void *src;
+        volatile const void *dst;
+        volatile unsigned int cnt;
+} DMA;
+
+extern DMA *dma;
+# 207 "myLib.h"
+typedef struct { u16 tileimg[8192]; } charblock;
+typedef struct { u16 tilemap[1024]; } screenblock;
+# 268 "myLib.h"
+typedef struct{
+    unsigned short attr0;
+    unsigned short attr1;
+    unsigned short attr2;
+    unsigned short fill;
+}OBJ_ATTR;
+
+typedef struct {
+    int row;
+    int col;
+} Sprite;
+# 3 "update.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
-# 3 "update.c" 2
+# 4 "update.c" 2
 
 
 void updateCat(CAT* c) {
@@ -104,8 +155,9 @@ void updateCat(CAT* c) {
 
 
 int collisionEnemyPlayer(PLAYER* p, CAT* c) {
- if ((p->row <= c->row && p->row + p->height >= c->row + c->height)
-  && (p->col + p->width >= c->col)) {
+ int shiftedRow = ((p->row) >> 8);
+ if ((shiftedRow <= c->row && shiftedRow+ p->height >= c->row + c->height)
+  && (p->col + p->width >= c->col) && (p->col <= c->col + c->width)) {
   return 1;
  }
  return 0;

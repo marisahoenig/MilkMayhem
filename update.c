@@ -1,4 +1,5 @@
 #include "main.h"
+#include "myLib.h"
 #include "update.h"
 
 //make cat move and if go offscreen, make inactive
@@ -14,8 +15,9 @@ void updateCat(CAT* c) {
 
 //check if enemy hits player
 int collisionEnemyPlayer(PLAYER* p, CAT* c) {
-	if ((p->row <= c->row && p->row + p->height >= c->row + c->height)
-		&& (p->col + p->width >= c->col)) {
+	int shiftedRow = SHIFTDOWN(p->row);
+	if ((shiftedRow <= c->row && shiftedRow+ p->height >= c->row + c->height)
+		&& (p->col + p->width >= c->col) && (p->col <= c->col + c->width)) {
 		return 1;
 	}
 	return 0;

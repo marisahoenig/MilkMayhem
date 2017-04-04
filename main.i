@@ -669,7 +669,7 @@ extern const unsigned char uke[193313];
 # 30 "main.c" 2
 # 1 "meow.h" 1
 # 20 "meow.h"
-extern const unsigned char meow[5956];
+extern const unsigned char meow[4874];
 # 31 "main.c" 2
 # 1 "sounds.h" 1
 void setupSounds();
@@ -854,7 +854,7 @@ void goToGame() {
 
  (*(u16 *)0x4000000) = 0 | (1<<8) | (1 << 12);
  *(volatile unsigned short *)0x04000010 = hOff;
- playSoundA(uke,193313,11025, 1);
+ playSoundA(uke, 193313, 11025, 1);
  state = updateGame;
 }
 
@@ -967,14 +967,13 @@ void update() {
    }
   }
  }
- if (!((!(~oldButtons&(1))&&(~buttons&(1))))) {
-  for (int i = 0; i < 2; i++) {
-   CAT * c = &cats[i];
-   if (c->active) {
-    if (collisionEnemyPlayer(&p, c)) {
-     c->active = 0;
-     lives--;
-    }
+ for (int i = 0; i < 2; i++) {
+  CAT * c = &cats[i];
+  if (c->active) {
+   if (collisionEnemyPlayer(&p, c)) {
+    playSoundB(meow, 4874, 11025, 0);
+    c->active = 0;
+    lives--;
    }
   }
  }
@@ -1062,7 +1061,7 @@ void draw() {
    shadowOAM[4 + i].attr0 = (2 << 8);
   }
  }
-# 413 "main.c"
+# 412 "main.c"
  if (fridge.active) {
   shadowOAM[10].attr0 = (2 << 14) | fridge.row;
   shadowOAM[10].attr1 = (3 << 14) | fridge.col;
