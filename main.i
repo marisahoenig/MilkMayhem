@@ -603,10 +603,12 @@ typedef struct {
 # 19 "main.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
+void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
 void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
+void collisionFridge(FRIDGE* f, PLAYER* p);
 # 20 "main.c" 2
 # 1 "splashscreen.h" 1
 # 22 "splashscreen.h"
@@ -814,10 +816,10 @@ void initGame() {
  setupSounds();
 
 
- p.row = ((128) << 8);
+ p.row = ((126) << 8);
  p.col = 112;
  p.rd = 0;
- p.cd = 1;
+ p.cd = 2;
  p.width = 16;
  p.height = 32;
  p.moveState = PNORM;
@@ -852,10 +854,10 @@ void initGame() {
   hearts[i] = health;
  }
 
- fridge.row = 0;
+ fridge.row = 96;
  fridge.col = 208;
  fridge.rd = 0;
- fridge.cd = -1;
+ fridge.cd = 1;
  fridge.width = 32;
  fridge.height = 64;
  fridge.active = 0;
@@ -920,6 +922,7 @@ void goToWin() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
+ hOff = 0;
  DMANow(3, winscreenTiles, &((charblock *)0x6000000)[0], 2176/2);
     DMANow(3, winscreenMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = updateWin;
@@ -967,13 +970,13 @@ void update() {
  if ((~((*(volatile unsigned int *)0x04000130)) & 16) || (~((*(volatile unsigned int *)0x04000130)) & 32)) {
   if ((~((*(volatile unsigned int *)0x04000130)) & 16)) {
    p.moveState = PRIGHT;
-
-   hOff++;
+   p.col += p.cd;
+   hOff += p.cd;
   }
   if ((~((*(volatile unsigned int *)0x04000130)) & 32)) {
    p.moveState = PLEFT;
-
-   hOff--;
+   p.col -= p.cd;
+   hOff += p.cd;
   }
   if(p.aniCounter % 30 == 0) {
 
@@ -1007,7 +1010,8 @@ void update() {
    }
   }
  }
-# 345 "main.c"
+
+
  for (int i = 0; i < 2; i++) {
   CAT * c = &cats[i];
   if (c->active) {
@@ -1057,11 +1061,20 @@ void update() {
   }
  }
 
+
  for (int i = 0; i < 2; i++) {
   HEALTH * h = &hearts[i];
   if (h->active) {
    updateHealth(h, &p);
   }
+ }
+
+ if (score >= 5 && !(fridge.active)) {
+  fridge.active = 1;
+ }
+
+ if (fridge.active) {
+  collisionFridge(&fridge, &p);
  }
 
  *(volatile unsigned short *)0x04000010 = hOff;
@@ -1111,7 +1124,7 @@ void draw() {
    shadowOAM[4 + i].attr0 = (2 << 8);
   }
  }
-# 460 "main.c"
+# 462 "main.c"
  if (fridge.active) {
   shadowOAM[10].attr0 = (2 << 14) | ((0xFF) & fridge.row);
   shadowOAM[10].attr1 = (3 << 14) | fridge.col;

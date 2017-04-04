@@ -139,10 +139,10 @@ void initGame() {
 	setupSounds();
 
 	//create player
-	p.row = SHIFTUP(128);
+	p.row = SHIFTUP(126);
 	p.col = 112; //exact middle of screen
 	p.rd = 0;
-	p.cd = 1;
+	p.cd = 2;
 	p.width = 16;
 	p.height = 32;
 	p.moveState = PNORM;
@@ -177,10 +177,10 @@ void initGame() {
 		hearts[i] = health;
 	}
 
-	fridge.row = 0;
+	fridge.row = 96;
 	fridge.col = 208;
 	fridge.rd = 0;
-	fridge.cd = -1;
+	fridge.cd = 1;
 	fridge.width = 32;
 	fridge.height = 64;
 	fridge.active = 0;
@@ -245,6 +245,7 @@ void goToWin() {
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
 	REG_BG0HOFS = 0;
+	hOff = 0;
 	DMANow(3, winscreenTiles, &CHARBLOCKBASE[0], winscreenTilesLen/2);
     DMANow(3, winscreenMap, &SCREENBLOCKBASE[30], winscreenMapLen/2);
 	state = updateWin;
@@ -292,13 +293,13 @@ void update() {
 	if (BUTTON_HELD(BUTTON_RIGHT) || BUTTON_HELD(BUTTON_LEFT)) {
 		if (BUTTON_HELD(BUTTON_RIGHT)) {
 			p.moveState = PRIGHT;
-			// p.col += p.cd;
-			hOff++;
+			p.col += p.cd;
+			hOff += p.cd;
 		}
 		if (BUTTON_HELD(BUTTON_LEFT)) {
 			p.moveState = PLEFT;
-			// p.col -= p.cd;
-			hOff--;
+			p.col -= p.cd;
+			hOff += p.cd;
 		}
 		if(p.aniCounter % 30 == 0) {
 			// goes through the 3 frames 
@@ -383,11 +384,20 @@ void update() {
 		}
 	}
 
+	//health that player can collect
 	for (int i = 0; i < HEALTHNUM; i++) {
 		HEALTH * h = &hearts[i];
 		if (h->active) {
 			updateHealth(h, &p);
 		}
+	}
+
+	if (score >= 5 && !(fridge.active)) {
+		fridge.active = 1;
+	}
+
+	if (fridge.active) {
+		collisionFridge(&fridge, &p);
 	}
 
 	REG_BG0HOFS = hOff;

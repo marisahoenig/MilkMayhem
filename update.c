@@ -13,6 +13,16 @@ void updateCat(CAT* c) {
 	}
 }
 
+void updateFridge(FRIDGE* fridge) {
+	if (fridge->active) {
+		if (fridge->col <= 0) {
+			//if goes offscreen, set fridge to inactive
+			fridge->active = 0;
+		}
+		// fridge->col -= fridge->cd;
+	}
+}
+
 //check if cat hits player
 int collisionEnemyPlayer(PLAYER* p, CAT* c) {
 	int shiftedRow = SHIFTDOWN(p->row);
@@ -59,5 +69,14 @@ void collisionCheckEnemy(BULLET* b, CAT* c) {
     	score++; //add to score
     	c->active = 0; //both enemy and bullet inactive
         b->active = 0;
+    }
+}
+
+//Bullets that hit the enemy - check collision
+void collisionFridge(FRIDGE* f, PLAYER* p) {
+	int shiftedRow = SHIFTDOWN(p->row);
+    if ((shiftedRow <= f->row + f->height) && (shiftedRow + p->height >= f->row) &&
+    	(p->col + p->width <= f->col + f->width) && (p->col + p->width >= f->col)) {
+    	goToWin();
     }
 }

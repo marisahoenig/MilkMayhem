@@ -100,9 +100,9 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 extern unsigned short *videoBuffer;
-# 49 "myLib.h"
+# 52 "myLib.h"
 extern unsigned short *videoBuffer;
-# 65 "myLib.h"
+# 68 "myLib.h"
 void drawRect4(int row, int col, int height, int width, unsigned char colorIndex);
 void waitForVblank();
 int sprintf (char *string, const char *form, ...);
@@ -119,9 +119,9 @@ char *short2bin(short x, char arr[]);
 
 extern unsigned int oldButtons;
 extern unsigned int buttons;
-# 107 "myLib.h"
+# 110 "myLib.h"
 void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control);
-# 116 "myLib.h"
+# 119 "myLib.h"
 typedef volatile struct {
         volatile const void *src;
         volatile const void *dst;
@@ -129,10 +129,10 @@ typedef volatile struct {
 } DMA;
 
 extern DMA *dma;
-# 207 "myLib.h"
+# 210 "myLib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 268 "myLib.h"
+# 271 "myLib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
@@ -147,10 +147,12 @@ typedef struct {
 # 3 "update.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
+void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
 void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
+void collisionFridge(FRIDGE* f, PLAYER* p);
 # 4 "update.c" 2
 
 
@@ -164,6 +166,16 @@ void updateCat(CAT* c) {
  }
 }
 
+void updateFridge(FRIDGE* fridge) {
+ if (fridge->active) {
+  if (fridge->col <= 0) {
+
+   fridge->active = 0;
+  }
+
+ }
+}
+
 
 int collisionEnemyPlayer(PLAYER* p, CAT* c) {
  int shiftedRow = ((p->row) >> 8);
@@ -173,6 +185,7 @@ int collisionEnemyPlayer(PLAYER* p, CAT* c) {
  }
  return 0;
 }
+
 
 void updateHealth(HEALTH* health, PLAYER* p) {
  if (health->active) {
@@ -209,5 +222,14 @@ void collisionCheckEnemy(BULLET* b, CAT* c) {
      score++;
      c->active = 0;
         b->active = 0;
+    }
+}
+
+
+void collisionFridge(FRIDGE* f, PLAYER* p) {
+ int shiftedRow = ((p->row) >> 8);
+    if ((shiftedRow <= f->row + f->height) && (shiftedRow + p->height >= f->row) &&
+     (p->col + p->width <= f->col + f->width) && (p->col + p->width >= f->col)) {
+     goToWin();
     }
 }
