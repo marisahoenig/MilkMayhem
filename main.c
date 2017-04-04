@@ -10,7 +10,6 @@ which will be improved.
 Eventually, the hearts will be milk levels, and the milk will be able to fight the cats better, but I am
 debating between punching them and shooting 'water' at them. The milk will also be able to jump.
 
-To see example Win screen, press A. Lose screen, press B.
 Controls are left and right to move.
 ******************************************/
 
@@ -44,9 +43,8 @@ HEALTH health;
 HEALTH hearts[HEALTHNUM];
 FRIDGE fridge;
 
-int state;
-// state enums
-enum { SPLASHSCREEN, INSTRUCTIONSSCREEN, CONTROLSSCREEN, GAMESCREEN, LOSESCREEN, WINSCREEN, PAUSESCREEN };
+// function pointers
+void (*state)();
 
 int currFrame;
 enum { PNORM, PLEFT, PRIGHT, PJUMP };
@@ -62,30 +60,8 @@ int main() {
 		oldButtons = buttons;
 		buttons = BUTTONS;
 
-		//switch between states
-		switch(state) {
-        	case SPLASHSCREEN:
-	        	updateSplash();
-	        	break;
-	        case INSTRUCTIONSSCREEN:
-	        	updateInstructions();
-	        	break;
-	        case CONTROLSSCREEN:
-	        	updateControls();
-	        	break;
-	        case GAMESCREEN:
-	        	updateGame();
-	        	break;
-	        case LOSESCREEN:
-	        	updateLose();
-	        	break;
-	        case WINSCREEN:
-	        	updateWin();
-	        	break;
-	        case PAUSESCREEN:
-	        	updatePause();
-	        	break;
-        }
+		//function pointers for state
+		state();
 	}
 }
 
@@ -97,7 +73,7 @@ void goToSplash() {
 	REG_BG0HOFS = 0;
 	DMANow(3, splashscreenTiles, &CHARBLOCKBASE[0], splashscreenTilesLen/2);
     DMANow(3, splashscreenMap, &SCREENBLOCKBASE[31], splashscreenMapLen/2);
-	state = SPLASHSCREEN;
+	state = updateSplash;
 }
 
 //automatically called through switch statement
@@ -113,7 +89,7 @@ void goToInstructions() {
 	REG_BG0HOFS = 0;
 	DMANow(3, instructionsTiles, &CHARBLOCKBASE[0], instructionsTilesLen/2);
     DMANow(3, instructionsMap, &SCREENBLOCKBASE[30], instructionsMapLen/2);
-	state = INSTRUCTIONSSCREEN;
+	state = updateInstructions;
 }
 
 void updateInstructions() {
@@ -128,7 +104,7 @@ void goToControls() {
 	REG_BG0HOFS = 0;
 	DMANow(3, controlsTiles, &CHARBLOCKBASE[0], controlsTilesLen/2);
     DMANow(3, controlsMap, &SCREENBLOCKBASE[29], controlsMapLen/2);
-	state = CONTROLSSCREEN;
+	state = updateControls;
 }
 
 void updateControls() {
@@ -207,7 +183,7 @@ void goToGame() {
 	REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE;
 	REG_BG0HOFS = hOff;
 	playSoundA(uke,UKELEN,UKEFREQ, 1);
-	state = GAMESCREEN;
+	state = updateGame;
 }
 
 void updateGame() {
@@ -229,7 +205,7 @@ void goToPause() {
 	REG_BG2HOFS = 0;
 	DMANow(3, pausescreenTiles, &CHARBLOCKBASE[2], pausescreenTilesLen/2);
     DMANow(3, pausescreenMap, &SCREENBLOCKBASE[30], pausescreenMapLen/2);
-	state = PAUSESCREEN;
+	state = updatePause;
 }
 
 void updatePause() {
@@ -247,7 +223,7 @@ void goToWin() {
 	REG_BG0HOFS = 0;
 	DMANow(3, winscreenTiles, &CHARBLOCKBASE[0], winscreenTilesLen/2);
     DMANow(3, winscreenMap, &SCREENBLOCKBASE[30], winscreenMapLen/2);
-	state = WINSCREEN;
+	state = updateWin;
 }
 
 void updateWin() {
@@ -262,7 +238,7 @@ void goToLose() {
 	REG_BG0HOFS = 0;
 	DMANow(3, losescreenTiles, &CHARBLOCKBASE[0], losescreenTilesLen/2);
     DMANow(3, losescreenMap, &SCREENBLOCKBASE[30], losescreenMapLen/2);
-	state = LOSESCREEN;
+	state = updateLose;
 }
 
 void updateLose() {
@@ -347,7 +323,7 @@ void update() {
 				c->active = 1; 		// setting active to TRUE
 				// c->row = 128;
 				c->col = 220;
-				timeToNextCat = rand()%200 + 87;
+				timeToNextCat = rand()%300 + 87;
 				break;
 			}	
 		}
@@ -415,16 +391,16 @@ void draw() {
 		}
 	}	
 
-	for (int i = 0; i < HEALTHNUM; i++) {
-		HEALTH * h = &hearts[i];
-		if (h->active) { 	// shadowOAM 7
-			shadowOAM[7 + i].attr0 = ATTR0_WIDE | h->row;
-			shadowOAM[7 + i].attr1 = ATTR1_SIZE8 | h->col;
-			shadowOAM[7 + i].attr2 = SPRITEOFFSET16(0, 12);
-		} else {
-			shadowOAM[7 + i].attr0 = ATTR0_HIDE;
-		}
-	}
+	// for (int i = 0; i < HEALTHNUM; i++) {
+	// 	HEALTH * h = &hearts[i];
+	// 	if (h->active) { 	// shadowOAM 7
+	// 		shadowOAM[7 + i].attr0 = ATTR0_WIDE | h->row;
+	// 		shadowOAM[7 + i].attr1 = ATTR1_SIZE8 | h->col;
+	// 		shadowOAM[7 + i].attr2 = SPRITEOFFSET16(0, 12);
+	// 	} else {
+	// 		shadowOAM[7 + i].attr0 = ATTR0_HIDE;
+	// 	}
+	// }
 	
 	//transfer OAM to shadowOAM
 	DMANow(3, shadowOAM, OAM, 512);

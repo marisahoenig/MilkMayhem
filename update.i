@@ -12,6 +12,8 @@ void goToSplash();
 void updateSplash();
 void goToInstructions();
 void updateInstructions();
+void goToControls();
+void updateControls();
 void initGame();
 void goToGame();
 void updateGame();
@@ -23,7 +25,6 @@ void goToLose();
 void updateLose();
 
 void hideSprites();
-
 
 
 
@@ -48,6 +49,10 @@ typedef struct {
  int currFrame;
  int aniCounter;
  int active;
+ int stopRange;
+ int maxJumpSpeed;
+ int racc;
+ int possibleRow;
 } PLAYER;
 
 typedef struct {
@@ -69,6 +74,15 @@ typedef struct {
  int height;
  int active;
 } HEALTH;
+
+typedef struct {
+ int row;
+ int col;
+ int rd;
+ int cd;
+ int width;
+ int height;
+} FRIDGE;
 # 2 "update.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
@@ -83,7 +97,7 @@ void updateCat(CAT* c) {
 
    c->active = 0;
   }
-  c->col -= c->cd;
+  c->col -= c->cd ;
  }
 }
 

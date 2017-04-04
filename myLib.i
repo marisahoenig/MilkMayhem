@@ -29,22 +29,7 @@ extern unsigned int oldButtons;
 extern unsigned int buttons;
 # 107 "myLib.h"
 void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control);
-
-
-
-
-
-
-
-typedef struct
-{
- const volatile void *src;
- const volatile void *dst;
- u32 cnt;
-} DMA_CONTROLLER;
-
-
-
+# 116 "myLib.h"
 typedef volatile struct {
         volatile const void *src;
         volatile const void *dst;
@@ -52,10 +37,10 @@ typedef volatile struct {
 } DMA;
 
 extern DMA *dma;
-# 215 "myLib.h"
+# 207 "myLib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 276 "myLib.h"
+# 268 "myLib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
