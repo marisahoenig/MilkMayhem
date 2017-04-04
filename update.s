@@ -141,11 +141,15 @@ collisionCheckEnemy:
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
 	str	r4, [sp, #-4]!
-	ldr	ip, [r1, #20]
 	ldr	r3, [r1, #0]
+	ldr	ip, [r1, #20]
 	ldr	r2, [r0, #0]
-	add	r3, ip, r3
-	cmp	r2, r3
+	add	ip, r3, ip
+	cmp	r2, ip
+	bgt	.L17
+	ldr	ip, [r0, #16]
+	add	r2, r2, ip
+	cmp	r3, r2
 	bgt	.L17
 	ldr	r3, [r0, #4]
 	ldr	r4, [r0, #12]
@@ -154,13 +158,11 @@ collisionCheckEnemy:
 	add	r4, r3, r4
 	add	ip, r2, ip
 	cmp	r4, ip
-	ble	.L22
-.L19:
-	cmp	r3, ip
-	bgt	.L17
-	cmp	r3, r2
-	blt	.L17
-	ldr	r2, .L23
+	bgt	.L19
+	cmp	r4, r2
+	blt	.L19
+.L20:
+	ldr	r2, .L21
 	ldr	ip, [r2, #0]
 	mov	r3, #0
 	add	ip, ip, #1
@@ -170,20 +172,15 @@ collisionCheckEnemy:
 .L17:
 	ldmfd	sp!, {r4}
 	bx	lr
-.L22:
-	cmp	r4, r2
-	blt	.L19
-	ldr	r2, .L23
-	ldr	ip, [r2, #0]
-	mov	r3, #0
-	add	ip, ip, #1
-	str	r3, [r1, #24]
-	str	ip, [r2, #0]
-	str	r3, [r0, #20]
+.L19:
+	cmp	r3, ip
+	bgt	.L17
+	cmp	r3, r2
+	bge	.L20
 	b	.L17
-.L24:
+.L22:
 	.align	2
-.L23:
+.L21:
 	.word	score
 	.size	collisionCheckEnemy, .-collisionCheckEnemy
 	.comm	score,4,4

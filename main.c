@@ -178,9 +178,9 @@ void initGame() {
 	}
 
 	fridge.row = 0;
-	fridge.col = 0;
+	fridge.col = 208;
 	fridge.rd = 0;
-	fridge.cd = 0;
+	fridge.cd = -1;
 	fridge.width = 32;
 	fridge.height = 64;
 	fridge.active = 0;
@@ -310,25 +310,6 @@ void update() {
 		}
 	}
 
-	if (BUTTON_HELD(BUTTON_A)) {
-		for (int i = 0; i < CATNUM; i++) {
-			CAT * c = &cats[i];
-			if (collisionEnemyPlayer(&p, c)) {
-				c->active = 0;
-				score++;
-			}
-		}
-	}
-	for (int i = 0; i < CATNUM; i++) {
-		CAT * c = &cats[i];
-		if (c->active) {
-			if (collisionEnemyPlayer(&p, c)) {
-				playSoundB(meow, MEOWLEN, MEOWFREQ, 0);
-				c->active = 0;
-				lives--;
-			}
-		}
-	}
 	if(SHIFTDOWN(p.row) >= 160 - p.height - 1) { //so it won't go below ground
         p.row = SHIFTUP(160 - p.height - 1);
         p.rd = 0;
@@ -351,12 +332,17 @@ void update() {
 			}	
 		}
 	}
-	//move the the cat if active
-	for(int i = 0; i < CATNUM; i++) { 
+
+	//move cat and check if collides with player
+	for (int i = 0; i < CATNUM; i++) {
 		CAT * c = &cats[i];
-		if(c->active) {
+		if (c->active) {
 			updateCat(c);
-			collisionEnemyPlayer(&p, c);
+			if (collisionEnemyPlayer(&p, c)) {
+				playSoundB(meow, MEOWLEN, MEOWFREQ, 0);
+				c->active = 0;
+				lives--;
+			}
 		}
 	}
 
@@ -413,7 +399,7 @@ void update() {
 
 void draw() {
 	//player stored in shadowOAM 0
-	shadowOAM[0].attr0 = SHIFTDOWN(p.row) | ATTR0_TALL;
+	shadowOAM[0].attr0 = (ROWMASK & SHIFTDOWN(p.row)) | ATTR0_TALL;
 	shadowOAM[0].attr1 = ATTR1_SIZE32 | p.col;
 	shadowOAM[0].attr2 = SPRITEOFFSET16(0, p.currFrame*2); //ref to sprite sheet
 
@@ -421,7 +407,7 @@ void draw() {
 	for(int i = 0; i < CATNUM; i++) { 
 		CAT * c = &cats[i];
 		if (c->active) { 	// cat sprites in shadowOAM 1-3
-			shadowOAM[CATSPRITE + i].attr0 = ATTR0_WIDE | c->row;
+			shadowOAM[CATSPRITE + i].attr0 = ATTR0_WIDE | (ROWMASK & c->row);
 			shadowOAM[CATSPRITE + i].attr1 = ATTR1_SIZE32 | c->col;
 			shadowOAM[CATSPRITE + i].attr2 = SPRITEOFFSET16(0, 8);
 		} else {
@@ -433,7 +419,7 @@ void draw() {
 	for(int i = 0; i < BULLETNUM; i++) { 
 		BULLET * b = &bullets[i];
 		if (b->active) { 	// //player bullets stored in shadowOAM 26-36
-			shadowOAM[BULLETSPRITE + i].attr0 = b->row;
+			shadowOAM[BULLETSPRITE + i].attr0 = (ROWMASK & b->row);
 			shadowOAM[BULLETSPRITE + i].attr1 = ATTR1_SIZE8 | b->col;
 			shadowOAM[BULLETSPRITE + i].attr2 = SPRITEOFFSET16(4, 0);
 		} else {
@@ -444,7 +430,7 @@ void draw() {
 	// draw hearts for the lives
 	for (int i = 0; i < 3; i++) { // loop through the 3 lives
 		if (i + 1 <= lives) { //draw the ones that are there
-			shadowOAM[LIVESPRITE + i].attr0 = 5 | ATTR0_WIDE;
+			shadowOAM[LIVESPRITE + i].attr0 = (ROWMASK & 5) | ATTR0_WIDE;
 			shadowOAM[LIVESPRITE + i].attr1 = ATTR1_SIZE8 | (24 + (10*i));
 			shadowOAM[LIVESPRITE + i].attr2 = SPRITEOFFSET16(0, 12);
 		} else { //hide any of the other hearts
@@ -464,7 +450,7 @@ void draw() {
 	// }
 
 	if (fridge.active) {
-		shadowOAM[FRIDGESPACE].attr0 = ATTR0_TALL | fridge.row;
+		shadowOAM[FRIDGESPACE].attr0 = ATTR0_TALL | (ROWMASK & fridge.row);
 		shadowOAM[FRIDGESPACE].attr1 = ATTR1_SIZE64 | fridge.col;
 		shadowOAM[FRIDGESPACE].attr2 = SPRITEOFFSET16(0, 14);
 	}

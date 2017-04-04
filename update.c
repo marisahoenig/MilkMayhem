@@ -13,7 +13,7 @@ void updateCat(CAT* c) {
 	}
 }
 
-//check if enemy hits player
+//check if cat hits player
 int collisionEnemyPlayer(PLAYER* p, CAT* c) {
 	int shiftedRow = SHIFTDOWN(p->row);
 	if ((shiftedRow <= c->row && shiftedRow+ p->height >= c->row + c->height)
@@ -23,6 +23,7 @@ int collisionEnemyPlayer(PLAYER* p, CAT* c) {
 	return 0;
 }
 
+//health that player can collect
 void updateHealth(HEALTH* health, PLAYER* p) {
 	if (health->active) {
 		health->col -= health->cd;
@@ -52,7 +53,7 @@ void updateBullet(BULLET* b) {
 
 //Bullets that hit the enemy - check collision
 void collisionCheckEnemy(BULLET* b, CAT* c) {
-    if ((b->row <= c->row + c->height) && 
+    if ((b->row <= c->row + c->height) && (b->row + b->height >= c->row) &&
     	((b->col + b->width <= c->col + c->width && b->col + b->width >= c->col) ||
     		(b->col <= c->col + c->width && b->col >= c->col))) {
     	score++; //add to score

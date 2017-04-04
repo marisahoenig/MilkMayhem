@@ -203,7 +203,7 @@ void updateBullet(BULLET* b) {
 
 
 void collisionCheckEnemy(BULLET* b, CAT* c) {
-    if ((b->row <= c->row + c->height) &&
+    if ((b->row <= c->row + c->height) && (b->row + b->height >= c->row) &&
      ((b->col + b->width <= c->col + c->width && b->col + b->width >= c->col) ||
       (b->col <= c->col + c->width && b->col >= c->col))) {
      score++;

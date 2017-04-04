@@ -556,9 +556,9 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 extern unsigned short *videoBuffer;
-# 49 "mylib.h"
+# 52 "mylib.h"
 extern unsigned short *videoBuffer;
-# 65 "mylib.h"
+# 68 "mylib.h"
 void drawRect4(int row, int col, int height, int width, unsigned char colorIndex);
 void waitForVblank();
 int sprintf (char *string, const char *form, ...);
@@ -575,9 +575,9 @@ char *short2bin(short x, char arr[]);
 
 extern unsigned int oldButtons;
 extern unsigned int buttons;
-# 107 "mylib.h"
+# 110 "mylib.h"
 void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control);
-# 116 "mylib.h"
+# 119 "mylib.h"
 typedef volatile struct {
         volatile const void *src;
         volatile const void *dst;
@@ -585,10 +585,10 @@ typedef volatile struct {
 } DMA;
 
 extern DMA *dma;
-# 207 "mylib.h"
+# 210 "mylib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 268 "mylib.h"
+# 271 "mylib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
@@ -853,9 +853,9 @@ void initGame() {
  }
 
  fridge.row = 0;
- fridge.col = 0;
+ fridge.col = 208;
  fridge.rd = 0;
- fridge.cd = 0;
+ fridge.cd = -1;
  fridge.width = 32;
  fridge.height = 64;
  fridge.active = 0;
@@ -985,25 +985,6 @@ void update() {
   }
  }
 
- if ((~((*(volatile unsigned int *)0x04000130)) & 1)) {
-  for (int i = 0; i < 2; i++) {
-   CAT * c = &cats[i];
-   if (collisionEnemyPlayer(&p, c)) {
-    c->active = 0;
-    score++;
-   }
-  }
- }
- for (int i = 0; i < 2; i++) {
-  CAT * c = &cats[i];
-  if (c->active) {
-   if (collisionEnemyPlayer(&p, c)) {
-    playSoundB(meow, 4874, 11025, 0);
-    c->active = 0;
-    lives--;
-   }
-  }
- }
  if(((p.row) >> 8) >= 160 - p.height - 1) {
         p.row = ((160 - p.height - 1) << 8);
         p.rd = 0;
@@ -1026,12 +1007,16 @@ void update() {
    }
   }
  }
-
- for(int i = 0; i < 2; i++) {
+# 345 "main.c"
+ for (int i = 0; i < 2; i++) {
   CAT * c = &cats[i];
-  if(c->active) {
+  if (c->active) {
    updateCat(c);
-   collisionEnemyPlayer(&p, c);
+   if (collisionEnemyPlayer(&p, c)) {
+    playSoundB(meow, 4874, 11025, 0);
+    c->active = 0;
+    lives--;
+   }
   }
  }
 
@@ -1088,7 +1073,7 @@ void update() {
 
 void draw() {
 
- shadowOAM[0].attr0 = ((p.row) >> 8) | (2 << 14);
+ shadowOAM[0].attr0 = ((0xFF) & ((p.row) >> 8)) | (2 << 14);
  shadowOAM[0].attr1 = (2 << 14) | p.col;
  shadowOAM[0].attr2 = (0)*32+(p.currFrame*2);
 
@@ -1096,7 +1081,7 @@ void draw() {
  for(int i = 0; i < 2; i++) {
   CAT * c = &cats[i];
   if (c->active) {
-   shadowOAM[1 + i].attr0 = (1 << 14) | c->row;
+   shadowOAM[1 + i].attr0 = (1 << 14) | ((0xFF) & c->row);
    shadowOAM[1 + i].attr1 = (2 << 14) | c->col;
    shadowOAM[1 + i].attr2 = (0)*32+(8);
   } else {
@@ -1108,7 +1093,7 @@ void draw() {
  for(int i = 0; i < 5; i++) {
   BULLET * b = &bullets[i];
   if (b->active) {
-   shadowOAM[11 + i].attr0 = b->row;
+   shadowOAM[11 + i].attr0 = ((0xFF) & b->row);
    shadowOAM[11 + i].attr1 = (0 << 14) | b->col;
    shadowOAM[11 + i].attr2 = (4)*32+(0);
   } else {
@@ -1119,16 +1104,16 @@ void draw() {
 
  for (int i = 0; i < 3; i++) {
   if (i + 1 <= lives) {
-   shadowOAM[4 + i].attr0 = 5 | (1 << 14);
+   shadowOAM[4 + i].attr0 = ((0xFF) & 5) | (1 << 14);
    shadowOAM[4 + i].attr1 = (0 << 14) | (24 + (10*i));
    shadowOAM[4 + i].attr2 = (0)*32+(12);
   } else {
    shadowOAM[4 + i].attr0 = (2 << 8);
   }
  }
-# 466 "main.c"
+# 460 "main.c"
  if (fridge.active) {
-  shadowOAM[10].attr0 = (2 << 14) | fridge.row;
+  shadowOAM[10].attr0 = (2 << 14) | ((0xFF) & fridge.row);
   shadowOAM[10].attr1 = (3 << 14) | fridge.col;
   shadowOAM[10].attr2 = (0)*32+(14);
  }

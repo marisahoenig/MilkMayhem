@@ -12,6 +12,9 @@ extern unsigned short *videoBuffer;
 #define SCREENHEIGHT 160
 #define SCREENWIDTH 240
 
+#define ROWMASK (0xFF) //255
+#define COLMASK (0x1FF) //511
+
 // Generally useful symbols
 #define FOREVER 1
 #define TRUE 1
