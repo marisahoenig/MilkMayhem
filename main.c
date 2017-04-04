@@ -173,6 +173,14 @@ void initGame() {
 		hearts[i] = health;
 	}
 
+	fridge.row = 0;
+	fridge.col = 0;
+	fridge.rd = 0;
+	fridge.cd = 0;
+	fridge.width = 32;
+	fridge.height = 64;
+	fridge.active = 0;
+
 	hOff = 0;
 	lives = 3;
 	score = 0;
@@ -401,6 +409,12 @@ void draw() {
 	// 		shadowOAM[7 + i].attr0 = ATTR0_HIDE;
 	// 	}
 	// }
+
+	if (fridge.active) {
+		shadowOAM[FRIDGESPACE].attr0 = ATTR0_TALL | fridge.row;
+		shadowOAM[FRIDGESPACE].attr1 = ATTR1_SIZE64 | fridge.col;
+		shadowOAM[FRIDGESPACE].attr2 = SPRITEOFFSET16(0, 14);
+	}
 	
 	//transfer OAM to shadowOAM
 	DMANow(3, shadowOAM, OAM, 512);

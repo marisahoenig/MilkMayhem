@@ -1,9 +1,9 @@
-// #define SCORESPRITE 48 //stored in 48-49 ShadowOA
 #define CATNUM 2
 #define CATSPRITE 1 //1-3
 #define LIVESPRITE 4 //4-6
-//health = 7
+//health = 7, 8, 9
 #define HEALTHNUM 2
+#define FRIDGESPACE 10 //store in 10
 
 
 void init();
@@ -84,4 +84,5 @@ typedef struct {
 	int cd;
 	int width;
 	int height;
+	int active;
 } FRIDGE;

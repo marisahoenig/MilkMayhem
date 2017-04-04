@@ -82,6 +82,7 @@ typedef struct {
  int cd;
  int width;
  int height;
+ int active;
 } FRIDGE;
 # 2 "update.c" 2
 # 1 "update.h" 1
@@ -97,7 +98,7 @@ void updateCat(CAT* c) {
 
    c->active = 0;
   }
-  c->col -= c->cd ;
+  c->col -= c->cd;
  }
 }
 

@@ -538,6 +538,7 @@ typedef struct {
  int cd;
  int width;
  int height;
+ int active;
 } FRIDGE;
 # 18 "main.c" 2
 # 1 "mylib.h" 1
@@ -836,6 +837,14 @@ void initGame() {
   hearts[i] = health;
  }
 
+ fridge.row = 0;
+ fridge.col = 0;
+ fridge.rd = 0;
+ fridge.cd = 0;
+ fridge.width = 32;
+ fridge.height = 64;
+ fridge.active = 0;
+
  hOff = 0;
  lives = 3;
  score = 0;
@@ -1053,7 +1062,14 @@ void draw() {
    shadowOAM[4 + i].attr0 = (2 << 8);
   }
  }
-# 406 "main.c"
+# 413 "main.c"
+ if (fridge.active) {
+  shadowOAM[10].attr0 = (2 << 14) | fridge.row;
+  shadowOAM[10].attr1 = (3 << 14) | fridge.col;
+  shadowOAM[10].attr2 = (0)*32+(14);
+ }
+
+
  DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 512);
 
  waitForVblank();
