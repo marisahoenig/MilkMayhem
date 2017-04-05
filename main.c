@@ -5,7 +5,7 @@ which the milk must battle to get past and not lose lives.
 
 Currently, if the milk loses 3 lives, it will lose. However, it can collect hearts to boost
 its life. Right now, you can fire milk droplets at the cats to get rid of them (press A) or simply jump
-over them (press B). If you hit 5 cats, the refridgerator will appear. Run into the refridgerator to win!
+over them (press B). If you hit 5 cats, the refridgerator will appear. Reach the refridgerator to win!
 
 Eventually, the hearts will be milk levels instead of hearts and there will be opportunities to boost the
 number of lives/milk levels.
