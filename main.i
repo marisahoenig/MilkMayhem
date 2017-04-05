@@ -2,7 +2,7 @@
 # 1 "<built-in>"
 # 1 "<command-line>"
 # 1 "main.c"
-# 16 "main.c"
+# 18 "main.c"
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 1 3
 # 10 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 3
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/machine/ieeefp.h" 1 3
@@ -457,7 +457,7 @@ extern long double wcstold (const wchar_t *, wchar_t **);
 
 
 
-# 17 "main.c" 2
+# 19 "main.c" 2
 # 1 "main.h" 1
 # 12 "main.h"
 void init();
@@ -557,7 +557,7 @@ typedef struct {
  int height;
  int active;
 } BULLET;
-# 18 "main.c" 2
+# 20 "main.c" 2
 # 1 "mylib.h" 1
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -608,7 +608,7 @@ typedef struct {
     int row;
     int col;
 } Sprite;
-# 19 "main.c" 2
+# 21 "main.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
 void updateFridge(FRIDGE* fridge);
@@ -617,7 +617,7 @@ void updateHealth(HEALTH* health, PLAYER* p);
 void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
-# 20 "main.c" 2
+# 22 "main.c" 2
 # 1 "splashscreen.h" 1
 # 22 "splashscreen.h"
 extern const unsigned short splashscreenTiles[2752];
@@ -627,71 +627,64 @@ extern const unsigned short splashscreenMap[1024];
 
 
 extern const unsigned short splashscreenPal[256];
-# 21 "main.c" 2
+# 23 "main.c" 2
 # 1 "instructions.h" 1
 # 21 "instructions.h"
 extern const unsigned short instructionsTiles[5408];
 
 
 extern const unsigned short instructionsMap[1024];
-# 22 "main.c" 2
+# 24 "main.c" 2
 # 1 "spritesheet.h" 1
 # 21 "spritesheet.h"
 extern const unsigned short spritesheetTiles[16384];
 
 
 extern const unsigned short spritesheetPal[256];
-# 23 "main.c" 2
-# 1 "background.h" 1
-# 21 "background.h"
-extern const unsigned short backgroundTiles[48];
-
-
-extern const unsigned short backgroundMap[1024];
-# 24 "main.c" 2
+# 25 "main.c" 2
 # 1 "winscreen.h" 1
 # 21 "winscreen.h"
 extern const unsigned short winscreenTiles[1088];
 
 
 extern const unsigned short winscreenMap[1024];
-# 25 "main.c" 2
+# 26 "main.c" 2
 # 1 "losescreen.h" 1
 # 21 "losescreen.h"
 extern const unsigned short losescreenTiles[1424];
 
 
 extern const unsigned short losescreenMap[1024];
-# 26 "main.c" 2
+# 27 "main.c" 2
 # 1 "pausescreen.h" 1
 # 21 "pausescreen.h"
 extern const unsigned short pausescreenTiles[1568];
 
 
 extern const unsigned short pausescreenMap[1024];
-# 27 "main.c" 2
+# 28 "main.c" 2
 # 1 "movebackground.h" 1
 # 21 "movebackground.h"
-extern const unsigned short movebackgroundTiles[17680];
+extern const unsigned short movebackgroundTiles[15152];
 
 
 extern const unsigned short movebackgroundMap[4096];
-# 28 "main.c" 2
+# 29 "main.c" 2
 # 1 "controls.h" 1
 # 21 "controls.h"
 extern const unsigned short controlsTiles[4192];
 
 
 extern const unsigned short controlsMap[1024];
-# 29 "main.c" 2
+# 30 "main.c" 2
 # 1 "uke.h" 1
 # 20 "uke.h"
 extern const unsigned char uke[193313];
-# 30 "main.c" 2
+# 31 "main.c" 2
 # 1 "meow.h" 1
 # 20 "meow.h"
 extern const unsigned char meow[4874];
-# 31 "main.c" 2
+# 32 "main.c" 2
 # 1 "sounds.h" 1
 void setupSounds();
 void playSoundA( const unsigned char* sound, int length, int frequency, int loops);
@@ -713,14 +706,14 @@ typedef struct {
     int priority;
     int vbCount;
 } SOUND;
-# 32 "main.c" 2
+# 33 "main.c" 2
 # 1 "lights.h" 1
 # 21 "lights.h"
 extern const unsigned short lightsTiles[1120];
 
 
 extern const unsigned short lightsMap[1024];
-# 33 "main.c" 2
+# 34 "main.c" 2
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -823,13 +816,13 @@ void initGame() {
     DMANow(3, spritesheetTiles, &((charblock *)0x6000000)[4], 32768/2);
 
 
- *(volatile unsigned short*)0x400000A = 3<<14 | 0 << 2 | 26 << 8;
- DMANow(3, movebackgroundTiles, &((charblock *)0x6000000)[0], 35360/2);
+ *(volatile unsigned short*)0x400000A = 3<<14 | 1 << 2 | 26 << 8;
+ DMANow(3, movebackgroundTiles, &((charblock *)0x6000000)[1], 30304/2);
     DMANow(3, movebackgroundMap, &((screenblock *)0x6000000)[26], 8192/2);
 
 
- *(volatile unsigned short*)0x4000008 = 0<<14 | 1 << 2 | 25 << 8;
- DMANow(3, lightsTiles, &((charblock *)0x6000000)[1], 2240/2);
+ *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 25 << 8;
+ DMANow(3, lightsTiles, &((charblock *)0x6000000)[0], 2240/2);
     DMANow(3, lightsMap, &((screenblock *)0x6000000)[25], 2048/2);
 
 
@@ -1016,9 +1009,15 @@ void update() {
   }
  }
 
- if(((p.row) >> 8) >= 160 - p.height - 1) {
+ if (((p.row) >> 8) >= 160 - p.height - 1) {
         p.row = ((160 - p.height - 1) << 8);
         p.rd = 0;
+    }
+    if (p.col + p.width > 240) {
+     p.col = 240-p.width;
+    }
+    if (p.col < 0) {
+     p.col = 0;
     }
 
  if ((!(~oldButtons&(2))&&(~buttons&(2))) && p.rd > -p.stopRange && p.rd < p.stopRange) {
@@ -1148,13 +1147,13 @@ void draw() {
  for (int i = 0; i < 3; i++) {
   if (i + 1 <= lives) {
    shadowOAM[4 + i].attr0 = ((0xFF) & 5) | (1 << 14);
-   shadowOAM[4 + i].attr1 = (0 << 14) | (24 + (10*i));
+   shadowOAM[4 + i].attr1 = (0 << 14) | (10 + (10*i));
    shadowOAM[4 + i].attr2 = (0)*32+(12);
   } else {
    shadowOAM[4 + i].attr0 = (2 << 8);
   }
  }
-# 478 "main.c"
+# 485 "main.c"
  if (fridge.active) {
   shadowOAM[10].attr0 = (2 << 14) | ((0xFF) & fridge.row);
   shadowOAM[10].attr1 = (3 << 14) | fridge.col;

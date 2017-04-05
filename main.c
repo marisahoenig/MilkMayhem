@@ -4,13 +4,15 @@ at the end of a scrolling background. There will be platforms and enemies (cats)
 which the milk must battle to get past and not lose lives.
 
 Currently, if the milk loses 3 lives, it will lose. However, it can collect hearts to boost
-its life. Right now, it can only run and get hurt by enemies. Fight back by holding down A,
-which will be improved.
+its life. Right now, you can fire milk droplets at the cats to get rid of them (press A) or simply jump
+over them (press B). If you hit 5 cats, the refridgerator will appear. Run into the refridgerator to win!
 
-Eventually, the hearts will be milk levels, and the milk will be able to fight the cats better, but I am
-debating between punching them and shooting 'water' at them. The milk will also be able to jump.
+Eventually, the hearts will be milk levels instead of hearts and there will be opportunities to boost the
+number of lives/milk levels.
 
 Controls are left and right to move.
+A - Fire milk droplet
+B - Jump
 ******************************************/
 
 #include <stdlib.h>
@@ -20,7 +22,6 @@ Controls are left and right to move.
 #include "splashscreen.h"
 #include "instructions.h"
 #include "spritesheet.h"
-#include "background.h"
 #include "winscreen.h"
 #include "losescreen.h"
 #include "pausescreen.h"
@@ -132,13 +133,13 @@ void initGame() {
     DMANow(3, spritesheetTiles, &CHARBLOCKBASE[4], spritesheetTilesLen/2);  
 
     //first background (main, kitchen)
-	REG_BG1CNT = BG_SIZE3 | CBB(0) | SBB(26);
-	DMANow(3, movebackgroundTiles, &CHARBLOCKBASE[0], movebackgroundTilesLen/2);
+	REG_BG1CNT = BG_SIZE3 | CBB(1) | SBB(26);
+	DMANow(3, movebackgroundTiles, &CHARBLOCKBASE[1], movebackgroundTilesLen/2);
     DMANow(3, movebackgroundMap, &SCREENBLOCKBASE[26], movebackgroundMapLen/2);
 
  	//second background (lights)
-	REG_BG0CNT = BG_SIZE0 | CBB(1) | SBB(25);
-	DMANow(3, lightsTiles, &CHARBLOCKBASE[1], lightsTilesLen/2);
+	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(25);
+	DMANow(3, lightsTiles, &CHARBLOCKBASE[0], lightsTilesLen/2);
     DMANow(3, lightsMap, &SCREENBLOCKBASE[25], lightsMapLen/2);    
 
     //hide all the sprites at beginning
@@ -325,9 +326,15 @@ void update() {
 		}
 	}
 
-	if(SHIFTDOWN(p.row) >= 160 - p.height - 1) { //so it won't go below ground
+	if (SHIFTDOWN(p.row) >= 160 - p.height - 1) { //so it won't go below ground
         p.row = SHIFTUP(160 - p.height - 1);
         p.rd = 0;
+    }
+    if (p.col + p.width > 240) {
+    	p.col = 240-p.width;
+    }
+    if (p.col < 0) {
+    	p.col = 0;
     }
 
 	if (BUTTON_PRESSED(BUTTON_B) && p.rd > -p.stopRange && p.rd < p.stopRange) {//jump
@@ -457,7 +464,7 @@ void draw() {
 	for (int i = 0; i < 3; i++) { // loop through the 3 lives
 		if (i + 1 <= lives) { //draw the ones that are there
 			shadowOAM[LIVESPRITE + i].attr0 = (ROWMASK & 5) | ATTR0_WIDE;
-			shadowOAM[LIVESPRITE + i].attr1 = ATTR1_SIZE8 | (24 + (10*i));
+			shadowOAM[LIVESPRITE + i].attr1 = ATTR1_SIZE8 | (10 + (10*i));
 			shadowOAM[LIVESPRITE + i].attr2 = SPRITEOFFSET16(0, 12);
 		} else { //hide any of the other hearts
 			shadowOAM[LIVESPRITE + i].attr0 = ATTR0_HIDE;
