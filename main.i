@@ -714,6 +714,13 @@ typedef struct {
     int vbCount;
 } SOUND;
 # 32 "main.c" 2
+# 1 "lights.h" 1
+# 21 "lights.h"
+extern const unsigned short lightsTiles[1120];
+
+
+extern const unsigned short lightsMap[1024];
+# 33 "main.c" 2
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -761,6 +768,7 @@ void goToSplash() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 31 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
+ *(volatile unsigned short *)0x04000014 = 0;
  DMANow(3, splashscreenTiles, &((charblock *)0x6000000)[0], 5504/2);
     DMANow(3, splashscreenMap, &((screenblock *)0x6000000)[31], 2048/2);
  state = updateSplash;
@@ -777,6 +785,7 @@ void updateSplash() {
 void goToInstructions() {
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
+ *(volatile unsigned short *)0x04000014 = 0;
  DMANow(3, instructionsTiles, &((charblock *)0x6000000)[0], 10816/2);
     DMANow(3, instructionsMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = updateInstructions;
@@ -792,6 +801,7 @@ void updateInstructions() {
 void goToControls() {
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 29 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
+ *(volatile unsigned short *)0x04000014 = 0;
  DMANow(3, controlsTiles, &((charblock *)0x6000000)[0], 8384/2);
     DMANow(3, controlsMap, &((screenblock *)0x6000000)[29], 2048/2);
  state = updateControls;
@@ -807,15 +817,20 @@ void updateControls() {
 
 
 void initGame() {
- (*(u16 *)0x4000000) = 0 | (1<<8)| (1 << 12);
+ (*(u16 *)0x4000000) = 0 | (1<<8)| (1<<9) | (1 << 12);
 
     DMANow(3, spritesheetPal, ((unsigned short*)(0x5000200)), 256);
     DMANow(3, spritesheetTiles, &((charblock *)0x6000000)[4], 32768/2);
 
 
- *(volatile unsigned short*)0x4000008 = 3<<14 | 0 << 2 | 26 << 8;
+ *(volatile unsigned short*)0x400000A = 3<<14 | 0 << 2 | 26 << 8;
  DMANow(3, movebackgroundTiles, &((charblock *)0x6000000)[0], 35360/2);
     DMANow(3, movebackgroundMap, &((screenblock *)0x6000000)[26], 8192/2);
+
+
+ *(volatile unsigned short*)0x4000008 = 0<<14 | 1 << 2 | 25 << 8;
+ DMANow(3, lightsTiles, &((charblock *)0x6000000)[1], 2240/2);
+    DMANow(3, lightsMap, &((screenblock *)0x6000000)[25], 2048/2);
 
 
     hideSprites();
@@ -893,8 +908,9 @@ void initGame() {
 
 void goToGame() {
 
- (*(u16 *)0x4000000) = 0 | (1<<8) | (1 << 12);
- *(volatile unsigned short *)0x04000010 = hOff;
+ (*(u16 *)0x4000000) = 0 | (1<<8) | (1<<9) | (1 << 12);
+ *(volatile unsigned short *)0x04000014 = hOff;
+ *(volatile unsigned short *)0x04000010 = hOff/2;
  playSoundA(uke, 193313, 11025, 1);
  state = updateGame;
 }
@@ -933,7 +949,7 @@ void updatePause() {
 void goToWin() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
- *(volatile unsigned short *)0x04000010 = 0;
+ *(volatile unsigned short *)0x04000014 = 0;
  hOff = 0;
  DMANow(3, winscreenTiles, &((charblock *)0x6000000)[0], 2176/2);
     DMANow(3, winscreenMap, &((screenblock *)0x6000000)[30], 2048/2);
@@ -1090,7 +1106,8 @@ void update() {
   collisionFridge(&fridge, &p);
  }
 
- *(volatile unsigned short *)0x04000010 = hOff;
+ *(volatile unsigned short *)0x04000014 = hOff;
+ *(volatile unsigned short *)0x04000010 = hOff/2;
 
  if (lives <= 0) {
   goToLose();
@@ -1137,7 +1154,7 @@ void draw() {
    shadowOAM[4 + i].attr0 = (2 << 8);
   }
  }
-# 467 "main.c"
+# 478 "main.c"
  if (fridge.active) {
   shadowOAM[10].attr0 = (2 << 14) | ((0xFF) & fridge.row);
   shadowOAM[10].attr1 = (3 << 14) | fridge.col;

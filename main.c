@@ -29,6 +29,7 @@ Controls are left and right to move.
 #include "uke.h"
 #include "meow.h"
 #include "sounds.h"
+#include "lights.h"
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -76,6 +77,7 @@ void goToSplash() {
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(31);
 	REG_BG0HOFS = 0;
+	REG_BG1HOFS = 0;
 	DMANow(3, splashscreenTiles, &CHARBLOCKBASE[0], splashscreenTilesLen/2);
     DMANow(3, splashscreenMap, &SCREENBLOCKBASE[31], splashscreenMapLen/2);
 	state = updateSplash;
@@ -92,6 +94,7 @@ void updateSplash() {
 void goToInstructions() {
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
 	REG_BG0HOFS = 0;
+	REG_BG1HOFS = 0;
 	DMANow(3, instructionsTiles, &CHARBLOCKBASE[0], instructionsTilesLen/2);
     DMANow(3, instructionsMap, &SCREENBLOCKBASE[30], instructionsMapLen/2);
 	state = updateInstructions;
@@ -107,6 +110,7 @@ void updateInstructions() {
 void goToControls() {
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(29);
 	REG_BG0HOFS = 0;
+	REG_BG1HOFS = 0;
 	DMANow(3, controlsTiles, &CHARBLOCKBASE[0], controlsTilesLen/2);
     DMANow(3, controlsMap, &SCREENBLOCKBASE[29], controlsMapLen/2);
 	state = updateControls;
@@ -122,15 +126,20 @@ void updateControls() {
 
 //initialize everything
 void initGame() {
-	REG_DISPCTL = MODE0 | BG0_ENABLE| SPRITE_ENABLE; //enable background
+	REG_DISPCTL = MODE0 | BG0_ENABLE| BG1_ENABLE | SPRITE_ENABLE; //enable background
 
     DMANow(3, spritesheetPal, SPRITE_PALETTE, 256);
     DMANow(3, spritesheetTiles, &CHARBLOCKBASE[4], spritesheetTilesLen/2);  
 
-    //second background
-	REG_BG0CNT = BG_SIZE3 | CBB(0) | SBB(26);
+    //first background (main, kitchen)
+	REG_BG1CNT = BG_SIZE3 | CBB(0) | SBB(26);
 	DMANow(3, movebackgroundTiles, &CHARBLOCKBASE[0], movebackgroundTilesLen/2);
     DMANow(3, movebackgroundMap, &SCREENBLOCKBASE[26], movebackgroundMapLen/2);
+
+ 	//second background (lights)
+	REG_BG0CNT = BG_SIZE0 | CBB(1) | SBB(25);
+	DMANow(3, lightsTiles, &CHARBLOCKBASE[1], lightsTilesLen/2);
+    DMANow(3, lightsMap, &SCREENBLOCKBASE[25], lightsMapLen/2);    
 
     //hide all the sprites at beginning
     hideSprites();
@@ -208,8 +217,9 @@ void initGame() {
 
 void goToGame() {
 	//enable both backgrounds
-	REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE;
-	REG_BG0HOFS = hOff;
+	REG_DISPCTL = MODE0 | BG0_ENABLE | BG1_ENABLE | SPRITE_ENABLE;
+	REG_BG1HOFS = hOff;
+	REG_BG0HOFS = hOff/2;
 	playSoundA(uke, UKELEN, UKEFREQ, 1);
 	state = updateGame;
 }
@@ -248,7 +258,7 @@ void updatePause() {
 void goToWin() { 
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
-	REG_BG0HOFS = 0;
+	REG_BG1HOFS = 0;
 	hOff = 0;
 	DMANow(3, winscreenTiles, &CHARBLOCKBASE[0], winscreenTilesLen/2);
     DMANow(3, winscreenMap, &SCREENBLOCKBASE[30], winscreenMapLen/2);
@@ -405,7 +415,8 @@ void update() {
 		collisionFridge(&fridge, &p);
 	}
 
-	REG_BG0HOFS = hOff;
+	REG_BG1HOFS = hOff;
+	REG_BG0HOFS = hOff/2;
 
 	if (lives <= 0) {
 		goToLose();

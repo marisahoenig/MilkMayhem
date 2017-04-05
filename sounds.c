@@ -32,9 +32,7 @@ void playSoundA( const unsigned char* sound, int length, int frequency, int loop
 	
         REG_TM0D = -ticks;
         REG_TM0CNT = TIMER_ON;
-	
-        //TODO: FINISH THIS FUNCTION
-        // Assign all the appropriate struct values (excluding priority)
+
         soundA.length = length;
         soundA.frequency = frequency;
         soundA.isPlaying = 1;
@@ -43,7 +41,6 @@ void playSoundA( const unsigned char* sound, int length, int frequency, int loop
         soundA.data = sound;
         soundA.vbCount = 0;
 }
-
 
 void playSoundB( const unsigned char* sound, int length, int frequency, int loops) {
 
@@ -58,8 +55,6 @@ void playSoundB( const unsigned char* sound, int length, int frequency, int loop
         REG_TM1D = -ticks;
         REG_TM1CNT = TIMER_ON;
 	
-        // TODO: FINISH THIS FUNCTION
-        // Assign all the appropriate struct values
         soundB.length = length;
         soundB.frequency = frequency;
         soundB.isPlaying = 1;

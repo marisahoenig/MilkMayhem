@@ -25,7 +25,7 @@ typedef struct {
 } SOUND;
 # 2 "sounds.c" 2
 # 1 "main.h" 1
-# 9 "main.h"
+# 12 "main.h"
 void init();
 void update();
 void draw();
@@ -59,6 +59,10 @@ int time;
 int hOff;
 int gamehOff;
 
+
+int catFrame;
+enum {CNORM, CBACK, CFRONT };
+
 typedef struct {
  int row;
  int col;
@@ -85,6 +89,10 @@ typedef struct {
  int width;
  int height;
  int active;
+ int catFrame;
+ int moveState;
+ int prevMoveState;
+ int aniCounter;
 } CAT;
 
 typedef struct {
@@ -104,7 +112,17 @@ typedef struct {
  int cd;
  int width;
  int height;
+ int active;
 } FRIDGE;
+
+typedef struct {
+ int row;
+ int col;
+ int cd;
+ int width;
+ int height;
+ int active;
+} BULLET;
 # 3 "sounds.c" 2
 # 1 "myLib.h" 1
 typedef unsigned char u8;
@@ -112,9 +130,9 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 extern unsigned short *videoBuffer;
-# 49 "myLib.h"
+# 52 "myLib.h"
 extern unsigned short *videoBuffer;
-# 65 "myLib.h"
+# 68 "myLib.h"
 void drawRect4(int row, int col, int height, int width, unsigned char colorIndex);
 void waitForVblank();
 int sprintf (char *string, const char *form, ...);
@@ -131,24 +149,9 @@ char *short2bin(short x, char arr[]);
 
 extern unsigned int oldButtons;
 extern unsigned int buttons;
-# 107 "myLib.h"
+# 110 "myLib.h"
 void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control);
-
-
-
-
-
-
-
-typedef struct
-{
- const volatile void *src;
- const volatile void *dst;
- u32 cnt;
-} DMA_CONTROLLER;
-
-
-
+# 119 "myLib.h"
 typedef volatile struct {
         volatile const void *src;
         volatile const void *dst;
@@ -156,10 +159,10 @@ typedef volatile struct {
 } DMA;
 
 extern DMA *dma;
-# 215 "myLib.h"
+# 210 "myLib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 276 "myLib.h"
+# 271 "myLib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
@@ -204,8 +207,6 @@ void playSoundA( const unsigned char* sound, int length, int frequency, int loop
         *(volatile unsigned short*)0x4000100 = -ticks;
         *(volatile unsigned short*)0x4000102 = (1<<7);
 
-
-
         soundA.length = length;
         soundA.frequency = frequency;
         soundA.isPlaying = 1;
@@ -214,7 +215,6 @@ void playSoundA( const unsigned char* sound, int length, int frequency, int loop
         soundA.data = sound;
         soundA.vbCount = 0;
 }
-
 
 void playSoundB( const unsigned char* sound, int length, int frequency, int loops) {
 
@@ -228,8 +228,6 @@ void playSoundB( const unsigned char* sound, int length, int frequency, int loop
 
         *(volatile unsigned short*)0x4000104 = -ticks;
         *(volatile unsigned short*)0x4000106 = (1<<7);
-
-
 
         soundB.length = length;
         soundB.frequency = frequency;

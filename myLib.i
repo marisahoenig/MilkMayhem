@@ -8,9 +8,9 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 extern unsigned short *videoBuffer;
-# 49 "myLib.h"
+# 52 "myLib.h"
 extern unsigned short *videoBuffer;
-# 65 "myLib.h"
+# 68 "myLib.h"
 void drawRect4(int row, int col, int height, int width, unsigned char colorIndex);
 void waitForVblank();
 int sprintf (char *string, const char *form, ...);
@@ -27,9 +27,9 @@ char *short2bin(short x, char arr[]);
 
 extern unsigned int oldButtons;
 extern unsigned int buttons;
-# 107 "myLib.h"
+# 110 "myLib.h"
 void DMANow(int channel, volatile const void* source, volatile const void* destination, unsigned int control);
-# 116 "myLib.h"
+# 119 "myLib.h"
 typedef volatile struct {
         volatile const void *src;
         volatile const void *dst;
@@ -37,10 +37,10 @@ typedef volatile struct {
 } DMA;
 
 extern DMA *dma;
-# 207 "myLib.h"
+# 210 "myLib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 268 "myLib.h"
+# 271 "myLib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;

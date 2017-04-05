@@ -3911,21 +3911,21 @@ splashscreenPal:
 	.short	20119
 	.short	23288
 	.short	2114
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
+	.short	32736
+	.short	14799
+	.short	2114
+	.short	23287
+	.short	30653
+	.short	9513
+	.short	25368
+	.short	19027
+	.short	24479
+	.short	25368
+	.short	6342
+	.short	21173
+	.short	21307
+	.short	17936
+	.short	12684
 	.short	0
 	.short	0
 	.short	0

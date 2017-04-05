@@ -201,8 +201,8 @@ extern DMA *dma;
 #define DSB_FIFO_RESET        (1<<15)
 
 // FIFO address defines
-#define REG_FIFO_A          0x040000A0
-#define REG_FIFO_B          0x040000A4
+#define REG_FIFO_A          (void*)0x040000A0
+#define REG_FIFO_B          (void*)0x040000A4
 
 
 // *** Tiles =========================================================
