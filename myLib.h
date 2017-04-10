@@ -259,6 +259,9 @@ typedef struct { u16 tilemap[1024]; } screenblock;
 #define ATTR1_SIZE32 (2 << 14)
 #define ATTR1_SIZE64 (3 << 14)
 
+#define ATTR2_PALBANK(i) ((i) << 12)
+
+
 #define OAM ((OBJ_ATTR*)(0x7000000))
 #define SPRITE_PALETTE ((unsigned short*)(0x5000200))
 

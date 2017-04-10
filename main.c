@@ -44,6 +44,7 @@ int timeToNextCat;
 HEALTH health;
 HEALTH hearts[HEALTHNUM];
 FRIDGE fridge;
+int chocolateMilk;
 
 // player bullet
 BULLET bullet;
@@ -132,16 +133,6 @@ void initGame() {
     DMANow(3, spritesheetPal, SPRITE_PALETTE, 256);
     DMANow(3, spritesheetTiles, &CHARBLOCKBASE[4], spritesheetTilesLen/2);  
 
-    //first background (main, kitchen)
-	REG_BG1CNT = BG_SIZE3 | CBB(1) | SBB(26);
-	DMANow(3, movebackgroundTiles, &CHARBLOCKBASE[1], movebackgroundTilesLen/2);
-    DMANow(3, movebackgroundMap, &SCREENBLOCKBASE[26], movebackgroundMapLen/2);
-
- 	//second background (lights)
-	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(25);
-	DMANow(3, lightsTiles, &CHARBLOCKBASE[0], lightsTilesLen/2);
-    DMANow(3, lightsMap, &SCREENBLOCKBASE[25], lightsMapLen/2);    
-
     //hide all the sprites at beginning
     hideSprites();
 
@@ -150,12 +141,12 @@ void initGame() {
 	setupSounds();
 
 	//create player
-	p.row = SHIFTUP(126);
+	p.row = SHIFTUP(90);
 	p.col = 112; //exact middle of screen
 	p.rd = 0;
 	p.cd = 2;
-	p.width = 16;
-	p.height = 32;
+	p.width = 32;
+	p.height = 64;
 	p.moveState = PNORM;
 	p.currFrame = PNORM;
 	p.aniCounter = 0;
@@ -164,12 +155,12 @@ void initGame() {
 	p.maxJumpSpeed = SHIFTUP(5);
 	p.racc = 40; //row accel
 
-	c.row = 140;
+	c.row = 120;
 	c.col = 200;
 	c.rd = 0;
 	c.cd = 1;
-	c.width = 32;
-	c.height = 16;
+	c.width = 64;
+	c.height = 32;
 	c.active = 0;
 	c.moveState = CNORM;
 	c.catFrame = CNORM;
@@ -181,10 +172,9 @@ void initGame() {
 
 	health.row = 140;
 	health.col = 220;
-	health.rd = 0;
 	health.cd = 1;
-	health.width = 10;
-	health.height = 8;
+	health.width = 16;
+	health.height = 16;
 	health.active = 0;
 
 	for (int i = 0; i < HEALTHNUM; i++) {
@@ -218,7 +208,18 @@ void initGame() {
 
 void goToGame() {
 	//enable both backgrounds
-	REG_DISPCTL = MODE0 | BG0_ENABLE | BG1_ENABLE | SPRITE_ENABLE;
+	REG_DISPCTL = MODE0 | BG1_ENABLE | BG0_ENABLE | SPRITE_ENABLE;
+
+	//first background (main, kitchen)
+	REG_BG1CNT = BG_SIZE3 | CBB(1) | SBB(26);
+	DMANow(3, movebackgroundTiles, &CHARBLOCKBASE[1], movebackgroundTilesLen/2);
+    DMANow(3, movebackgroundMap, &SCREENBLOCKBASE[26], movebackgroundMapLen/2);
+
+ 	//second background (lights)
+	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(25);
+	DMANow(3, lightsTiles, &CHARBLOCKBASE[0], lightsTilesLen/2);
+    DMANow(3, lightsMap, &SCREENBLOCKBASE[25], lightsMapLen/2);    
+
 	REG_BG1HOFS = hOff;
 	REG_BG0HOFS = hOff/2;
 	playSoundA(uke, UKELEN, UKEFREQ, 1);
@@ -233,16 +234,16 @@ void updateGame() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
     	goToPause();
     }
-    if (BUTTON_PRESSED(BUTTON_SELECT)) {
-    	goToSplash();
-    }
+    // if (BUTTON_PRESSED(BUTTON_SELECT)) {
+    // 	goToSplash();
+    // }
 }
 
 void goToPause() {
-	REG_DISPCTL = MODE0 | BG2_ENABLE; //enable Pause background in BG2
-	REG_BG2CNT = BG_SIZE0 | CBB(2) | SBB(30); //because 256x256 pixels
-	REG_BG2HOFS = 0;
-	DMANow(3, pausescreenTiles, &CHARBLOCKBASE[2], pausescreenTilesLen/2);
+	REG_DISPCTL = MODE0 | BG1_ENABLE; //enable Pause background in BG2
+	REG_BG1CNT = BG_SIZE0 | CBB(1) | SBB(30); //because 256x256 pixels
+	REG_BG1HOFS = 0;
+	DMANow(3, pausescreenTiles, &CHARBLOCKBASE[1], pausescreenTilesLen/2);
     DMANow(3, pausescreenMap, &SCREENBLOCKBASE[30], pausescreenMapLen/2);
 	state = updatePause;
 }
@@ -316,7 +317,7 @@ void update() {
 			p.col -= p.cd;
 			hOff += p.cd;
 		}
-		if(p.aniCounter % 20 == 0) {
+		if(p.aniCounter % 10 == 0) {
 			// goes through the 3 frames 
 			if (p.currFrame < 2) {
 				p.currFrame += 1;
@@ -395,24 +396,32 @@ void update() {
 		}
 	}
 
-	// HEALTH
-	if (time++ % rand()%100) {
-		for (int i = 0; i < HEALTHNUM; i++) {
-			HEALTH * h = &hearts[i];
-			if (!h->active) {
-				h->active = 1;
-				break;
-			}
+	if (BUTTON_PRESSED(BUTTON_SELECT)) {
+		if (!chocolateMilk) {
+			chocolateMilk = 1;
+		} else if (chocolateMilk) {
+			chocolateMilk = 0;
 		}
 	}
 
-	//health that player can collect
-	for (int i = 0; i < HEALTHNUM; i++) {
-		HEALTH * h = &hearts[i];
-		if (h->active) {
-			updateHealth(h, &p);
-		}
-	}
+	// // HEALTH
+	// if (time++ % rand()%100) {
+	// 	for (int i = 0; i < HEALTHNUM; i++) {
+	// 		HEALTH * h = &hearts[i];
+	// 		if (!h->active) {
+	// 			h->active = 1;
+	// 			break;
+	// 		}
+	// 	}
+	// }
+
+	// //health that player can collect
+	// for (int i = 0; i < HEALTHNUM; i++) {
+	// 	HEALTH * h = &hearts[i];
+	// 	if (h->active) {
+	// 		updateHealth(h, &p);
+	// 	}
+	// }
 
 	if (score >= 5 && !(fridge.active)) {
 		fridge.active = 1;
@@ -433,16 +442,20 @@ void update() {
 void draw() {
 	//player stored in shadowOAM 0
 	shadowOAM[0].attr0 = (ROWMASK & SHIFTDOWN(p.row)) | ATTR0_TALL;
-	shadowOAM[0].attr1 = ATTR1_SIZE32 | p.col;
-	shadowOAM[0].attr2 = SPRITEOFFSET16(0, p.currFrame*2); //ref to sprite sheet
+	shadowOAM[0].attr1 = ATTR1_SIZE64 | p.col;
+	if (chocolateMilk) {
+			shadowOAM[0].attr2 = ((ATTR2_PALBANK(1)) | (SPRITEOFFSET16(0, p.currFrame*4))); //ref to sprite sheet
+	} else {
+			shadowOAM[0].attr2 = ((ATTR2_PALBANK(0)) | (SPRITEOFFSET16(0, p.currFrame*4))); //ref to sprite sheet
+	}
 
 	//draw all active cats, hide inactive
 	for(int i = 0; i < CATNUM; i++) { 
 		CAT * c = &cats[i];
 		if (c->active) { 	// cat sprites in shadowOAM 1-3
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_WIDE | (ROWMASK & c->row);
-			shadowOAM[CATSPRITE + i].attr1 = ATTR1_SIZE32 | c->col;
-			shadowOAM[CATSPRITE + i].attr2 = SPRITEOFFSET16((c->catFrame)*2, 8);
+			shadowOAM[CATSPRITE + i].attr1 = ATTR1_SIZE64 | c->col;
+			shadowOAM[CATSPRITE + i].attr2 = SPRITEOFFSET16(16, (c->catFrame)*8);
 		} else {
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_HIDE;
 		}
@@ -460,32 +473,26 @@ void draw() {
 		}
 	}  
 
-	// draw hearts for the lives
-	for (int i = 0; i < 3; i++) { // loop through the 3 lives
-		if (i + 1 <= lives) { //draw the ones that are there
-			shadowOAM[LIVESPRITE + i].attr0 = (ROWMASK & 5) | ATTR0_WIDE;
-			shadowOAM[LIVESPRITE + i].attr1 = ATTR1_SIZE8 | (10 + (10*i));
-			shadowOAM[LIVESPRITE + i].attr2 = SPRITEOFFSET16(0, 12);
-		} else { //hide any of the other hearts
-			shadowOAM[LIVESPRITE + i].attr0 = ATTR0_HIDE;
-		}
-	}	
+	// lives count in top left corner
+	shadowOAM[LIVESPRITE].attr0 = (ROWMASK & 5) | ATTR0_TALL;
+	shadowOAM[LIVESPRITE].attr1 = ATTR1_SIZE32 | 10;
+	shadowOAM[LIVESPRITE].attr2 = SPRITEOFFSET16(20, lives*2);
 
-	// for (int i = 0; i < HEALTHNUM; i++) {
-	// 	HEALTH * h = &hearts[i];
-	// 	if (h->active) { 	// shadowOAM 7
-	// 		shadowOAM[7 + i].attr0 = ATTR0_WIDE | h->row;
-	// 		shadowOAM[7 + i].attr1 = ATTR1_SIZE8 | h->col;
-	// 		shadowOAM[7 + i].attr2 = SPRITEOFFSET16(0, 12);
-	// 	} else {
-	// 		shadowOAM[7 + i].attr0 = ATTR0_HIDE;
-	// 	}
-	// }
+	for (int i = 0; i < HEALTHNUM; i++) {
+		HEALTH * h = &hearts[i];
+		if (h->active) { 	// shadowOAM 7
+			shadowOAM[7 + i].attr0 = h->row;
+			shadowOAM[7 + i].attr1 = ATTR1_SIZE16 | h->col;
+			shadowOAM[7 + i].attr2 = SPRITEOFFSET16(22, 9);
+		} else {
+			shadowOAM[7 + i].attr0 = ATTR0_HIDE;
+		}
+	} //need to update the health TODO
 
 	if (fridge.active) {
 		shadowOAM[FRIDGESPACE].attr0 = ATTR0_TALL | (ROWMASK & fridge.row);
 		shadowOAM[FRIDGESPACE].attr1 = ATTR1_SIZE64 | fridge.col;
-		shadowOAM[FRIDGESPACE].attr2 = SPRITEOFFSET16(0, 14);
+		shadowOAM[FRIDGESPACE].attr2 = SPRITEOFFSET16(0, 12);
 	}
 	
 	//transfer OAM to shadowOAM

@@ -86,16 +86,6 @@ typedef struct {
 	int width;
 	int height;
 	int active;
-} HEALTH;
-
-typedef struct {
-	int row;
-	int col;
-	int rd;
-	int cd;
-	int width;
-	int height;
-	int active;
 } FRIDGE;
 
 typedef struct {
@@ -106,3 +96,12 @@ typedef struct {
 	int height;
 	int active;
 } BULLET;
+
+typedef struct {
+	int row;
+	int col;
+	int cd;
+	int width;
+	int height;
+	int active;
+} HEALTH;

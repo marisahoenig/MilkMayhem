@@ -537,16 +537,6 @@ typedef struct {
  int width;
  int height;
  int active;
-} HEALTH;
-
-typedef struct {
- int row;
- int col;
- int rd;
- int cd;
- int width;
- int height;
- int active;
 } FRIDGE;
 
 typedef struct {
@@ -557,6 +547,15 @@ typedef struct {
  int height;
  int active;
 } BULLET;
+
+typedef struct {
+ int row;
+ int col;
+ int cd;
+ int width;
+ int height;
+ int active;
+} HEALTH;
 # 20 "main.c" 2
 # 1 "mylib.h" 1
 typedef unsigned char u8;
@@ -596,7 +595,7 @@ extern DMA *dma;
 # 210 "mylib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 271 "mylib.h"
+# 274 "mylib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
@@ -613,7 +612,7 @@ typedef struct {
 void updateCat(CAT* c);
 void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
-void updateHealth(HEALTH* health, PLAYER* p);
+
 void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
@@ -727,6 +726,7 @@ int timeToNextCat;
 HEALTH health;
 HEALTH hearts[2];
 FRIDGE fridge;
+int chocolateMilk;
 
 
 BULLET bullet;
@@ -816,16 +816,6 @@ void initGame() {
     DMANow(3, spritesheetTiles, &((charblock *)0x6000000)[4], 32768/2);
 
 
- *(volatile unsigned short*)0x400000A = 3<<14 | 1 << 2 | 26 << 8;
- DMANow(3, movebackgroundTiles, &((charblock *)0x6000000)[1], 30304/2);
-    DMANow(3, movebackgroundMap, &((screenblock *)0x6000000)[26], 8192/2);
-
-
- *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 25 << 8;
- DMANow(3, lightsTiles, &((charblock *)0x6000000)[0], 2240/2);
-    DMANow(3, lightsMap, &((screenblock *)0x6000000)[25], 2048/2);
-
-
     hideSprites();
 
 
@@ -833,12 +823,12 @@ void initGame() {
  setupSounds();
 
 
- p.row = ((126) << 8);
+ p.row = ((90) << 8);
  p.col = 112;
  p.rd = 0;
  p.cd = 2;
- p.width = 16;
- p.height = 32;
+ p.width = 32;
+ p.height = 64;
  p.moveState = PNORM;
  p.currFrame = PNORM;
  p.aniCounter = 0;
@@ -847,12 +837,12 @@ void initGame() {
  p.maxJumpSpeed = ((5) << 8);
  p.racc = 40;
 
- c.row = 140;
+ c.row = 120;
  c.col = 200;
  c.rd = 0;
  c.cd = 1;
- c.width = 32;
- c.height = 16;
+ c.width = 64;
+ c.height = 32;
  c.active = 0;
  c.moveState = CNORM;
  c.catFrame = CNORM;
@@ -864,10 +854,9 @@ void initGame() {
 
  health.row = 140;
  health.col = 220;
- health.rd = 0;
  health.cd = 1;
- health.width = 10;
- health.height = 8;
+ health.width = 16;
+ health.height = 16;
  health.active = 0;
 
  for (int i = 0; i < 2; i++) {
@@ -901,7 +890,18 @@ void initGame() {
 
 void goToGame() {
 
- (*(u16 *)0x4000000) = 0 | (1<<8) | (1<<9) | (1 << 12);
+ (*(u16 *)0x4000000) = 0 | (1<<9) | (1<<8) | (1 << 12);
+
+
+ *(volatile unsigned short*)0x400000A = 3<<14 | 1 << 2 | 26 << 8;
+ DMANow(3, movebackgroundTiles, &((charblock *)0x6000000)[1], 30304/2);
+    DMANow(3, movebackgroundMap, &((screenblock *)0x6000000)[26], 8192/2);
+
+
+ *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 25 << 8;
+ DMANow(3, lightsTiles, &((charblock *)0x6000000)[0], 2240/2);
+    DMANow(3, lightsMap, &((screenblock *)0x6000000)[25], 2048/2);
+
  *(volatile unsigned short *)0x04000014 = hOff;
  *(volatile unsigned short *)0x04000010 = hOff/2;
  playSoundA(uke, 193313, 11025, 1);
@@ -916,16 +916,16 @@ void updateGame() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
      goToPause();
     }
-    if ((!(~oldButtons&(4))&&(~buttons&(4)))) {
-     goToSplash();
-    }
+
+
+
 }
 
 void goToPause() {
- (*(u16 *)0x4000000) = 0 | (1<<10);
- *(volatile unsigned short*)0x400000C = 0<<14 | 2 << 2 | 30 << 8;
- *(volatile unsigned short *)0x04000018 = 0;
- DMANow(3, pausescreenTiles, &((charblock *)0x6000000)[2], 3136/2);
+ (*(u16 *)0x4000000) = 0 | (1<<9);
+ *(volatile unsigned short*)0x400000A = 0<<14 | 1 << 2 | 30 << 8;
+ *(volatile unsigned short *)0x04000014 = 0;
+ DMANow(3, pausescreenTiles, &((charblock *)0x6000000)[1], 3136/2);
     DMANow(3, pausescreenMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = updatePause;
 }
@@ -999,7 +999,7 @@ void update() {
    p.col -= p.cd;
    hOff += p.cd;
   }
-  if(p.aniCounter % 20 == 0) {
+  if(p.aniCounter % 10 == 0) {
 
    if (p.currFrame < 2) {
     p.currFrame += 1;
@@ -1078,25 +1078,14 @@ void update() {
   }
  }
 
-
- if (time++ % rand()%100) {
-  for (int i = 0; i < 2; i++) {
-   HEALTH * h = &hearts[i];
-   if (!h->active) {
-    h->active = 1;
-    break;
-   }
+ if ((!(~oldButtons&(4))&&(~buttons&(4)))) {
+  if (!chocolateMilk) {
+   chocolateMilk = 1;
+  } else if (chocolateMilk) {
+   chocolateMilk = 0;
   }
  }
-
-
- for (int i = 0; i < 2; i++) {
-  HEALTH * h = &hearts[i];
-  if (h->active) {
-   updateHealth(h, &p);
-  }
- }
-
+# 426 "main.c"
  if (score >= 5 && !(fridge.active)) {
   fridge.active = 1;
  }
@@ -1116,16 +1105,20 @@ void update() {
 void draw() {
 
  shadowOAM[0].attr0 = ((0xFF) & ((p.row) >> 8)) | (2 << 14);
- shadowOAM[0].attr1 = (2 << 14) | p.col;
- shadowOAM[0].attr2 = (0)*32+(p.currFrame*2);
+ shadowOAM[0].attr1 = (3 << 14) | p.col;
+ if (chocolateMilk) {
+   shadowOAM[0].attr2 = ((((1) << 12)) | ((0)*32+(p.currFrame*4)));
+ } else {
+   shadowOAM[0].attr2 = ((((0) << 12)) | ((0)*32+(p.currFrame*4)));
+ }
 
 
  for(int i = 0; i < 2; i++) {
   CAT * c = &cats[i];
   if (c->active) {
    shadowOAM[1 + i].attr0 = (1 << 14) | ((0xFF) & c->row);
-   shadowOAM[1 + i].attr1 = (2 << 14) | c->col;
-   shadowOAM[1 + i].attr2 = ((c->catFrame)*2)*32+(8);
+   shadowOAM[1 + i].attr1 = (3 << 14) | c->col;
+   shadowOAM[1 + i].attr2 = (16)*32+((c->catFrame)*8);
   } else {
    shadowOAM[1 + i].attr0 = (2 << 8);
   }
@@ -1144,20 +1137,25 @@ void draw() {
  }
 
 
- for (int i = 0; i < 3; i++) {
-  if (i + 1 <= lives) {
-   shadowOAM[4 + i].attr0 = ((0xFF) & 5) | (1 << 14);
-   shadowOAM[4 + i].attr1 = (0 << 14) | (10 + (10*i));
-   shadowOAM[4 + i].attr2 = (0)*32+(12);
+ shadowOAM[4].attr0 = ((0xFF) & 5) | (2 << 14);
+ shadowOAM[4].attr1 = (2 << 14) | 10;
+ shadowOAM[4].attr2 = (20)*32+(lives*2);
+
+ for (int i = 0; i < 2; i++) {
+  HEALTH * h = &hearts[i];
+  if (h->active) {
+   shadowOAM[7 + i].attr0 = h->row;
+   shadowOAM[7 + i].attr1 = (1 << 14) | h->col;
+   shadowOAM[7 + i].attr2 = (22)*32+(9);
   } else {
-   shadowOAM[4 + i].attr0 = (2 << 8);
+   shadowOAM[7 + i].attr0 = (2 << 8);
   }
  }
-# 485 "main.c"
+
  if (fridge.active) {
   shadowOAM[10].attr0 = (2 << 14) | ((0xFF) & fridge.row);
   shadowOAM[10].attr1 = (3 << 14) | fridge.col;
-  shadowOAM[10].attr2 = (0)*32+(14);
+  shadowOAM[10].attr2 = (0)*32+(12);
  }
 
 

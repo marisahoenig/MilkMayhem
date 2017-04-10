@@ -72,17 +72,7 @@ typedef struct {
  int prevMoveState;
  int aniCounter;
 } CAT;
-
-typedef struct {
- int row;
- int col;
- int rd;
- int cd;
- int width;
- int height;
- int active;
-} HEALTH;
-
+# 91 "main.h"
 typedef struct {
  int row;
  int col;
@@ -101,6 +91,15 @@ typedef struct {
  int height;
  int active;
 } BULLET;
+
+typedef struct {
+ int row;
+ int col;
+ int cd;
+ int width;
+ int height;
+ int active;
+} EXTRA;
 # 2 "update.c" 2
 # 1 "myLib.h" 1
 typedef unsigned char u8;
@@ -157,7 +156,7 @@ typedef struct {
 void updateCat(CAT* c);
 void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
-void updateHealth(HEALTH* health, PLAYER* p);
+
 void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
@@ -205,26 +204,7 @@ int collisionEnemyPlayer(PLAYER* p, CAT* c) {
  }
  return 0;
 }
-
-
-void updateHealth(HEALTH* health, PLAYER* p) {
- if (health->active) {
-  health->col -= health->cd;
-  if ((p->row <= health->row && p->row + p->height >= health->row + health->height)
-   && (p->col + p->width >= health->col)) {
-   health->active = 0;
-
-
-
-  }
-  if (health->row <= 0) {
-   health->active = 0;
-  }
- }
-}
-
-
-
+# 67 "update.c"
 void updateBullet(BULLET* b) {
  if (b->active) {
   b->col += b->cd;
