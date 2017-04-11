@@ -39,6 +39,7 @@ int score;
 int prevScore;
 int lives;
 int time;
+int timetwo;
 int hOff;
 int gamehOff;
 
@@ -56,6 +57,7 @@ typedef struct {
 	int moveState;
 	int prevMoveState;
 	int currFrame;
+	int direction;
 	int aniCounter;
 	int active;
 	int stopRange;

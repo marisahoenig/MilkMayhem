@@ -10,9 +10,10 @@ over them (press B). If you hit 5 cats, the refridgerator will appear. Reach the
 Eventually, the hearts will be milk levels instead of hearts and there will be opportunities to boost the
 number of lives/milk levels.
 
-Controls are left and right to move.
+Left, Right Arrows - Move
 A - Fire milk droplet
 B - Jump
+Select - Use cheat to turn into chocolate milk and no cats will harm you
 ******************************************/
 
 #include <stdlib.h>
@@ -41,6 +42,7 @@ PLAYER p;
 CAT c;
 CAT cats[CATNUM];
 int timeToNextCat;
+int timeToNextHealth;
 HEALTH health;
 HEALTH hearts[HEALTHNUM];
 FRIDGE fridge;
@@ -56,6 +58,9 @@ void (*state)();
 //player different frames for walking
 int currFrame;
 enum { PNORM, PLEFT, PRIGHT, PJUMP };
+
+int direction;
+enum { RIGHT, LEFT };
 
 int main() {
 	REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE;
@@ -149,9 +154,10 @@ void initGame() {
 	p.height = 64;
 	p.moveState = PNORM;
 	p.currFrame = PNORM;
+	p.direction = RIGHT;
 	p.aniCounter = 0;
 	p.active = 1;
-	p.stopRange = 10;
+	p.stopRange = 8;
 	p.maxJumpSpeed = SHIFTUP(5);
 	p.racc = 40; //row accel
 
@@ -171,7 +177,7 @@ void initGame() {
 	}
 
 	health.row = 140;
-	health.col = 220;
+	health.col = 240;
 	health.cd = 1;
 	health.width = 16;
 	health.height = 16;
@@ -234,9 +240,6 @@ void updateGame() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
     	goToPause();
     }
-    // if (BUTTON_PRESSED(BUTTON_SELECT)) {
-    // 	goToSplash();
-    // }
 }
 
 void goToPause() {
@@ -309,20 +312,22 @@ void update() {
 	if (BUTTON_HELD(BUTTON_RIGHT) || BUTTON_HELD(BUTTON_LEFT)) {
 		if (BUTTON_HELD(BUTTON_RIGHT)) {
 			p.moveState = PRIGHT;
+			p.direction = RIGHT;
 			p.col += p.cd;
 			hOff += p.cd;
 		}
 		if (BUTTON_HELD(BUTTON_LEFT)) {
 			p.moveState = PLEFT;
+			p.direction = LEFT;
 			p.col -= p.cd;
-			hOff += p.cd;
+			hOff -= p.cd;
 		}
 		if(p.aniCounter % 10 == 0) {
 			// goes through the 3 frames 
 			if (p.currFrame < 2) {
 				p.currFrame += 1;
 			} else if (p.currFrame == 2) {
-				p.currFrame = 0;
+				p.currFrame = 1;
 			}
 		}
 	}
@@ -362,7 +367,7 @@ void update() {
 		if (c->active) {
 			updateCat(c);
 
-			if (collisionEnemyPlayer(&p, c)) {
+			if (!chocolateMilk && collisionEnemyPlayer(&p, c)) {
 				playSoundB(meow, MEOWLEN, MEOWFREQ, 0);
 				c->active = 0;
 				lives--;
@@ -377,7 +382,7 @@ void update() {
 			if(!b->active) { // the first inactive bullet 
 				b->active = 1; 		// setting active to TRUE
 				b->row = (SHIFTDOWN(p.row) + (p.height/2));	//shoot from mid height of carton
-				b->col = p.col + 8; //shoot from right side of carton
+				b->col = p.col + p.width; //shoot from right side of carton
 				break;
 			}
 		}
@@ -404,24 +409,26 @@ void update() {
 		}
 	}
 
-	// // HEALTH
-	// if (time++ % rand()%100) {
-	// 	for (int i = 0; i < HEALTHNUM; i++) {
-	// 		HEALTH * h = &hearts[i];
-	// 		if (!h->active) {
-	// 			h->active = 1;
-	// 			break;
-	// 		}
-	// 	}
-	// }
+	// HEALTH
+	if (!(timetwo++ % timeToNextHealth)) {
+		for (int i = 0; i < HEALTHNUM; i++) {
+			HEALTH * h = &hearts[i];
+			if (!h->active) {
+				h->active = 1;
+				h->col = 240;
+				timeToNextHealth = rand()%1000 + 87;
+				break;
+			}
+		}
+	}
 
-	// //health that player can collect
-	// for (int i = 0; i < HEALTHNUM; i++) {
-	// 	HEALTH * h = &hearts[i];
-	// 	if (h->active) {
-	// 		updateHealth(h, &p);
-	// 	}
-	// }
+	//health that player can collect
+	for (int i = 0; i < HEALTHNUM; i++) {
+		HEALTH * h = &hearts[i];
+		if (h->active) {
+			updateHealth(h, &p);
+		}
+	}
 
 	if (score >= 5 && !(fridge.active)) {
 		fridge.active = 1;
@@ -444,9 +451,9 @@ void draw() {
 	shadowOAM[0].attr0 = (ROWMASK & SHIFTDOWN(p.row)) | ATTR0_TALL;
 	shadowOAM[0].attr1 = ATTR1_SIZE64 | p.col;
 	if (chocolateMilk) {
-			shadowOAM[0].attr2 = ((ATTR2_PALBANK(1)) | (SPRITEOFFSET16(0, p.currFrame*4))); //ref to sprite sheet
+			shadowOAM[0].attr2 = ((ATTR2_PALBANK(1)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //ref to sprite sheet
 	} else {
-			shadowOAM[0].attr2 = ((ATTR2_PALBANK(0)) | (SPRITEOFFSET16(0, p.currFrame*4))); //ref to sprite sheet
+			shadowOAM[0].attr2 = ((ATTR2_PALBANK(0)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //ref to sprite sheet
 	}
 
 	//draw all active cats, hide inactive
@@ -478,16 +485,17 @@ void draw() {
 	shadowOAM[LIVESPRITE].attr1 = ATTR1_SIZE32 | 10;
 	shadowOAM[LIVESPRITE].attr2 = SPRITEOFFSET16(20, lives*2);
 
+	// moving lives for collecting
 	for (int i = 0; i < HEALTHNUM; i++) {
 		HEALTH * h = &hearts[i];
 		if (h->active) { 	// shadowOAM 7
 			shadowOAM[7 + i].attr0 = h->row;
 			shadowOAM[7 + i].attr1 = ATTR1_SIZE16 | h->col;
-			shadowOAM[7 + i].attr2 = SPRITEOFFSET16(22, 9);
+			shadowOAM[7 + i].attr2 = SPRITEOFFSET16(22, 8);
 		} else {
 			shadowOAM[7 + i].attr0 = ATTR0_HIDE;
 		}
-	} //need to update the health TODO
+	}
 
 	if (fridge.active) {
 		shadowOAM[FRIDGESPACE].attr0 = ATTR0_TALL | (ROWMASK & fridge.row);

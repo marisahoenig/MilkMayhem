@@ -45,22 +45,23 @@ int collisionEnemyPlayer(PLAYER* p, CAT* c) {
 	return 0;
 }
 
-// //health that player can collect
-// void updateHealth(HEALTH* health, PLAYER* p) {
-// 	if (health->active) {
-// 		health->col -= health->cd;
-// 		if ((p->row <= health->row && p->row + p->height >= health->row + health->height)
-// 			&& (p->col + p->width >= health->col)) {
-// 			health->active = 0;
-// 			// if (lives < 3) {
-// 			// 	lives++;
-// 			// }	
-// 		}
-// 		if (health->row <= 0) {
-// 			health->active = 0;
-// 		}
-// 	}
-// }
+//health that player can collect
+void updateHealth(HEALTH* health, PLAYER* p) {
+	if (health->active) {
+		health->col -= health->cd;
+		int shiftedRow = SHIFTDOWN(p->row);
+		if ((shiftedRow <= health->row && shiftedRow + p->height >= health->row + health->height)
+			&& (p->col + p->width >= health->col) && (p->col <= health->col + health->width)) {
+			health->active = 0;
+			if (lives < 3) {
+				lives++;
+			}	
+		}
+		if (health->col <= 0) {
+			health->active = 0;
+		}
+	}
+}
 
 //allow bullet to move
 //if goes off screen, sets it inactive

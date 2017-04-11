@@ -2,7 +2,7 @@
 # 1 "<built-in>"
 # 1 "<command-line>"
 # 1 "main.c"
-# 18 "main.c"
+# 19 "main.c"
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 1 3
 # 10 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/stdlib.h" 3
 # 1 "c:\\devkitarm\\bin\\../lib/gcc/arm-eabi/4.5.0/../../../../arm-eabi/include/machine/ieeefp.h" 1 3
@@ -457,7 +457,7 @@ extern long double wcstold (const wchar_t *, wchar_t **);
 
 
 
-# 19 "main.c" 2
+# 20 "main.c" 2
 # 1 "main.h" 1
 # 12 "main.h"
 void init();
@@ -490,6 +490,7 @@ int score;
 int prevScore;
 int lives;
 int time;
+int timetwo;
 int hOff;
 int gamehOff;
 
@@ -507,6 +508,7 @@ typedef struct {
  int moveState;
  int prevMoveState;
  int currFrame;
+ int direction;
  int aniCounter;
  int active;
  int stopRange;
@@ -556,7 +558,7 @@ typedef struct {
  int height;
  int active;
 } HEALTH;
-# 20 "main.c" 2
+# 21 "main.c" 2
 # 1 "mylib.h" 1
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -607,16 +609,16 @@ typedef struct {
     int row;
     int col;
 } Sprite;
-# 21 "main.c" 2
+# 22 "main.c" 2
 # 1 "update.h" 1
 void updateCat(CAT* c);
 void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
-
+void updateHealth(HEALTH* health, PLAYER* p);
 void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
-# 22 "main.c" 2
+# 23 "main.c" 2
 # 1 "splashscreen.h" 1
 # 22 "splashscreen.h"
 extern const unsigned short splashscreenTiles[2752];
@@ -626,64 +628,64 @@ extern const unsigned short splashscreenMap[1024];
 
 
 extern const unsigned short splashscreenPal[256];
-# 23 "main.c" 2
+# 24 "main.c" 2
 # 1 "instructions.h" 1
 # 21 "instructions.h"
 extern const unsigned short instructionsTiles[5408];
 
 
 extern const unsigned short instructionsMap[1024];
-# 24 "main.c" 2
+# 25 "main.c" 2
 # 1 "spritesheet.h" 1
 # 21 "spritesheet.h"
 extern const unsigned short spritesheetTiles[16384];
 
 
 extern const unsigned short spritesheetPal[256];
-# 25 "main.c" 2
+# 26 "main.c" 2
 # 1 "winscreen.h" 1
 # 21 "winscreen.h"
 extern const unsigned short winscreenTiles[1088];
 
 
 extern const unsigned short winscreenMap[1024];
-# 26 "main.c" 2
+# 27 "main.c" 2
 # 1 "losescreen.h" 1
 # 21 "losescreen.h"
 extern const unsigned short losescreenTiles[1424];
 
 
 extern const unsigned short losescreenMap[1024];
-# 27 "main.c" 2
+# 28 "main.c" 2
 # 1 "pausescreen.h" 1
 # 21 "pausescreen.h"
 extern const unsigned short pausescreenTiles[1568];
 
 
 extern const unsigned short pausescreenMap[1024];
-# 28 "main.c" 2
+# 29 "main.c" 2
 # 1 "movebackground.h" 1
 # 21 "movebackground.h"
 extern const unsigned short movebackgroundTiles[15152];
 
 
 extern const unsigned short movebackgroundMap[4096];
-# 29 "main.c" 2
+# 30 "main.c" 2
 # 1 "controls.h" 1
 # 21 "controls.h"
 extern const unsigned short controlsTiles[4192];
 
 
 extern const unsigned short controlsMap[1024];
-# 30 "main.c" 2
+# 31 "main.c" 2
 # 1 "uke.h" 1
 # 20 "uke.h"
 extern const unsigned char uke[193313];
-# 31 "main.c" 2
+# 32 "main.c" 2
 # 1 "meow.h" 1
 # 20 "meow.h"
 extern const unsigned char meow[4874];
-# 32 "main.c" 2
+# 33 "main.c" 2
 # 1 "sounds.h" 1
 void setupSounds();
 void playSoundA( const unsigned char* sound, int length, int frequency, int loops);
@@ -705,14 +707,14 @@ typedef struct {
     int priority;
     int vbCount;
 } SOUND;
-# 33 "main.c" 2
+# 34 "main.c" 2
 # 1 "lights.h" 1
 # 21 "lights.h"
 extern const unsigned short lightsTiles[1120];
 
 
 extern const unsigned short lightsMap[1024];
-# 34 "main.c" 2
+# 35 "main.c" 2
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -723,6 +725,7 @@ PLAYER p;
 CAT c;
 CAT cats[2];
 int timeToNextCat;
+int timeToNextHealth;
 HEALTH health;
 HEALTH hearts[2];
 FRIDGE fridge;
@@ -738,6 +741,9 @@ void (*state)();
 
 int currFrame;
 enum { PNORM, PLEFT, PRIGHT, PJUMP };
+
+int direction;
+enum { RIGHT, LEFT };
 
 int main() {
  (*(u16 *)0x4000000) = 0 | (1<<8) | (1 << 12);
@@ -831,9 +837,10 @@ void initGame() {
  p.height = 64;
  p.moveState = PNORM;
  p.currFrame = PNORM;
+ p.direction = RIGHT;
  p.aniCounter = 0;
  p.active = 1;
- p.stopRange = 10;
+ p.stopRange = 8;
  p.maxJumpSpeed = ((5) << 8);
  p.racc = 40;
 
@@ -853,7 +860,7 @@ void initGame() {
  }
 
  health.row = 140;
- health.col = 220;
+ health.col = 240;
  health.cd = 1;
  health.width = 16;
  health.height = 16;
@@ -916,9 +923,6 @@ void updateGame() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
      goToPause();
     }
-
-
-
 }
 
 void goToPause() {
@@ -991,20 +995,22 @@ void update() {
  if ((~((*(volatile unsigned int *)0x04000130)) & 16) || (~((*(volatile unsigned int *)0x04000130)) & 32)) {
   if ((~((*(volatile unsigned int *)0x04000130)) & 16)) {
    p.moveState = PRIGHT;
+   p.direction = RIGHT;
    p.col += p.cd;
    hOff += p.cd;
   }
   if ((~((*(volatile unsigned int *)0x04000130)) & 32)) {
    p.moveState = PLEFT;
+   p.direction = LEFT;
    p.col -= p.cd;
-   hOff += p.cd;
+   hOff -= p.cd;
   }
   if(p.aniCounter % 10 == 0) {
 
    if (p.currFrame < 2) {
     p.currFrame += 1;
    } else if (p.currFrame == 2) {
-    p.currFrame = 0;
+    p.currFrame = 1;
    }
   }
  }
@@ -1044,7 +1050,7 @@ void update() {
   if (c->active) {
    updateCat(c);
 
-   if (collisionEnemyPlayer(&p, c)) {
+   if (!chocolateMilk && collisionEnemyPlayer(&p, c)) {
     playSoundB(meow, 4874, 11025, 0);
     c->active = 0;
     lives--;
@@ -1059,7 +1065,7 @@ void update() {
    if(!b->active) {
     b->active = 1;
     b->row = (((p.row) >> 8) + (p.height/2));
-    b->col = p.col + 8;
+    b->col = p.col + p.width;
     break;
    }
   }
@@ -1085,7 +1091,29 @@ void update() {
    chocolateMilk = 0;
   }
  }
-# 426 "main.c"
+
+
+ if (!(timetwo++ % timeToNextHealth)) {
+  for (int i = 0; i < 2; i++) {
+   HEALTH * h = &hearts[i];
+   if (!h->active) {
+    h->active = 1;
+    h->col = 240;
+    timeToNextHealth = rand()%1000 + 87;
+    break;
+   }
+  }
+ }
+
+
+
+ for (int i = 0; i < 2; i++) {
+  HEALTH * h = &hearts[i];
+  if (h->active) {
+   updateHealth(h, &p);
+  }
+ }
+
  if (score >= 5 && !(fridge.active)) {
   fridge.active = 1;
  }
@@ -1107,9 +1135,9 @@ void draw() {
  shadowOAM[0].attr0 = ((0xFF) & ((p.row) >> 8)) | (2 << 14);
  shadowOAM[0].attr1 = (3 << 14) | p.col;
  if (chocolateMilk) {
-   shadowOAM[0].attr2 = ((((1) << 12)) | ((0)*32+(p.currFrame*4)));
+   shadowOAM[0].attr2 = ((((1) << 12)) | ((p.direction*8)*32+(p.currFrame*4)));
  } else {
-   shadowOAM[0].attr2 = ((((0) << 12)) | ((0)*32+(p.currFrame*4)));
+   shadowOAM[0].attr2 = ((((0) << 12)) | ((p.direction*8)*32+(p.currFrame*4)));
  }
 
 
@@ -1141,12 +1169,13 @@ void draw() {
  shadowOAM[4].attr1 = (2 << 14) | 10;
  shadowOAM[4].attr2 = (20)*32+(lives*2);
 
+
  for (int i = 0; i < 2; i++) {
   HEALTH * h = &hearts[i];
   if (h->active) {
    shadowOAM[7 + i].attr0 = h->row;
    shadowOAM[7 + i].attr1 = (1 << 14) | h->col;
-   shadowOAM[7 + i].attr2 = (22)*32+(9);
+   shadowOAM[7 + i].attr2 = (22)*32+(8);
   } else {
    shadowOAM[7 + i].attr0 = (2 << 8);
   }

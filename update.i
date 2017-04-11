@@ -72,7 +72,7 @@ typedef struct {
  int prevMoveState;
  int aniCounter;
 } CAT;
-# 91 "main.h"
+
 typedef struct {
  int row;
  int col;
@@ -99,7 +99,7 @@ typedef struct {
  int width;
  int height;
  int active;
-} EXTRA;
+} HEALTH;
 # 2 "update.c" 2
 # 1 "myLib.h" 1
 typedef unsigned char u8;
@@ -139,7 +139,7 @@ extern DMA *dma;
 # 210 "myLib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 271 "myLib.h"
+# 274 "myLib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
@@ -156,7 +156,7 @@ typedef struct {
 void updateCat(CAT* c);
 void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
-
+void updateHealth(HEALTH* health, PLAYER* p);
 void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
@@ -204,7 +204,27 @@ int collisionEnemyPlayer(PLAYER* p, CAT* c) {
  }
  return 0;
 }
-# 67 "update.c"
+
+
+void updateHealth(HEALTH* health, PLAYER* p) {
+ if (health->active) {
+  health->col -= health->cd;
+  int shiftedRow = ((p->row) >> 8);
+  if ((shiftedRow <= health->row && shiftedRow + p->height >= health->row + health->height)
+   && (p->col + p->width >= health->col) && (p->col <= health->col + health->width)) {
+   health->active = 0;
+   if (lives < 3) {
+    lives++;
+   }
+  }
+  if (health->col <= 0) {
+   health->active = 0;
+  }
+ }
+}
+
+
+
 void updateBullet(BULLET* b) {
  if (b->active) {
   b->col += b->cd;
