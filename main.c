@@ -99,11 +99,11 @@ void updateSplash() {
 }
 
 void goToInstructions() {
-	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
+	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(31);
 	REG_BG0HOFS = 0;
 	REG_BG1HOFS = 0;
 	DMANow(3, instructionsTiles, &CHARBLOCKBASE[0], instructionsTilesLen/2);
-    DMANow(3, instructionsMap, &SCREENBLOCKBASE[30], instructionsMapLen/2);
+    DMANow(3, instructionsMap, &SCREENBLOCKBASE[31], instructionsMapLen/2);
 	state = updateInstructions;
 }
 

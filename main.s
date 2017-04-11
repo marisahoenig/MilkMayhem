@@ -147,20 +147,20 @@ goToInstructions:
 	stmfd	sp!, {r3, r4, r5, lr}
 	mov	ip, #67108864
 	mov	lr, #0
-	mov	r3, #5376
-	mov	r5, #7680	@ movhi
+	mov	r3, #6720
+	mov	r5, #7936	@ movhi
 	strh	r5, [ip, #8]	@ movhi
 	mov	r0, #3
 	strh	lr, [ip, #16]	@ movhi
 	ldr	r1, .L18
 	mov	r2, #100663296
-	add	r3, r3, #32
+	add	r3, r3, #48
 	ldr	r4, .L18+4
 	strh	lr, [ip, #20]	@ movhi
 	mov	lr, pc
 	bx	r4
 	mov	r2, #100663296
-	add	r2, r2, #61440
+	add	r2, r2, #63488
 	mov	r3, #1024
 	mov	r0, #3
 	ldr	r1, .L18+8
@@ -213,14 +213,14 @@ goToControls:
 	stmfd	sp!, {r3, r4, r5, lr}
 	mov	ip, #67108864
 	mov	lr, #0
-	mov	r3, #4160
+	mov	r3, #4864
 	mov	r5, #7424	@ movhi
 	strh	r5, [ip, #8]	@ movhi
 	mov	r0, #3
 	strh	lr, [ip, #16]	@ movhi
 	ldr	r1, .L25
 	mov	r2, #100663296
-	add	r3, r3, #32
+	add	r3, r3, #48
 	ldr	r4, .L25+4
 	strh	lr, [ip, #20]	@ movhi
 	mov	lr, pc
