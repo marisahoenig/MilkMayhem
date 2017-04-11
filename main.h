@@ -55,7 +55,6 @@ typedef struct {
 	int width;
 	int height;
 	int moveState;
-	int prevMoveState;
 	int currFrame;
 	int direction;
 	int aniCounter;
@@ -76,7 +75,6 @@ typedef struct {
 	int active;
 	int catFrame;
 	int moveState;
-	int prevMoveState;
 	int aniCounter;
 } CAT;
 

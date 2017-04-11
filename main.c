@@ -57,7 +57,7 @@ void (*state)();
 
 //player different frames for walking
 int currFrame;
-enum { PNORM, PLEFT, PRIGHT, PJUMP };
+enum { PNORM, PLEFT, PRIGHT };
 
 int direction;
 enum { RIGHT, LEFT };
@@ -304,7 +304,6 @@ void update() {
 
 	if (p.moveState == PNORM) {
 		p.currFrame = 0;
-		p.moveState = p.prevMoveState;
 	} else {
 		p.aniCounter++;
 	}
@@ -317,10 +316,10 @@ void update() {
 			hOff += p.cd;
 		}
 		if (BUTTON_HELD(BUTTON_LEFT)) {
-			p.moveState = PLEFT;
+			// p.moveState = PLEFT;
 			p.direction = LEFT;
 			p.col -= p.cd;
-			hOff -= p.cd;
+			hOff += p.cd;
 		}
 		if(p.aniCounter % 10 == 0) {
 			// goes through the 3 frames 

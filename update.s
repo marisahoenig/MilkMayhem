@@ -26,7 +26,7 @@ updateCat:
 	cmp	r2, #0
 	movle	r3, #0
 	strle	r3, [r0, #24]
-	ldr	r3, [r0, #40]
+	ldr	r3, [r0, #36]
 	ldr	r4, .L6
 	add	r3, r3, #1
 	smull	r1, r4, r3, r4
@@ -37,7 +37,7 @@ updateCat:
 	rsb	r2, ip, r2
 	cmp	r3, r1, asl #1
 	str	r2, [r0, #4]
-	str	r3, [r0, #40]
+	str	r3, [r0, #36]
 	bne	.L1
 	ldr	r3, [r0, #28]
 	cmp	r3, #1
@@ -285,6 +285,7 @@ collisionFridge:
 	.comm	prevScore,4,4
 	.comm	lives,4,4
 	.comm	time,4,4
+	.comm	timetwo,4,4
 	.comm	hOff,4,4
 	.comm	gamehOff,4,4
 	.comm	catFrame,4,4

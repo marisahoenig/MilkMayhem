@@ -506,7 +506,6 @@ typedef struct {
  int width;
  int height;
  int moveState;
- int prevMoveState;
  int currFrame;
  int direction;
  int aniCounter;
@@ -527,7 +526,6 @@ typedef struct {
  int active;
  int catFrame;
  int moveState;
- int prevMoveState;
  int aniCounter;
 } CAT;
 
@@ -740,7 +738,7 @@ void (*state)();
 
 
 int currFrame;
-enum { PNORM, PLEFT, PRIGHT, PJUMP };
+enum { PNORM, PLEFT, PRIGHT };
 
 int direction;
 enum { RIGHT, LEFT };
@@ -987,7 +985,6 @@ void update() {
 
  if (p.moveState == PNORM) {
   p.currFrame = 0;
-  p.moveState = p.prevMoveState;
  } else {
   p.aniCounter++;
  }
@@ -1000,10 +997,10 @@ void update() {
    hOff += p.cd;
   }
   if ((~((*(volatile unsigned int *)0x04000130)) & 32)) {
-   p.moveState = PLEFT;
+
    p.direction = LEFT;
    p.col -= p.cd;
-   hOff -= p.cd;
+   hOff += p.cd;
   }
   if(p.aniCounter % 10 == 0) {
 
