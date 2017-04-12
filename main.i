@@ -979,30 +979,28 @@ void updateLose() {
 void update() {
  p.rd += p.racc;
     p.row += p.rd;
-
- if(!((~((*(volatile unsigned int *)0x04000130)) & 16) && !((~((*(volatile unsigned int *)0x04000130)) & 32)))) {
-
-  p.moveState = PNORM;
- }
-
- if (p.moveState == PNORM) {
-  p.currFrame = 0;
- } else {
-  p.aniCounter++;
- }
-
+# 318 "main.c"
  if ((~((*(volatile unsigned int *)0x04000130)) & 16) || (~((*(volatile unsigned int *)0x04000130)) & 32)) {
+  p.aniCounter++;
   if ((~((*(volatile unsigned int *)0x04000130)) & 16)) {
-   p.moveState = PRIGHT;
+
    p.direction = RIGHT;
-   p.col += p.cd;
-   hOff += p.cd;
+   p.col += p.cd/2;
+   if (p.col < 120) {
+    hOff += p.cd;
+   } else {
+    hOff += (4*p.cd)/5;
+   }
   }
   if ((~((*(volatile unsigned int *)0x04000130)) & 32)) {
-   p.moveState = PLEFT;
+
    p.direction = LEFT;
-   p.col -= p.cd;
-   hOff += p.cd;
+   p.col -= p.cd/2;
+   if (p.col > 120) {
+    hOff -= p.cd;
+   } else {
+    hOff -= (4*p.cd)/5;
+   }
   }
   if (p.aniCounter % 10 == 0) {
 
@@ -1012,6 +1010,8 @@ void update() {
     p.currFrame = 1;
    }
   }
+ } else {
+  currFrame = 0;
  }
 
  if (((p.row) >> 8) >= 160 - p.height - 1) {

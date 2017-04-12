@@ -299,29 +299,25 @@ void update() {
 	p.rd += p.racc;
     p.row += p.rd;
 
-	if(!(BUTTON_HELD(BUTTON_RIGHT) && !(BUTTON_HELD(BUTTON_LEFT)))) {
-		//if neither is held, be at the normal state
-		p.moveState = PNORM;
-	}
-
-	if (p.moveState == PNORM) {
-		p.currFrame = 0;
-	} else {
-		p.aniCounter++;
-	}
-
 	if (BUTTON_HELD(BUTTON_RIGHT) || BUTTON_HELD(BUTTON_LEFT)) {
+		p.aniCounter++; //increment animation
 		if (BUTTON_HELD(BUTTON_RIGHT)) {
-			p.moveState = PRIGHT;
 			p.direction = RIGHT;
-			p.col += p.cd;
-			hOff += p.cd;
+			p.col += p.cd/2;
+			if (p.col < 120) {
+				hOff += p.cd;
+			} else {
+				hOff += (4*p.cd)/5;
+			}
 		}
 		if (BUTTON_HELD(BUTTON_LEFT)) {
-			p.moveState = PLEFT;
 			p.direction = LEFT;
-			p.col -= p.cd;
-			hOff += p.cd;
+			p.col -= p.cd/2;
+			if (p.col > 120) {
+				hOff -= p.cd;
+			} else {
+				hOff -= (4*p.cd)/5;
+			}
 		}
 		if (p.aniCounter % 10 == 0) {
 			// goes through the 3 frames 
@@ -331,6 +327,9 @@ void update() {
 				p.currFrame = 1;
 			}
 		}
+	} else {
+		//if neither is held, be at the normal state
+		currFrame = 0;
 	}
 
 	if (SHIFTDOWN(p.row) >= 160 - p.height - 1) { //so it won't go below ground
