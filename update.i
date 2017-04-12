@@ -212,8 +212,8 @@ void updateHealth(HEALTH* health, PLAYER* p) {
   int shiftedRow = ((p->row) >> 8);
   if ((shiftedRow <= health->row && shiftedRow + p->height >= health->row + health->height)
    && (p->col + p->width >= health->col) && (p->col <= health->col + health->width)) {
-   health->active = 0;
    if (lives < 3) {
+    health->active = 0;
     lives++;
    }
   }

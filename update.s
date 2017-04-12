@@ -157,9 +157,9 @@ updateHealth:
 	ldr	r2, .L20
 	ldr	r1, [r2, #0]
 	cmp	r1, #2
-	mov	ip, #0
 	addle	r1, r1, #1
-	str	ip, [r0, #20]
+	movle	ip, #0
+	strle	ip, [r0, #20]
 	strle	r1, [r2, #0]
 	b	.L18
 .L21:
