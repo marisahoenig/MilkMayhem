@@ -888,6 +888,8 @@ void initGame() {
   bullets[i] = bullet;
  }
 
+ chocolateMilk = 0;
+
  hOff = 0;
  lives = 3;
  score = 0;
@@ -997,12 +999,12 @@ void update() {
    hOff += p.cd;
   }
   if ((~((*(volatile unsigned int *)0x04000130)) & 32)) {
-
+   p.moveState = PLEFT;
    p.direction = LEFT;
    p.col -= p.cd;
    hOff += p.cd;
   }
-  if(p.aniCounter % 10 == 0) {
+  if (p.aniCounter % 10 == 0) {
 
    if (p.currFrame < 2) {
     p.currFrame += 1;
@@ -1015,6 +1017,10 @@ void update() {
  if (((p.row) >> 8) >= 160 - p.height - 1) {
         p.row = ((160 - p.height - 1) << 8);
         p.rd = 0;
+    }
+    if (((p.row) >> 8) <= 0) {
+        p.row = ((0) << 8);
+        p.rd = -p.rd;
     }
     if (p.col + p.width > 240) {
      p.col = 240-p.width;
@@ -1063,6 +1069,9 @@ void update() {
     b->active = 1;
     b->row = (((p.row) >> 8) + (p.height/2));
     b->col = p.col + p.width;
+
+
+
     break;
    }
   }
@@ -1152,9 +1161,9 @@ void draw() {
  for(int i = 0; i < 5; i++) {
   BULLET * b = &bullets[i];
   if (b->active) {
-   shadowOAM[11 + i].attr0 = ((0xFF) & b->row);
+   shadowOAM[11 + i].attr0 = (1 << 14) | ((0xFF) & b->row);
    shadowOAM[11 + i].attr1 = (0 << 14) | b->col;
-   shadowOAM[11 + i].attr2 = (4)*32+(0);
+   shadowOAM[11 + i].attr2 = (20)*32+(0);
   } else {
    shadowOAM[11 + i].attr0 = (2 << 8);
   }

@@ -207,6 +207,8 @@ void initGame() {
 		bullets[i] = bullet;
 	}
 
+	chocolateMilk = 0;
+
 	hOff = 0;
 	lives = 3;
 	score = 0;
@@ -316,12 +318,12 @@ void update() {
 			hOff += p.cd;
 		}
 		if (BUTTON_HELD(BUTTON_LEFT)) {
-			// p.moveState = PLEFT;
+			p.moveState = PLEFT;
 			p.direction = LEFT;
 			p.col -= p.cd;
 			hOff += p.cd;
 		}
-		if(p.aniCounter % 10 == 0) {
+		if (p.aniCounter % 10 == 0) {
 			// goes through the 3 frames 
 			if (p.currFrame < 2) {
 				p.currFrame += 1;
@@ -334,6 +336,10 @@ void update() {
 	if (SHIFTDOWN(p.row) >= 160 - p.height - 1) { //so it won't go below ground
         p.row = SHIFTUP(160 - p.height - 1);
         p.rd = 0;
+    }
+    if (SHIFTDOWN(p.row) <= 0) { //so it won't go above ceiling
+        p.row = SHIFTUP(0);
+        p.rd = -p.rd;
     }
     if (p.col + p.width > 240) {
     	p.col = 240-p.width;
@@ -382,6 +388,9 @@ void update() {
 				b->active = 1; 		// setting active to TRUE
 				b->row = (SHIFTDOWN(p.row) + (p.height/2));	//shoot from mid height of carton
 				b->col = p.col + p.width; //shoot from right side of carton
+				// if (p.moveState == PLEFT) {
+				// 	b->cd = -b->cd;
+				// }
 				break;
 			}
 		}
@@ -471,9 +480,9 @@ void draw() {
 	for(int i = 0; i < BULLETNUM; i++) { 
 		BULLET * b = &bullets[i];
 		if (b->active) { 	// //player bullets stored in shadowOAM 26-36
-			shadowOAM[BULLETSPRITE + i].attr0 = (ROWMASK & b->row);
+			shadowOAM[BULLETSPRITE + i].attr0 = ATTR0_WIDE | (ROWMASK & b->row);
 			shadowOAM[BULLETSPRITE + i].attr1 = ATTR1_SIZE8 | b->col;
-			shadowOAM[BULLETSPRITE + i].attr2 = SPRITEOFFSET16(4, 0);
+			shadowOAM[BULLETSPRITE + i].attr2 = SPRITEOFFSET16(20, 0);
 		} else {
 			shadowOAM[BULLETSPRITE + i].attr0 = ATTR0_HIDE;
 		}

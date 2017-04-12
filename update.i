@@ -228,7 +228,7 @@ void updateHealth(HEALTH* health, PLAYER* p) {
 void updateBullet(BULLET* b) {
  if (b->active) {
   b->col += b->cd;
-  if(b->col + b->width >= 240) {
+  if(b->col + b->width >= 240 || b->col < 0) {
    b->active = 0;
   }
  }

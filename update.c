@@ -68,7 +68,7 @@ void updateHealth(HEALTH* health, PLAYER* p) {
 void updateBullet(BULLET* b) {
 	if (b->active) { //check that the bullet is active
 		b->col += b->cd;
-		if(b->col + b->width >= 240) { // if the bullet goes past the screen, it is inactive
+		if(b->col + b->width >= 240 || b->col < 0) { // if the bullet goes past the screen, it is inactive
 			b->active = 0;
 		}
 	}

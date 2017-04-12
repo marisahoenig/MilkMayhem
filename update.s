@@ -184,8 +184,14 @@ updateBullet:
 	add	r2, r3, r2
 	cmp	r2, #239
 	str	r3, [r0, #4]
-	movgt	r3, #0
-	strgt	r3, [r0, #20]
+	ble	.L25
+	mov	r3, #0
+	str	r3, [r0, #20]
+	bx	lr
+.L25:
+	cmp	r3, #0
+	movlt	r3, #0
+	strlt	r3, [r0, #20]
 	bx	lr
 	.size	updateBullet, .-updateBullet
 	.align	2
@@ -202,11 +208,11 @@ collisionCheckEnemy:
 	ldr	r2, [r0, #0]
 	add	ip, r3, ip
 	cmp	r2, ip
-	bgt	.L24
+	bgt	.L26
 	ldr	ip, [r0, #16]
 	add	r2, r2, ip
 	cmp	r3, r2
-	bgt	.L24
+	bgt	.L26
 	ldr	r3, [r0, #4]
 	ldr	r4, [r0, #12]
 	ldr	r2, [r1, #4]
@@ -214,29 +220,29 @@ collisionCheckEnemy:
 	add	r4, r3, r4
 	add	ip, r2, ip
 	cmp	r4, ip
-	bgt	.L26
+	bgt	.L28
 	cmp	r4, r2
-	blt	.L26
-.L27:
-	ldr	r2, .L28
+	blt	.L28
+.L29:
+	ldr	r2, .L30
 	ldr	ip, [r2, #0]
 	mov	r3, #0
 	add	ip, ip, #1
 	str	r3, [r1, #24]
 	str	ip, [r2, #0]
 	str	r3, [r0, #20]
-.L24:
+.L26:
 	ldmfd	sp!, {r4}
 	bx	lr
-.L26:
-	cmp	r3, ip
-	bgt	.L24
-	cmp	r3, r2
-	bge	.L27
-	b	.L24
-.L29:
-	.align	2
 .L28:
+	cmp	r3, ip
+	bgt	.L26
+	cmp	r3, r2
+	bge	.L29
+	b	.L26
+.L31:
+	.align	2
+.L30:
 	.word	score
 	.size	collisionCheckEnemy, .-collisionCheckEnemy
 	.align	2
@@ -253,11 +259,11 @@ collisionFridge:
 	mov	r2, r2, asr #8
 	add	ip, r3, ip
 	cmp	r2, ip
-	bgt	.L30
+	bgt	.L32
 	ldr	ip, [r1, #20]
 	add	r2, r2, ip
 	cmp	r3, r2
-	bgt	.L30
+	bgt	.L32
 	ldr	ip, [r1, #16]
 	ldr	r2, [r1, #4]
 	ldr	r3, [r0, #4]
@@ -265,20 +271,20 @@ collisionFridge:
 	add	r2, ip, r2
 	add	r1, r3, r1
 	cmp	r2, r1
-	bgt	.L30
+	bgt	.L32
 	cmp	r2, r3
-	bge	.L32
-.L30:
+	bge	.L34
+.L32:
 	ldmfd	sp!, {r3, lr}
 	bx	lr
-.L32:
-	ldr	r3, .L33
+.L34:
+	ldr	r3, .L35
 	mov	lr, pc
 	bx	r3
-	b	.L30
-.L34:
+	b	.L32
+.L36:
 	.align	2
-.L33:
+.L35:
 	.word	goToWin
 	.size	collisionFridge, .-collisionFridge
 	.comm	score,4,4
