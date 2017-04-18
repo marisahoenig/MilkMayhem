@@ -629,7 +629,7 @@ extern const unsigned short splashscreenPal[256];
 # 24 "main.c" 2
 # 1 "instructions.h" 1
 # 21 "instructions.h"
-extern const unsigned short instructionsTiles[6768];
+extern const unsigned short instructionsTiles[7104];
 
 
 extern const unsigned short instructionsMap[1024];
@@ -678,7 +678,7 @@ extern const unsigned short movebackgroundMap[4096];
 # 31 "main.c" 2
 # 1 "controls.h" 1
 # 21 "controls.h"
-extern const unsigned short controlsTiles[4912];
+extern const unsigned short controlsTiles[4864];
 
 
 extern const unsigned short controlsMap[1024];
@@ -791,13 +791,16 @@ void goToInstructions() {
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 31 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
  *(volatile unsigned short *)0x04000014 = 0;
- DMANow(3, instructionsTiles, &((charblock *)0x6000000)[0], 13536/2);
+ DMANow(3, instructionsTiles, &((charblock *)0x6000000)[0], 14208/2);
     DMANow(3, instructionsMap, &((screenblock *)0x6000000)[31], 2048/2);
  state = updateInstructions;
 }
 
 void updateInstructions() {
- if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
+ if ((!(~oldButtons&(32))&&(~buttons&(32)))) {
+  goToSplash();
+ }
+ if ((!(~oldButtons&(16))&&(~buttons&(16)))) {
 
   goToControls();
  }
@@ -807,12 +810,15 @@ void goToControls() {
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 29 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
  *(volatile unsigned short *)0x04000014 = 0;
- DMANow(3, controlsTiles, &((charblock *)0x6000000)[0], 9824/2);
+ DMANow(3, controlsTiles, &((charblock *)0x6000000)[0], 9728/2);
     DMANow(3, controlsMap, &((screenblock *)0x6000000)[29], 2048/2);
  state = updateControls;
 }
 
 void updateControls() {
+ if ((!(~oldButtons&(32))&&(~buttons&(32)))) {
+  goToInstructions();
+ }
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
 
   initGame();

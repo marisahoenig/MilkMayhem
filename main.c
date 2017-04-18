@@ -110,7 +110,10 @@ void goToInstructions() {
 }
 
 void updateInstructions() {
-	if (BUTTON_PRESSED(BUTTON_START)) {
+	if (BUTTON_PRESSED(BUTTON_LEFT)) {
+		goToSplash();
+	}
+	if (BUTTON_PRESSED(BUTTON_RIGHT)) {
 		//press start to view controls
 		goToControls();
 	}
@@ -126,6 +129,9 @@ void goToControls() {
 }
 
 void updateControls() {
+	if (BUTTON_PRESSED(BUTTON_LEFT)) {
+		goToInstructions();
+	}
 	if (BUTTON_PRESSED(BUTTON_START)) {
 		//press start to init and go to game
 		initGame();

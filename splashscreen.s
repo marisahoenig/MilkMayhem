@@ -3819,34 +3819,34 @@ splashscreenPal:
 	.short	32405
 	.short	20448
 	.short	30985
-	.short	22338
+	.short	23362
 	.short	32767
-	.short	23527
 	.short	29095
-	.short	27635
-	.short	27109
+	.short	24554
+	.short	25220
+	.short	28661
 	.short	31150
-	.short	24291
-	.short	26605
+	.short	24259
+	.short	21409
+	.short	27173
 	.short	30024
-	.short	30712
-	.short	26212
+	.short	28102
 	.short	0
 	.short	32371
 	.short	20448
-	.short	29095
+	.short	30985
 	.short	22338
 	.short	32767
 	.short	23527
-	.short	30985
+	.short	29095
 	.short	28661
-	.short	28133
-	.short	30024
-	.short	24291
-	.short	26605
-	.short	31117
-	.short	32504
 	.short	26212
+	.short	31117
+	.short	24291
+	.short	32504
+	.short	30024
+	.short	26606
+	.short	28165
 	.short	0
 	.short	22196
 	.short	24316
