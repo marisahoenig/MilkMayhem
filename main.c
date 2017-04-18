@@ -24,7 +24,8 @@ Select - Use cheat to turn into chocolate milk and no cats will harm you
 #include "instructions.h"
 #include "spritesheet.h"
 #include "winscreen.h"
-#include "losescreen.h"
+#include "losescreen1.h"
+#include "losescreen2.h"
 #include "pausescreen.h"
 #include "movebackground.h"
 #include "controls.h"
@@ -47,6 +48,7 @@ HEALTH health;
 HEALTH hearts[HEALTHNUM];
 FRIDGE fridge;
 int chocolateMilk;
+int counter;
 
 // player bullet
 BULLET bullet;
@@ -157,14 +159,14 @@ void initGame() {
 	p.direction = RIGHT;
 	p.aniCounter = 0;
 	p.active = 1;
-	p.stopRange = 8;
+	p.stopRange = 10;
 	p.maxJumpSpeed = SHIFTUP(5);
 	p.racc = 40; //row accel
 
 	c.row = 120;
 	c.col = 200;
 	c.rd = 0;
-	c.cd = 1;
+	c.cd = 2;
 	c.width = 64;
 	c.height = 32;
 	c.active = 0;
@@ -187,10 +189,10 @@ void initGame() {
 		hearts[i] = health;
 	}
 
-	fridge.row = 96;
+	fridge.row = 32;
 	fridge.col = 208;
 	fridge.rd = 0;
-	fridge.cd = 1;
+	fridge.cd = 2;
 	fridge.width = 32;
 	fridge.height = 64;
 	fridge.active = 0;
@@ -282,8 +284,6 @@ void goToLose() {
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
 	REG_BG0HOFS = 0;
-	DMANow(3, losescreenTiles, &CHARBLOCKBASE[0], losescreenTilesLen/2);
-    DMANow(3, losescreenMap, &SCREENBLOCKBASE[30], losescreenMapLen/2);
 	state = updateLose;
 }
 
@@ -291,6 +291,14 @@ void updateLose() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
 		goToSplash();
 	}
+	if (counter % 20 == 0) {
+		DMANow(3, losescreen2Tiles, &CHARBLOCKBASE[0], losescreen2TilesLen/2);
+    	DMANow(3, losescreen2Map, &SCREENBLOCKBASE[30], losescreen2MapLen/2);
+	} else {
+		DMANow(3, losescreen1Tiles, &CHARBLOCKBASE[0], losescreen1TilesLen/2);
+	    DMANow(3, losescreen1Map, &SCREENBLOCKBASE[30], losescreen1MapLen/2);
+	}
+	// counter++;
 }
 
 /** OTHER METHODS **/
@@ -303,20 +311,28 @@ void update() {
 		p.aniCounter++; //increment animation
 		if (BUTTON_HELD(BUTTON_RIGHT)) {
 			p.direction = RIGHT;
-			p.col += p.cd/2;
-			if (p.col < 120) {
+			// p.col += p.cd/2;
+			// if (p.col < 120) {
 				hOff += p.cd;
-			} else {
-				hOff += (4*p.cd)/5;
+			// } else {
+			// 	hOff += (4*p.cd)/5;
+			// }
+			if (fridge.active) {
+				fridge.cd = -2;
+				updateFridge(&fridge);
 			}
 		}
 		if (BUTTON_HELD(BUTTON_LEFT)) {
 			p.direction = LEFT;
-			p.col -= p.cd/2;
-			if (p.col > 120) {
+			// p.col -= p.cd/2;
+			// if (p.col > 120) {
 				hOff -= p.cd;
-			} else {
-				hOff -= (4*p.cd)/5;
+			// } else {
+			// 	hOff -= (4*p.cd)/5;
+			// }
+			if (fridge.active) {
+				fridge.cd = 2;
+				updateFridge(&fridge);
 			}
 		}
 		if (p.aniCounter % 10 == 0) {
@@ -387,9 +403,9 @@ void update() {
 				b->active = 1; 		// setting active to TRUE
 				b->row = (SHIFTDOWN(p.row) + (p.height/2));	//shoot from mid height of carton
 				b->col = p.col + p.width; //shoot from right side of carton
-				// if (p.moveState == PLEFT) {
-				// 	b->cd = -b->cd;
-				// }
+				if (p.moveState == PLEFT) {
+					b->cd = -b->cd;
+				}
 				break;
 			}
 		}
@@ -505,9 +521,25 @@ void draw() {
 	}
 
 	if (fridge.active) {
+		//top left
 		shadowOAM[FRIDGESPACE].attr0 = ATTR0_TALL | (ROWMASK & fridge.row);
 		shadowOAM[FRIDGESPACE].attr1 = ATTR1_SIZE64 | fridge.col;
 		shadowOAM[FRIDGESPACE].attr2 = SPRITEOFFSET16(0, 12);
+
+		//top right
+		shadowOAM[FRIDGESPACE + 1].attr0 = ATTR0_TALL | (ROWMASK & fridge.row);
+		shadowOAM[FRIDGESPACE + 1].attr1 = ATTR1_SIZE64 | (fridge.col + 32);
+		shadowOAM[FRIDGESPACE + 1].attr2 = SPRITEOFFSET16(0, 16);
+
+		//bottom left
+		shadowOAM[FRIDGESPACE + 2].attr0 = ATTR0_TALL | (ROWMASK & (fridge.row + 64));
+		shadowOAM[FRIDGESPACE + 2].attr1 = ATTR1_SIZE64 | fridge.col;
+		shadowOAM[FRIDGESPACE + 2].attr2 = SPRITEOFFSET16(8, 12);
+
+		//bottom right
+		shadowOAM[FRIDGESPACE + 3].attr0 = ATTR0_TALL | (ROWMASK & (fridge.row + 64));
+		shadowOAM[FRIDGESPACE + 3].attr1 = ATTR1_SIZE64 | (fridge.col + 32);
+		shadowOAM[FRIDGESPACE + 3].attr2 = SPRITEOFFSET16(8, 16);
 	}
 	
 	//transfer OAM to shadowOAM

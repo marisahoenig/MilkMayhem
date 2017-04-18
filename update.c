@@ -27,6 +27,7 @@ void updateCat(CAT* c) {
 
 void updateFridge(FRIDGE* fridge) {
 	if (fridge->active) {
+		fridge->col += fridge->cd;
 		if (fridge->col <= 0) {
 			//if goes offscreen, set fridge to inactive
 			fridge->active = 0;

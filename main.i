@@ -643,47 +643,54 @@ extern const unsigned short spritesheetPal[256];
 # 26 "main.c" 2
 # 1 "winscreen.h" 1
 # 21 "winscreen.h"
-extern const unsigned short winscreenTiles[1088];
+extern const unsigned short winscreenTiles[7264];
 
 
 extern const unsigned short winscreenMap[1024];
 # 27 "main.c" 2
-# 1 "losescreen.h" 1
-# 21 "losescreen.h"
-extern const unsigned short losescreenTiles[1424];
+# 1 "losescreen1.h" 1
+# 21 "losescreen1.h"
+extern const unsigned short losescreen1Tiles[6368];
 
 
-extern const unsigned short losescreenMap[1024];
+extern const unsigned short losescreen1Map[1024];
 # 28 "main.c" 2
+# 1 "losescreen2.h" 1
+# 21 "losescreen2.h"
+extern const unsigned short losescreen2Tiles[6352];
+
+
+extern const unsigned short losescreen2Map[1024];
+# 29 "main.c" 2
 # 1 "pausescreen.h" 1
 # 21 "pausescreen.h"
 extern const unsigned short pausescreenTiles[1568];
 
 
 extern const unsigned short pausescreenMap[1024];
-# 29 "main.c" 2
+# 30 "main.c" 2
 # 1 "movebackground.h" 1
 # 21 "movebackground.h"
 extern const unsigned short movebackgroundTiles[15152];
 
 
 extern const unsigned short movebackgroundMap[4096];
-# 30 "main.c" 2
+# 31 "main.c" 2
 # 1 "controls.h" 1
 # 21 "controls.h"
 extern const unsigned short controlsTiles[4912];
 
 
 extern const unsigned short controlsMap[1024];
-# 31 "main.c" 2
+# 32 "main.c" 2
 # 1 "uke.h" 1
 # 20 "uke.h"
 extern const unsigned char uke[193313];
-# 32 "main.c" 2
+# 33 "main.c" 2
 # 1 "meow.h" 1
 # 20 "meow.h"
 extern const unsigned char meow[4874];
-# 33 "main.c" 2
+# 34 "main.c" 2
 # 1 "sounds.h" 1
 void setupSounds();
 void playSoundA( const unsigned char* sound, int length, int frequency, int loops);
@@ -705,14 +712,14 @@ typedef struct {
     int priority;
     int vbCount;
 } SOUND;
-# 34 "main.c" 2
+# 35 "main.c" 2
 # 1 "lights.h" 1
 # 21 "lights.h"
 extern const unsigned short lightsTiles[1120];
 
 
 extern const unsigned short lightsMap[1024];
-# 35 "main.c" 2
+# 36 "main.c" 2
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -728,6 +735,7 @@ HEALTH health;
 HEALTH hearts[2];
 FRIDGE fridge;
 int chocolateMilk;
+int counter;
 
 
 BULLET bullet;
@@ -838,14 +846,14 @@ void initGame() {
  p.direction = RIGHT;
  p.aniCounter = 0;
  p.active = 1;
- p.stopRange = 8;
+ p.stopRange = 10;
  p.maxJumpSpeed = ((5) << 8);
  p.racc = 40;
 
  c.row = 120;
  c.col = 200;
  c.rd = 0;
- c.cd = 1;
+ c.cd = 2;
  c.width = 64;
  c.height = 32;
  c.active = 0;
@@ -868,10 +876,10 @@ void initGame() {
   hearts[i] = health;
  }
 
- fridge.row = 96;
+ fridge.row = 32;
  fridge.col = 208;
  fridge.rd = 0;
- fridge.cd = 1;
+ fridge.cd = 2;
  fridge.width = 32;
  fridge.height = 64;
  fridge.active = 0;
@@ -948,7 +956,7 @@ void goToWin() {
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
  *(volatile unsigned short *)0x04000014 = 0;
  hOff = 0;
- DMANow(3, winscreenTiles, &((charblock *)0x6000000)[0], 2176/2);
+ DMANow(3, winscreenTiles, &((charblock *)0x6000000)[0], 14528/2);
     DMANow(3, winscreenMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = updateWin;
 }
@@ -963,8 +971,6 @@ void goToLose() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
- DMANow(3, losescreenTiles, &((charblock *)0x6000000)[0], 2848/2);
-    DMANow(3, losescreenMap, &((screenblock *)0x6000000)[30], 2048/2);
  state = updateLose;
 }
 
@@ -972,6 +978,14 @@ void updateLose() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
   goToSplash();
  }
+ if (counter % 20 == 0) {
+  DMANow(3, losescreen2Tiles, &((charblock *)0x6000000)[0], 12704/2);
+     DMANow(3, losescreen2Map, &((screenblock *)0x6000000)[30], 2048/2);
+ } else {
+  DMANow(3, losescreen1Tiles, &((charblock *)0x6000000)[0], 12736/2);
+     DMANow(3, losescreen1Map, &((screenblock *)0x6000000)[30], 2048/2);
+ }
+
 }
 
 
@@ -979,27 +993,33 @@ void updateLose() {
 void update() {
  p.rd += p.racc;
     p.row += p.rd;
-# 318 "main.c"
+
  if ((~((*(volatile unsigned int *)0x04000130)) & 16) || (~((*(volatile unsigned int *)0x04000130)) & 32)) {
   p.aniCounter++;
   if ((~((*(volatile unsigned int *)0x04000130)) & 16)) {
-
    p.direction = RIGHT;
-   p.col += p.cd/2;
-   if (p.col < 120) {
+
+
     hOff += p.cd;
-   } else {
-    hOff += (4*p.cd)/5;
+
+
+
+   if (fridge.active) {
+    fridge.cd = -2;
+    updateFridge(&fridge);
    }
   }
   if ((~((*(volatile unsigned int *)0x04000130)) & 32)) {
-
    p.direction = LEFT;
-   p.col -= p.cd/2;
-   if (p.col > 120) {
+
+
     hOff -= p.cd;
-   } else {
-    hOff -= (4*p.cd)/5;
+
+
+
+   if (fridge.active) {
+    fridge.cd = 2;
+    updateFridge(&fridge);
    }
   }
   if (p.aniCounter % 10 == 0) {
@@ -1011,6 +1031,7 @@ void update() {
    }
   }
  } else {
+
   currFrame = 0;
  }
 
@@ -1069,9 +1090,9 @@ void update() {
     b->active = 1;
     b->row = (((p.row) >> 8) + (p.height/2));
     b->col = p.col + p.width;
-
-
-
+    if (p.moveState == PLEFT) {
+     b->cd = -b->cd;
+    }
     break;
    }
   }
@@ -1187,9 +1208,25 @@ void draw() {
  }
 
  if (fridge.active) {
-  shadowOAM[10].attr0 = (2 << 14) | ((0xFF) & fridge.row);
-  shadowOAM[10].attr1 = (3 << 14) | fridge.col;
-  shadowOAM[10].attr2 = (0)*32+(12);
+
+  shadowOAM[16].attr0 = (2 << 14) | ((0xFF) & fridge.row);
+  shadowOAM[16].attr1 = (3 << 14) | fridge.col;
+  shadowOAM[16].attr2 = (0)*32+(12);
+
+
+  shadowOAM[16 + 1].attr0 = (2 << 14) | ((0xFF) & fridge.row);
+  shadowOAM[16 + 1].attr1 = (3 << 14) | (fridge.col + 32);
+  shadowOAM[16 + 1].attr2 = (0)*32+(16);
+
+
+  shadowOAM[16 + 2].attr0 = (2 << 14) | ((0xFF) & (fridge.row + 64));
+  shadowOAM[16 + 2].attr1 = (3 << 14) | fridge.col;
+  shadowOAM[16 + 2].attr2 = (8)*32+(12);
+
+
+  shadowOAM[16 + 3].attr0 = (2 << 14) | ((0xFF) & (fridge.row + 64));
+  shadowOAM[16 + 3].attr1 = (3 << 14) | (fridge.col + 32);
+  shadowOAM[16 + 3].attr2 = (8)*32+(16);
  }
 
 

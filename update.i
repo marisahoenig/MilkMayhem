@@ -187,6 +187,7 @@ void updateCat(CAT* c) {
 
 void updateFridge(FRIDGE* fridge) {
  if (fridge->active) {
+  fridge->col += fridge->cd;
   if (fridge->col <= 0) {
 
    fridge->active = 0;

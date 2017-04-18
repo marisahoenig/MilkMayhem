@@ -3,7 +3,7 @@
 #define LIVESPRITE 4 //4-6
 //health = 7, 8, 9
 #define HEALTHNUM 2
-#define FRIDGESPACE 10 //store in 10
+#define FRIDGESPACE 16 //store in 10
 
 #define BULLETNUM 5 //number of bullets you can fire
 #define BULLETSPRITE 11 //store in 11-15

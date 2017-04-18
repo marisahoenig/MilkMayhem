@@ -67,7 +67,10 @@ updateFridge:
 	cmp	r3, #0
 	bxeq	lr
 	ldr	r3, [r0, #4]
+	ldr	r2, [r0, #12]
+	add	r3, r2, r3
 	cmp	r3, #0
+	str	r3, [r0, #4]
 	movle	r3, #0
 	strle	r3, [r0, #24]
 	bx	lr
