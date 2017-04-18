@@ -619,7 +619,7 @@ void collisionFridge(FRIDGE* f, PLAYER* p);
 # 23 "main.c" 2
 # 1 "splashscreen.h" 1
 # 22 "splashscreen.h"
-extern const unsigned short splashscreenTiles[2752];
+extern const unsigned short splashscreenTiles[3280];
 
 
 extern const unsigned short splashscreenMap[1024];
@@ -774,7 +774,7 @@ void goToSplash() {
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 31 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
  *(volatile unsigned short *)0x04000014 = 0;
- DMANow(3, splashscreenTiles, &((charblock *)0x6000000)[0], 5504/2);
+ DMANow(3, splashscreenTiles, &((charblock *)0x6000000)[0], 6560/2);
     DMANow(3, splashscreenMap, &((screenblock *)0x6000000)[31], 2048/2);
  state = updateSplash;
 }

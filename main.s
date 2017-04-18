@@ -27,7 +27,7 @@ goToSplash:
 	mov	r0, #3
 	ldr	r1, .L2
 	mov	r2, #100663296
-	mov	r3, #2752
+	mov	r3, #3280
 	ldr	r4, .L2+4
 	strh	r5, [ip, #0]	@ movhi
 	strh	lr, [ip, #20]	@ movhi
