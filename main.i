@@ -773,7 +773,6 @@ void goToSplash() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 31 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
- *(volatile unsigned short *)0x04000014 = 0;
  DMANow(3, splashscreenTiles, &((charblock *)0x6000000)[0], 6560/2);
     DMANow(3, splashscreenMap, &((screenblock *)0x6000000)[31], 2048/2);
  state = updateSplash;
@@ -960,7 +959,7 @@ void updatePause() {
 void goToWin() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
- *(volatile unsigned short *)0x04000014 = 0;
+ *(volatile unsigned short *)0x04000010 = 0;
  hOff = 0;
  DMANow(3, winscreenTiles, &((charblock *)0x6000000)[0], 14528/2);
     DMANow(3, winscreenMap, &((screenblock *)0x6000000)[30], 2048/2);
@@ -977,6 +976,9 @@ void goToLose() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
+ hOff = 0;
+ DMANow(3, losescreen2Tiles, &((charblock *)0x6000000)[0], 12704/2);
+    DMANow(3, losescreen2Map, &((screenblock *)0x6000000)[30], 2048/2);
  state = updateLose;
 }
 
@@ -984,14 +986,7 @@ void updateLose() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
   goToSplash();
  }
- if (counter % 20 == 0) {
-  DMANow(3, losescreen2Tiles, &((charblock *)0x6000000)[0], 12704/2);
-     DMANow(3, losescreen2Map, &((screenblock *)0x6000000)[30], 2048/2);
- } else {
-  DMANow(3, losescreen1Tiles, &((charblock *)0x6000000)[0], 12736/2);
-     DMANow(3, losescreen1Map, &((screenblock *)0x6000000)[30], 2048/2);
- }
-
+# 310 "main.c"
 }
 
 
