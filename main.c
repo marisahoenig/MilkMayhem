@@ -217,6 +217,7 @@ void initGame() {
 	hOff = 0;
 	lives = 3;
 	score = 0;
+	hurt = 0;
 }
 
 void goToGame() {
@@ -316,12 +317,7 @@ void update() {
 		p.aniCounter++; //increment animation
 		if (BUTTON_HELD(BUTTON_RIGHT)) {
 			p.direction = RIGHT;
-			// p.col += p.cd/2;
-			// if (p.col < 120) {
 				hOff += p.cd;
-			// } else {
-			// 	hOff += (4*p.cd)/5;
-			// }
 			if (fridge.active) {
 				fridge.cd = -2;
 				updateFridge(&fridge);
@@ -329,12 +325,7 @@ void update() {
 		}
 		if (BUTTON_HELD(BUTTON_LEFT)) {
 			p.direction = LEFT;
-			// p.col -= p.cd/2;
-			// if (p.col > 120) {
 				hOff -= p.cd;
-			// } else {
-			// 	hOff -= (4*p.cd)/5;
-			// }
 			if (fridge.active) {
 				fridge.cd = 2;
 				updateFridge(&fridge);
@@ -347,10 +338,22 @@ void update() {
 			} else if (p.currFrame == 2) {
 				p.currFrame = 1;
 			}
+
 		}
+
+		// if (hurt && p.aniCounter % 40 == 0) {
+		// 	hurt = 0;
+		// }
 	} else {
 		//if neither is held, be at the normal state
 		currFrame = 0;
+	}
+	if (hurt) {
+		if (hurtCount > 3) {
+			hurt = 0;
+			hurtCount = 0;
+		}
+		hurtCount++;
 	}
 
 	if (SHIFTDOWN(p.row) >= 160 - p.height - 1) { //so it won't go below ground
@@ -396,6 +399,7 @@ void update() {
 				playSoundB(meow, MEOWLEN, MEOWFREQ, 0);
 				c->active = 0;
 				lives--;
+				hurt = 1;
 			}
 		}
 	}
@@ -481,10 +485,13 @@ void draw() {
 	//player stored in shadowOAM 0
 	shadowOAM[0].attr0 = (ROWMASK & SHIFTDOWN(p.row)) | ATTR0_TALL;
 	shadowOAM[0].attr1 = ATTR1_SIZE64 | p.col;
-	if (chocolateMilk) {
-			shadowOAM[0].attr2 = ((ATTR2_PALBANK(1)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //ref to sprite sheet
+	if (chocolateMilk) { //reference different rows of palette
+		shadowOAM[0].attr2 = ((ATTR2_PALBANK(1)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //1st row, brown
+	} else if (hurt) {
+		shadowOAM[0].attr2 = ((ATTR2_PALBANK(2)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //2nd row, red
+
 	} else {
-			shadowOAM[0].attr2 = ((ATTR2_PALBANK(0)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //ref to sprite sheet
+		shadowOAM[0].attr2 = ((ATTR2_PALBANK(0)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //0th row, regular
 	}
 
 	//draw all active cats, hide inactive

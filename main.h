@@ -42,6 +42,8 @@ int time;
 int timetwo;
 int hOff;
 int gamehOff;
+int hurt;
+int hurtCount;
 
 //cat different frames for walking
 int catFrame;

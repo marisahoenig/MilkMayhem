@@ -493,6 +493,8 @@ int time;
 int timetwo;
 int hOff;
 int gamehOff;
+int hurt;
+int hurtCount;
 
 
 int catFrame;
@@ -908,6 +910,7 @@ void initGame() {
  hOff = 0;
  lives = 3;
  score = 0;
+ hurt = 0;
 }
 
 void goToGame() {
@@ -987,7 +990,7 @@ void updateLose() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
   goToSplash();
  }
-# 307 "main.c"
+# 308 "main.c"
 }
 
 
@@ -1000,12 +1003,7 @@ void update() {
   p.aniCounter++;
   if ((~((*(volatile unsigned int *)0x04000130)) & 16)) {
    p.direction = RIGHT;
-
-
     hOff += p.cd;
-
-
-
    if (fridge.active) {
     fridge.cd = -2;
     updateFridge(&fridge);
@@ -1013,12 +1011,7 @@ void update() {
   }
   if ((~((*(volatile unsigned int *)0x04000130)) & 32)) {
    p.direction = LEFT;
-
-
     hOff -= p.cd;
-
-
-
    if (fridge.active) {
     fridge.cd = 2;
     updateFridge(&fridge);
@@ -1031,10 +1024,22 @@ void update() {
    } else if (p.currFrame == 2) {
     p.currFrame = 1;
    }
+
   }
+
+
+
+
  } else {
 
   currFrame = 0;
+ }
+ if (hurt) {
+  if (hurtCount > 3) {
+   hurt = 0;
+   hurtCount = 0;
+  }
+  hurtCount++;
  }
 
  if (((p.row) >> 8) >= 160 - p.height - 1) {
@@ -1080,6 +1085,7 @@ void update() {
     playSoundB(meow, 4874, 11025, 0);
     c->active = 0;
     lives--;
+    hurt = 1;
    }
   }
  }
@@ -1166,9 +1172,12 @@ void draw() {
  shadowOAM[0].attr0 = ((0xFF) & ((p.row) >> 8)) | (2 << 14);
  shadowOAM[0].attr1 = (3 << 14) | p.col;
  if (chocolateMilk) {
-   shadowOAM[0].attr2 = ((((1) << 12)) | ((p.direction*8)*32+(p.currFrame*4)));
+  shadowOAM[0].attr2 = ((((1) << 12)) | ((p.direction*8)*32+(p.currFrame*4)));
+ } else if (hurt) {
+  shadowOAM[0].attr2 = ((((2) << 12)) | ((p.direction*8)*32+(p.currFrame*4)));
+
  } else {
-   shadowOAM[0].attr2 = ((((0) << 12)) | ((p.direction*8)*32+(p.currFrame*4)));
+  shadowOAM[0].attr2 = ((((0) << 12)) | ((p.direction*8)*32+(p.currFrame*4)));
  }
 
 

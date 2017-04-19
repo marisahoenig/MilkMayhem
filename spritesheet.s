@@ -16435,11 +16435,11 @@ spritesheetPal:
 	.short	0
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
+	.short	31775
+	.short	607
+	.short	13436
+	.short	31
+	.short	31
 	.short	0
 	.short	0
 	.short	0
