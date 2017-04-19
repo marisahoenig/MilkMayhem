@@ -1,19 +1,26 @@
 /*****************************************
-I am making a game where the milk carton (player) is trying to reach the refridgerator
-at the end of a scrolling background. There will be platforms and enemies (cats) involved
-which the milk must battle to get past and not lose lives.
+Milk Mayhem is a game in which YOU are the milk carton trying to return to the refridgerator
+after getting left out in the kitchen. (Don't you hate it when people forget to put the milk away?)
 
-Currently, if the milk loses 3 lives, it will lose. However, it can collect hearts to boost
-its life. Right now, you can fire milk droplets at the cats to get rid of them (press A) or simply jump
-over them (press B). If you hit 5 cats, the refridgerator will appear. Reach the refridgerator to win!
+Unfortunately for you, this house has lots of cats which are constantly trying to drink the milk
+from your carton. Get back to the refridgerator by running to the right, jumping over and shooting milk 
+droplets at the enemy cats. If 3 cats drink your milk, you're an empty carton and didn't make it back. 
+However, there are some small cartons of milk that can replenish your supply.
 
-Eventually, the hearts will be milk levels instead of hearts and there will be opportunities to boost the
-number of lives/milk levels.
+After deflecting 5 cats, you'll reach the fridge, as indicated in the progress bar in the upper right-hand 
+corner. Reach the refridgerator to win!
 
 Left, Right Arrows - Move
 A - Fire milk droplet
 B - Jump
 Select - Use cheat to turn into chocolate milk and no cats will harm you
+
+COOL THINGS:
+- Palette Row Swapping for harm to player and chocolate milk
+- Gravity
+- Function Pointers
+- Custom Art (and sound! The main music is me playing ukulele)
+
 ******************************************/
 
 #include <stdlib.h>
@@ -166,12 +173,13 @@ void initGame() {
 	p.racc = 40; //row accel
 
 	c.row = 120;
-	c.col = 200;
+	c.col = 230;
 	c.rd = 0;
 	c.cd = 1;
 	c.width = 64;
 	c.height = 32;
 	c.active = 0;
+	c.living = 0;
 	c.moveState = CNORM;
 	c.catFrame = CNORM;
 	c.aniCounter = 0;
@@ -297,14 +305,14 @@ void updateLose() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
 		goToSplash();
 	}
-	// if (counter % 20 == 0) {
-	// 	DMANow(3, losescreen2Tiles, &CHARBLOCKBASE[0], losescreen2TilesLen/2);
- //    	DMANow(3, losescreen2Map, &SCREENBLOCKBASE[30], losescreen2MapLen/2);
-	// } else {
-	// 	DMANow(3, losescreen1Tiles, &CHARBLOCKBASE[0], losescreen1TilesLen/2);
-	//     DMANow(3, losescreen1Map, &SCREENBLOCKBASE[30], losescreen1MapLen/2);
-	// }
-	// counter++;
+	if (counter % 20 == 0) {
+		DMANow(3, losescreen2Tiles, &CHARBLOCKBASE[0], losescreen2TilesLen/2);
+    	DMANow(3, losescreen2Map, &SCREENBLOCKBASE[30], losescreen2MapLen/2);
+	} else {
+		DMANow(3, losescreen1Tiles, &CHARBLOCKBASE[0], losescreen1TilesLen/2);
+	    DMANow(3, losescreen1Map, &SCREENBLOCKBASE[30], losescreen1MapLen/2);
+	}
+	counter++;
 }
 
 /** OTHER METHODS **/
@@ -379,8 +387,9 @@ void update() {
 	if (!(time++ % timeToNextCat)) { //after a given amount of time, create a cat w/ pooling
 		for(int i = 0; i < CATNUM; i++) { 
 			CAT * c = &cats[i];
-			if(!c->active) { // the first inactive cat 
+			if(!c->living) { // the first inactive cat 
 				c->active = 1; 		// setting active to TRUE
+				c->living = 1;
 				// c->row = 128;
 				c->col = 220;
 				timeToNextCat = rand()%300 + 87;
@@ -392,7 +401,7 @@ void update() {
 	//move cat and check if collides with player
 	for (int i = 0; i < CATNUM; i++) {
 		CAT * c = &cats[i];
-		if (c->active) {
+		if (c->living) {
 			updateCat(c);
 
 			if (!chocolateMilk && collisionEnemyPlayer(&p, c)) {
@@ -411,7 +420,7 @@ void update() {
 			if(!b->active) { // the first inactive bullet 
 				b->active = 1; 		// setting active to TRUE
 				b->row = (SHIFTDOWN(p.row) + (p.height/2));	//shoot from mid height of carton
-				b->col = p.col + p.width; //shoot from right side of carton
+				b->col = p.col + (p.width/2); //shoot from right side of carton
 				if (p.direction == LEFT) {
 					b->direction = LEFT;
 				} else {
@@ -489,7 +498,6 @@ void draw() {
 		shadowOAM[0].attr2 = ((ATTR2_PALBANK(1)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //1st row, brown
 	} else if (hurt) {
 		shadowOAM[0].attr2 = ((ATTR2_PALBANK(2)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //2nd row, red
-
 	} else {
 		shadowOAM[0].attr2 = ((ATTR2_PALBANK(0)) | (SPRITEOFFSET16(p.direction*8, p.currFrame*4))); //0th row, regular
 	}
@@ -497,7 +505,7 @@ void draw() {
 	//draw all active cats, hide inactive
 	for(int i = 0; i < CATNUM; i++) { 
 		CAT * c = &cats[i];
-		if (c->active) { 	// cat sprites in shadowOAM 1-3
+		if (c->living) { 	// cat sprites in shadowOAM 1-3
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_WIDE | (ROWMASK & c->row);
 			shadowOAM[CATSPRITE + i].attr1 = ATTR1_SIZE64 | c->col;
 			shadowOAM[CATSPRITE + i].attr2 = SPRITEOFFSET16(16, (c->catFrame)*8);

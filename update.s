@@ -18,41 +18,43 @@ updateCat:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
-	str	r4, [sp, #-4]!
-	ldr	r3, [r0, #24]
-	cmp	r3, #0
-	beq	.L1
-	ldr	r2, [r0, #4]
-	cmp	r2, #0
-	movle	r3, #0
-	strle	r3, [r0, #24]
-	ldr	r3, [r0, #36]
-	ldr	r4, .L6
-	add	r3, r3, #1
-	smull	r1, r4, r3, r4
-	mov	r1, r3, asr #31
-	ldr	ip, [r0, #12]
-	rsb	r1, r1, r4, asr #2
-	add	r1, r1, r1, asl #2
-	rsb	r2, ip, r2
-	cmp	r3, r1, asl #1
-	str	r2, [r0, #4]
-	str	r3, [r0, #36]
-	bne	.L1
 	ldr	r3, [r0, #28]
+	cmp	r3, #0
+	bxeq	lr
+	ldr	r3, [r0, #4]
+	cmp	r3, #239
+	movhi	r2, #0
+	strhi	r2, [r0, #28]
+	ldr	r2, [r0, #24]
+	cmp	r2, #0
+	ldrne	r2, [r0, #12]
+	ldreq	r2, [r0, #12]
+	rsbne	r3, r2, r3
+	addeq	r3, r2, r3
+	strne	r3, [r0, #4]
+	streq	r3, [r0, #4]
+	ldr	r3, [r0, #40]
+	ldr	r2, .L8
+	add	r3, r3, #1
+	smull	r1, r2, r3, r2
+	mov	r1, r3, asr #31
+	rsb	r2, r1, r2, asr #2
+	add	r2, r2, r2, asl #2
+	cmp	r3, r2, asl #1
+	str	r3, [r0, #40]
+	bxne	lr
+	ldr	r3, [r0, #32]
 	cmp	r3, #1
 	addle	r3, r3, #1
-	strle	r3, [r0, #28]
-	ble	.L1
+	strle	r3, [r0, #32]
+	bxle	lr
 	cmp	r3, #2
 	moveq	r3, #1
-	streq	r3, [r0, #28]
-.L1:
-	ldmfd	sp!, {r4}
+	streq	r3, [r0, #32]
 	bx	lr
-.L7:
+.L9:
 	.align	2
-.L6:
+.L8:
 	.word	1717986919
 	.size	updateCat, .-updateCat
 	.align	2
@@ -84,35 +86,38 @@ collisionEnemyPlayer:
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
 	str	r4, [sp, #-4]!
+	ldr	r3, [r1, #24]
+	cmp	r3, #0
 	ldr	r2, [r0, #0]
+	moveq	r0, r3
+	beq	.L13
 	ldr	r3, [r1, #0]
 	mov	r2, r2, asr #8
 	cmp	r2, r3
-	bgt	.L14
+	bgt	.L17
 	ldr	r4, [r0, #20]
 	ldr	ip, [r1, #20]
 	add	r2, r2, r4
 	add	r3, r3, ip
 	cmp	r2, r3
-	bge	.L15
-.L14:
-	mov	r0, #0
-.L11:
-	ldmfd	sp!, {r4}
-	bx	lr
-.L15:
+	blt	.L17
 	ldr	r3, [r0, #4]
 	ldr	r0, [r0, #16]
 	ldr	r2, [r1, #4]
 	add	r0, r3, r0
 	cmp	r0, r2
-	blt	.L14
+	blt	.L17
 	ldr	r0, [r1, #16]
-	add	r0, r2, r0
-	cmp	r3, r0
+	add	r2, r2, r0
+	cmp	r3, r2
 	movgt	r0, #0
 	movle	r0, #1
-	b	.L11
+.L13:
+	ldmfd	sp!, {r4}
+	bx	lr
+.L17:
+	mov	r0, #0
+	b	.L13
 	.size	collisionEnemyPlayer, .-collisionEnemyPlayer
 	.align	2
 	.global	updateHealth
@@ -125,7 +130,7 @@ updateHealth:
 	stmfd	sp!, {r4, r5}
 	ldr	r3, [r0, #20]
 	cmp	r3, #0
-	beq	.L16
+	beq	.L18
 	ldr	ip, [r1, #0]
 	ldr	r2, [r0, #0]
 	ldmib	r0, {r3, r4}
@@ -133,41 +138,41 @@ updateHealth:
 	mov	ip, ip, asr #8
 	cmp	ip, r2
 	str	r3, [r0, #4]
-	ble	.L19
-.L18:
+	ble	.L21
+.L20:
 	cmp	r3, #0
 	movle	r3, #0
 	strle	r3, [r0, #20]
-.L16:
+.L18:
 	ldmfd	sp!, {r4, r5}
 	bx	lr
-.L19:
+.L21:
 	ldr	r5, [r1, #20]
 	ldr	r4, [r0, #16]
 	add	ip, ip, r5
 	add	r2, r2, r4
 	cmp	ip, r2
-	blt	.L18
+	blt	.L20
 	ldr	r2, [r1, #4]
 	ldr	r1, [r1, #16]
 	add	r1, r2, r1
 	cmp	r3, r1
-	bgt	.L18
+	bgt	.L20
 	ldr	r1, [r0, #12]
 	add	r1, r3, r1
 	cmp	r2, r1
-	bgt	.L18
-	ldr	r2, .L20
+	bgt	.L20
+	ldr	r2, .L22
 	ldr	r1, [r2, #0]
 	cmp	r1, #2
 	addle	r1, r1, #1
 	movle	ip, #0
 	strle	ip, [r0, #20]
 	strle	r1, [r2, #0]
-	b	.L18
-.L21:
+	b	.L20
+.L23:
 	.align	2
-.L20:
+.L22:
 	.word	lives
 	.size	updateHealth, .-updateHealth
 	.align	2
@@ -183,7 +188,7 @@ updateBullet:
 	bxeq	lr
 	ldr	r3, [r0, #24]
 	cmp	r3, #1
-	beq	.L26
+	beq	.L28
 	ldmib	r0, {r2, r3}
 	add	r3, r3, r2
 	ldr	r2, [r0, #12]
@@ -191,17 +196,17 @@ updateBullet:
 	cmp	r2, #239
 	str	r3, [r0, #4]
 	bxle	lr
-.L25:
+.L27:
 	mov	r3, #0
 	str	r3, [r0, #20]
 	bx	lr
-.L26:
+.L28:
 	ldmib	r0, {r2, r3}
 	sub	r3, r2, r3
 	cmp	r3, #0
 	str	r3, [r0, #4]
 	bxge	lr
-	b	.L25
+	b	.L27
 	.size	updateBullet, .-updateBullet
 	.align	2
 	.global	collisionCheckEnemy
@@ -217,11 +222,11 @@ collisionCheckEnemy:
 	ldr	r2, [r0, #0]
 	add	ip, r3, ip
 	cmp	r2, ip
-	bgt	.L27
+	bgt	.L29
 	ldr	ip, [r0, #16]
 	add	r2, r2, ip
 	cmp	r3, r2
-	bgt	.L27
+	bgt	.L29
 	ldr	r3, [r0, #4]
 	ldr	r4, [r0, #12]
 	ldr	r2, [r1, #4]
@@ -229,29 +234,29 @@ collisionCheckEnemy:
 	add	r4, r3, r4
 	add	ip, r2, ip
 	cmp	r4, ip
-	bgt	.L29
+	bgt	.L31
 	cmp	r4, r2
-	blt	.L29
-.L30:
-	ldr	r2, .L31
+	blt	.L31
+.L32:
+	ldr	r2, .L33
 	ldr	ip, [r2, #0]
 	mov	r3, #0
 	add	ip, ip, #1
 	str	r3, [r1, #24]
 	str	ip, [r2, #0]
 	str	r3, [r0, #20]
-.L27:
+.L29:
 	ldmfd	sp!, {r4}
 	bx	lr
-.L29:
-	cmp	r3, ip
-	bgt	.L27
-	cmp	r3, r2
-	bge	.L30
-	b	.L27
-.L32:
-	.align	2
 .L31:
+	cmp	r3, ip
+	bgt	.L29
+	cmp	r3, r2
+	bge	.L32
+	b	.L29
+.L34:
+	.align	2
+.L33:
 	.word	score
 	.size	collisionCheckEnemy, .-collisionCheckEnemy
 	.align	2
@@ -268,11 +273,11 @@ collisionFridge:
 	mov	r2, r2, asr #8
 	add	ip, r3, ip
 	cmp	r2, ip
-	bgt	.L33
+	bgt	.L35
 	ldr	ip, [r1, #20]
 	add	r2, r2, ip
 	cmp	r3, r2
-	bgt	.L33
+	bgt	.L35
 	ldr	ip, [r1, #16]
 	ldr	r2, [r1, #4]
 	ldr	r3, [r0, #4]
@@ -280,20 +285,20 @@ collisionFridge:
 	add	r2, ip, r2
 	add	r1, r3, r1
 	cmp	r2, r1
-	bgt	.L33
+	bgt	.L35
 	cmp	r2, r3
-	bge	.L35
-.L33:
+	bge	.L37
+.L35:
 	ldmfd	sp!, {r3, lr}
 	bx	lr
-.L35:
-	ldr	r3, .L36
+.L37:
+	ldr	r3, .L38
 	mov	lr, pc
 	bx	r3
-	b	.L33
-.L37:
+	b	.L35
+.L39:
 	.align	2
-.L36:
+.L38:
 	.word	goToWin
 	.size	collisionFridge, .-collisionFridge
 	.comm	score,4,4
@@ -303,6 +308,8 @@ collisionFridge:
 	.comm	timetwo,4,4
 	.comm	hOff,4,4
 	.comm	gamehOff,4,4
+	.comm	hurt,4,4
+	.comm	hurtCount,4,4
 	.comm	catFrame,4,4
 	.comm	direction,4,4
 	.ident	"GCC: (devkitARM release 31) 4.5.0"

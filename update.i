@@ -37,6 +37,8 @@ int time;
 int timetwo;
 int hOff;
 int gamehOff;
+int hurt;
+int hurtCount;
 
 
 int catFrame;
@@ -71,6 +73,7 @@ typedef struct {
  int width;
  int height;
  int active;
+ int living;
  int catFrame;
  int moveState;
  int aniCounter;
@@ -168,13 +171,15 @@ void collisionFridge(FRIDGE* f, PLAYER* p);
 
 
 void updateCat(CAT* c) {
- if (c->active) {
-  if (c->col <= 0) {
-
-   c->active = 0;
+ if (c->living) {
+  if (c->col >= 240 || c->col < 0) {
+   c->living = 0;
   }
-
-  c->col -= c->cd;
+  if (c->active) {
+   c->col -= c->cd;
+  } else if (!(c->active)) {
+   c->col += c->cd;
+  }
   c->aniCounter++;
 
   if(c->aniCounter % 10 == 0) {
@@ -202,7 +207,7 @@ void updateFridge(FRIDGE* fridge) {
 
 int collisionEnemyPlayer(PLAYER* p, CAT* c) {
  int shiftedRow = ((p->row) >> 8);
- if ((shiftedRow <= c->row && shiftedRow+ p->height >= c->row + c->height)
+ if (c->active && (shiftedRow <= c->row && shiftedRow + p->height >= c->row + c->height)
   && (p->col + p->width >= c->col) && (p->col <= c->col + c->width)) {
   return 1;
  }

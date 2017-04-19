@@ -4,13 +4,15 @@
 
 //make cat move and if go offscreen, make inactive
 void updateCat(CAT* c) {
-	if (c->active) {
-		if (c->col <= 0) {
-			//if goes offscreen, set cat to inactive
-			c->active = 0;
+	if (c->living) {
+		if (c->col >= 240 || c->col < 0) {
+			c->living = 0;
 		}
-
-		c->col -= c->cd; //move cat
+		if (c->active) {
+			c->col -= c->cd; //move cat left
+		} else if (!(c->active)) {
+			c->col += c->cd; //move cat right
+		}
 		c->aniCounter++;
 
 		if(c->aniCounter % 10 == 0) {
@@ -38,7 +40,7 @@ void updateFridge(FRIDGE* fridge) {
 //check if cat hits player
 int collisionEnemyPlayer(PLAYER* p, CAT* c) {
 	int shiftedRow = SHIFTDOWN(p->row);
-	if ((shiftedRow <= c->row && shiftedRow+ p->height >= c->row + c->height)
+	if (c->active && (shiftedRow <= c->row && shiftedRow + p->height >= c->row + c->height)
 		&& (p->col + p->width >= c->col) && (p->col <= c->col + c->width)) {
 		return 1;
 	}

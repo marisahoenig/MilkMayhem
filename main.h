@@ -77,7 +77,8 @@ typedef struct {
 	int cd;
 	int width;
 	int height;
-	int active;
+	int active; //cannot harm you, moving other way
+	int living; //off the screen
 	int catFrame;
 	int moveState;
 	int aniCounter;
