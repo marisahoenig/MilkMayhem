@@ -898,8 +898,8 @@ void initGame() {
  bullet.row = 145;
  bullet.col = 0;
  bullet.cd = 2;
- bullet.width = 8;
- bullet.height = 8;
+ bullet.width = 16;
+ bullet.height = 16;
  bullet.active = 0;
  bullet.direction = RIGHT;
 
@@ -1194,7 +1194,11 @@ void draw() {
   CAT * c = &cats[i];
   if (c->living) {
    shadowOAM[1 + i].attr0 = (1 << 14) | ((0xFF) & c->row);
-   shadowOAM[1 + i].attr1 = (3 << 14) | c->col;
+   if (c->active) {
+    shadowOAM[1 + i].attr1 = (3 << 14) | c->col;
+   } else {
+    shadowOAM[1 + i].attr1 = (1 << 12) | (3 << 14) | c->col;
+   }
    shadowOAM[1 + i].attr2 = (16)*32+((c->catFrame)*8);
   } else {
    shadowOAM[1 + i].attr0 = (2 << 8);
@@ -1205,8 +1209,8 @@ void draw() {
  for(int i = 0; i < 5; i++) {
   BULLET * b = &bullets[i];
   if (b->active) {
-   shadowOAM[11 + i].attr0 = (1 << 14) | ((0xFF) & b->row);
-   shadowOAM[11 + i].attr1 = (0 << 14) | b->col;
+   shadowOAM[11 + i].attr0 = ((0xFF) & b->row);
+   shadowOAM[11 + i].attr1 = (1 << 14) | b->col;
    shadowOAM[11 + i].attr2 = (20)*32+(0);
   } else {
    shadowOAM[11 + i].attr0 = (2 << 8);

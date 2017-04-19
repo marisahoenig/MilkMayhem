@@ -211,8 +211,8 @@ void initGame() {
 	bullet.row = 145;
 	bullet.col = 0;
 	bullet.cd = 2; //move to the right
-	bullet.width = 8;
-	bullet.height = 8;
+	bullet.width = 16;
+	bullet.height = 16;
 	bullet.active = 0;
 	bullet.direction = RIGHT;
 
@@ -507,7 +507,11 @@ void draw() {
 		CAT * c = &cats[i];
 		if (c->living) { 	// cat sprites in shadowOAM 1-3
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_WIDE | (ROWMASK & c->row);
-			shadowOAM[CATSPRITE + i].attr1 = ATTR1_SIZE64 | c->col;
+			if (c->active) {
+				shadowOAM[CATSPRITE + i].attr1 = ATTR1_SIZE64 | c->col;
+			} else {
+				shadowOAM[CATSPRITE + i].attr1 = ATTR1_HFLIP | ATTR1_SIZE64 | c->col;
+			}
 			shadowOAM[CATSPRITE + i].attr2 = SPRITEOFFSET16(16, (c->catFrame)*8);
 		} else {
 			shadowOAM[CATSPRITE + i].attr0 = ATTR0_HIDE;
@@ -518,8 +522,8 @@ void draw() {
 	for(int i = 0; i < BULLETNUM; i++) { 
 		BULLET * b = &bullets[i];
 		if (b->active) { 	// //player bullets stored in shadowOAM 26-36
-			shadowOAM[BULLETSPRITE + i].attr0 = ATTR0_WIDE | (ROWMASK & b->row);
-			shadowOAM[BULLETSPRITE + i].attr1 = ATTR1_SIZE8 | b->col;
+			shadowOAM[BULLETSPRITE + i].attr0 = (ROWMASK & b->row);
+			shadowOAM[BULLETSPRITE + i].attr1 = ATTR1_SIZE16 | b->col;
 			shadowOAM[BULLETSPRITE + i].attr2 = SPRITEOFFSET16(20, 0);
 		} else {
 			shadowOAM[BULLETSPRITE + i].attr0 = ATTR0_HIDE;
