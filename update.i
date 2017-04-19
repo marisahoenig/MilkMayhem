@@ -42,6 +42,9 @@ int gamehOff;
 int catFrame;
 enum {CNORM, CBACK, CFRONT };
 
+int direction;
+enum { RIGHT, LEFT };
+
 typedef struct {
  int row;
  int col;
@@ -90,6 +93,7 @@ typedef struct {
  int width;
  int height;
  int active;
+ int direction;
 } BULLET;
 
 typedef struct {
@@ -157,7 +161,7 @@ void updateCat(CAT* c);
 void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
-void updateBullet(BULLET* b);
+void updateBullet(BULLET* b, PLAYER* p);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
 # 4 "update.c" 2
@@ -171,7 +175,6 @@ void updateCat(CAT* c) {
   }
 
   c->col -= c->cd;
-
   c->aniCounter++;
 
   if(c->aniCounter % 10 == 0) {
@@ -226,12 +229,20 @@ void updateHealth(HEALTH* health, PLAYER* p) {
 
 
 
-void updateBullet(BULLET* b) {
+void updateBullet(BULLET* b, PLAYER* p) {
  if (b->active) {
-  b->col += b->cd;
-  if(b->col + b->width >= 240 || b->col < 0) {
-   b->active = 0;
+  if (b->direction == LEFT) {
+   b->col -= b->cd;
+   if (b->col < 0) {
+    b->active = 0;
+   }
+  } else {
+   b->col += b->cd;
+   if(b->col + b->width >= 240) {
+    b->active = 0;
+   }
   }
+
  }
 }
 

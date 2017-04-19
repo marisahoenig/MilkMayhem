@@ -11,7 +11,6 @@ void updateCat(CAT* c) {
 		}
 
 		c->col -= c->cd; //move cat
-
 		c->aniCounter++;
 
 		if(c->aniCounter % 10 == 0) {
@@ -66,12 +65,20 @@ void updateHealth(HEALTH* health, PLAYER* p) {
 
 //allow bullet to move
 //if goes off screen, sets it inactive
-void updateBullet(BULLET* b) {
+void updateBullet(BULLET* b, PLAYER* p) {
 	if (b->active) { //check that the bullet is active
-		b->col += b->cd;
-		if(b->col + b->width >= 240 || b->col < 0) { // if the bullet goes past the screen, it is inactive
-			b->active = 0;
+		if (b->direction == LEFT) {
+			b->col -= b->cd;
+			if (b->col < 0) {
+				b->active = 0;
+			}
+		} else {
+			b->col += b->cd;
+			if(b->col + b->width >= 240) { // if the bullet goes past the screen, it is inactive
+				b->active = 0;
+			}
 		}
+		
 	}
 }
 

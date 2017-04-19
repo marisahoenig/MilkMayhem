@@ -61,9 +61,6 @@ void (*state)();
 int currFrame;
 enum { PNORM, PLEFT, PRIGHT };
 
-int direction;
-enum { RIGHT, LEFT };
-
 int main() {
 	REG_DISPCTL = MODE0 | BG0_ENABLE | SPRITE_ENABLE;
 
@@ -171,7 +168,7 @@ void initGame() {
 	c.row = 120;
 	c.col = 200;
 	c.rd = 0;
-	c.cd = 2;
+	c.cd = 1;
 	c.width = 64;
 	c.height = 32;
 	c.active = 0;
@@ -209,6 +206,7 @@ void initGame() {
 	bullet.width = 8;
 	bullet.height = 8;
 	bullet.active = 0;
+	bullet.direction = RIGHT;
 
 	for (int i = 0; i < BULLETNUM; i++) {
 		bullets[i] = bullet;
@@ -243,7 +241,6 @@ void goToGame() {
 
 void updateGame() {
 	update();
-	waitForVblank();
 	draw();
 
 	if (BUTTON_PRESSED(BUTTON_START)) {
@@ -343,7 +340,7 @@ void update() {
 				updateFridge(&fridge);
 			}
 		}
-		if (p.aniCounter % 10 == 0) {
+		if (p.aniCounter % 30 == 0) {
 			// goes through the 3 frames 
 			if (p.currFrame < 2) {
 				p.currFrame += 1;
@@ -411,18 +408,21 @@ void update() {
 				b->active = 1; 		// setting active to TRUE
 				b->row = (SHIFTDOWN(p.row) + (p.height/2));	//shoot from mid height of carton
 				b->col = p.col + p.width; //shoot from right side of carton
-				if (p.moveState == PLEFT) {
-					b->cd = -b->cd;
+				if (p.direction == LEFT) {
+					b->direction = LEFT;
+				} else {
+					b->direction = RIGHT;
 				}
 				break;
 			}
 		}
 	}
+
 	//make the bullet keep moving if active
 	for(int i = 0; i < BULLETNUM; i++) { 
 		BULLET * b = &bullets[i];
 		if(b->active) {
-			updateBullet(b);
+			updateBullet(b, &p);
 			for(int i = 0; i < CATNUM; i++) { 
 				CAT * c = &cats[i];
 				if(c->active) {
@@ -549,11 +549,9 @@ void draw() {
 		shadowOAM[FRIDGESPACE + 3].attr1 = ATTR1_SIZE64 | (fridge.col + 32);
 		shadowOAM[FRIDGESPACE + 3].attr2 = SPRITEOFFSET16(8, 16);
 	}
-	
+	waitForVblank();
 	//transfer OAM to shadowOAM
 	DMANow(3, shadowOAM, OAM, 512);
-
-	waitForVblank(); 	
 }
 
 void hideSprites() {

@@ -47,6 +47,9 @@ int gamehOff;
 int catFrame;
 enum {CNORM, CBACK, CFRONT };
 
+int direction;
+enum { RIGHT, LEFT };
+
 typedef struct {
 	int row;
 	int col;
@@ -95,6 +98,7 @@ typedef struct {
 	int width;
 	int height;
 	int active;
+	int direction;
 } BULLET;
 
 typedef struct {

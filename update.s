@@ -181,21 +181,27 @@ updateBullet:
 	ldr	r3, [r0, #20]
 	cmp	r3, #0
 	bxeq	lr
+	ldr	r3, [r0, #24]
+	cmp	r3, #1
+	beq	.L26
 	ldmib	r0, {r2, r3}
 	add	r3, r3, r2
 	ldr	r2, [r0, #12]
 	add	r2, r3, r2
 	cmp	r2, #239
 	str	r3, [r0, #4]
-	ble	.L25
+	bxle	lr
+.L25:
 	mov	r3, #0
 	str	r3, [r0, #20]
 	bx	lr
-.L25:
+.L26:
+	ldmib	r0, {r2, r3}
+	sub	r3, r2, r3
 	cmp	r3, #0
-	movlt	r3, #0
-	strlt	r3, [r0, #20]
-	bx	lr
+	str	r3, [r0, #4]
+	bxge	lr
+	b	.L25
 	.size	updateBullet, .-updateBullet
 	.align	2
 	.global	collisionCheckEnemy
@@ -211,11 +217,11 @@ collisionCheckEnemy:
 	ldr	r2, [r0, #0]
 	add	ip, r3, ip
 	cmp	r2, ip
-	bgt	.L26
+	bgt	.L27
 	ldr	ip, [r0, #16]
 	add	r2, r2, ip
 	cmp	r3, r2
-	bgt	.L26
+	bgt	.L27
 	ldr	r3, [r0, #4]
 	ldr	r4, [r0, #12]
 	ldr	r2, [r1, #4]
@@ -223,29 +229,29 @@ collisionCheckEnemy:
 	add	r4, r3, r4
 	add	ip, r2, ip
 	cmp	r4, ip
-	bgt	.L28
+	bgt	.L29
 	cmp	r4, r2
-	blt	.L28
-.L29:
-	ldr	r2, .L30
+	blt	.L29
+.L30:
+	ldr	r2, .L31
 	ldr	ip, [r2, #0]
 	mov	r3, #0
 	add	ip, ip, #1
 	str	r3, [r1, #24]
 	str	ip, [r2, #0]
 	str	r3, [r0, #20]
-.L26:
+.L27:
 	ldmfd	sp!, {r4}
 	bx	lr
-.L28:
+.L29:
 	cmp	r3, ip
-	bgt	.L26
+	bgt	.L27
 	cmp	r3, r2
-	bge	.L29
-	b	.L26
-.L31:
+	bge	.L30
+	b	.L27
+.L32:
 	.align	2
-.L30:
+.L31:
 	.word	score
 	.size	collisionCheckEnemy, .-collisionCheckEnemy
 	.align	2
@@ -262,11 +268,11 @@ collisionFridge:
 	mov	r2, r2, asr #8
 	add	ip, r3, ip
 	cmp	r2, ip
-	bgt	.L32
+	bgt	.L33
 	ldr	ip, [r1, #20]
 	add	r2, r2, ip
 	cmp	r3, r2
-	bgt	.L32
+	bgt	.L33
 	ldr	ip, [r1, #16]
 	ldr	r2, [r1, #4]
 	ldr	r3, [r0, #4]
@@ -274,20 +280,20 @@ collisionFridge:
 	add	r2, ip, r2
 	add	r1, r3, r1
 	cmp	r2, r1
-	bgt	.L32
+	bgt	.L33
 	cmp	r2, r3
-	bge	.L34
-.L32:
+	bge	.L35
+.L33:
 	ldmfd	sp!, {r3, lr}
 	bx	lr
-.L34:
-	ldr	r3, .L35
+.L35:
+	ldr	r3, .L36
 	mov	lr, pc
 	bx	r3
-	b	.L32
-.L36:
+	b	.L33
+.L37:
 	.align	2
-.L35:
+.L36:
 	.word	goToWin
 	.size	collisionFridge, .-collisionFridge
 	.comm	score,4,4
@@ -298,4 +304,5 @@ collisionFridge:
 	.comm	hOff,4,4
 	.comm	gamehOff,4,4
 	.comm	catFrame,4,4
+	.comm	direction,4,4
 	.ident	"GCC: (devkitARM release 31) 4.5.0"

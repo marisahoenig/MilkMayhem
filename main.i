@@ -498,6 +498,9 @@ int gamehOff;
 int catFrame;
 enum {CNORM, CBACK, CFRONT };
 
+int direction;
+enum { RIGHT, LEFT };
+
 typedef struct {
  int row;
  int col;
@@ -546,6 +549,7 @@ typedef struct {
  int width;
  int height;
  int active;
+ int direction;
 } BULLET;
 
 typedef struct {
@@ -613,7 +617,7 @@ void updateCat(CAT* c);
 void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
-void updateBullet(BULLET* b);
+void updateBullet(BULLET* b, PLAYER* p);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
 # 23 "main.c" 2
@@ -748,9 +752,6 @@ void (*state)();
 int currFrame;
 enum { PNORM, PLEFT, PRIGHT };
 
-int direction;
-enum { RIGHT, LEFT };
-
 int main() {
  (*(u16 *)0x4000000) = 0 | (1<<8) | (1 << 12);
 
@@ -858,7 +859,7 @@ void initGame() {
  c.row = 120;
  c.col = 200;
  c.rd = 0;
- c.cd = 2;
+ c.cd = 1;
  c.width = 64;
  c.height = 32;
  c.active = 0;
@@ -896,6 +897,7 @@ void initGame() {
  bullet.width = 8;
  bullet.height = 8;
  bullet.active = 0;
+ bullet.direction = RIGHT;
 
  for (int i = 0; i < 5; i++) {
   bullets[i] = bullet;
@@ -930,7 +932,6 @@ void goToGame() {
 
 void updateGame() {
  update();
- waitForVblank();
  draw();
 
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
@@ -986,7 +987,7 @@ void updateLose() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
   goToSplash();
  }
-# 310 "main.c"
+# 307 "main.c"
 }
 
 
@@ -1023,7 +1024,7 @@ void update() {
     updateFridge(&fridge);
    }
   }
-  if (p.aniCounter % 10 == 0) {
+  if (p.aniCounter % 30 == 0) {
 
    if (p.currFrame < 2) {
     p.currFrame += 1;
@@ -1091,18 +1092,21 @@ void update() {
     b->active = 1;
     b->row = (((p.row) >> 8) + (p.height/2));
     b->col = p.col + p.width;
-    if (p.moveState == PLEFT) {
-     b->cd = -b->cd;
+    if (p.direction == LEFT) {
+     b->direction = LEFT;
+    } else {
+     b->direction = RIGHT;
     }
     break;
    }
   }
  }
 
+
  for(int i = 0; i < 5; i++) {
   BULLET * b = &bullets[i];
   if(b->active) {
-   updateBullet(b);
+   updateBullet(b, &p);
    for(int i = 0; i < 2; i++) {
     CAT * c = &cats[i];
     if(c->active) {
@@ -1229,11 +1233,9 @@ void draw() {
   shadowOAM[16 + 3].attr1 = (3 << 14) | (fridge.col + 32);
   shadowOAM[16 + 3].attr2 = (8)*32+(16);
  }
-
+ waitForVblank();
 
  DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 512);
-
- waitForVblank();
 }
 
 void hideSprites() {
