@@ -67,7 +67,7 @@ void updateHealth(HEALTH* health, PLAYER* p) {
 
 //allow bullet to move
 //if goes off screen, sets it inactive
-void updateBullet(BULLET* b, PLAYER* p) {
+void updateBullet(BULLET* b) {
 	if (b->active) { //check that the bullet is active
 		if (b->direction == LEFT) {
 			b->col -= b->cd;
@@ -89,7 +89,7 @@ void collisionCheckEnemy(BULLET* b, CAT* c) {
     if ((b->row <= c->row + c->height) && (b->row + b->height >= c->row) &&
     	((b->col + b->width <= c->col + c->width && b->col + b->width >= c->col) ||
     		(b->col <= c->col + c->width && b->col >= c->col))) {
-    	score++; //add to score
+    	catsRemaining--; //subtract cats remaining
     	c->active = 0; //both enemy and bullet inactive
         b->active = 0;
     }

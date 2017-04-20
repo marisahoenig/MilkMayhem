@@ -56,6 +56,11 @@ HEALTH hearts[HEALTHNUM];
 FRIDGE fridge;
 int chocolateMilk;
 int counter;
+//these are for the progress bar
+HEALTH barplayer;
+HEALTH barcat;
+HEALTH barcats[5];
+HEALTH barfridge;
 
 // player bullet
 BULLET bullet;
@@ -220,11 +225,31 @@ void initGame() {
 		bullets[i] = bullet;
 	}
 
-	chocolateMilk = 0;
+	barplayer.row = 14;
+	barplayer.col = 112;
+	barplayer.width = 16;
+	barplayer.height = 16;
+	barplayer.active = 1;
 
+	barcat.row = 14;
+	barcat.col = 202;
+	barcat.width = 16;
+	barcat.height = 16;
+	barcat.active = 1;
+
+	barfridge.row = 2;
+	barfridge.col = 220;
+	barfridge.width = 16;
+	barfridge.height = 32;
+	barfridge.active = 1;
+
+	for (int i = 0; i < 5; i++) {
+		barcats[i] = barcat;
+	}
+	chocolateMilk = 0;
 	hOff = 0;
 	lives = 3;
-	score = 0;
+	catsRemaining = 5;
 	hurt = 0;
 }
 
@@ -305,14 +330,14 @@ void updateLose() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
 		goToSplash();
 	}
-	if (counter % 20 == 0) {
+	// if (counter % 20 == 0) {
 		DMANow(3, losescreen2Tiles, &CHARBLOCKBASE[0], losescreen2TilesLen/2);
     	DMANow(3, losescreen2Map, &SCREENBLOCKBASE[30], losescreen2MapLen/2);
-	} else {
-		DMANow(3, losescreen1Tiles, &CHARBLOCKBASE[0], losescreen1TilesLen/2);
-	    DMANow(3, losescreen1Map, &SCREENBLOCKBASE[30], losescreen1MapLen/2);
-	}
-	counter++;
+	// } else {
+	// 	DMANow(3, losescreen1Tiles, &CHARBLOCKBASE[0], losescreen1TilesLen/2);
+	//     DMANow(3, losescreen1Map, &SCREENBLOCKBASE[30], losescreen1MapLen/2);
+	// }
+	// counter++;
 }
 
 /** OTHER METHODS **/
@@ -435,7 +460,7 @@ void update() {
 	for(int i = 0; i < BULLETNUM; i++) { 
 		BULLET * b = &bullets[i];
 		if(b->active) {
-			updateBullet(b, &p);
+			updateBullet(b);
 			for(int i = 0; i < CATNUM; i++) { 
 				CAT * c = &cats[i];
 				if(c->active) {
@@ -474,7 +499,7 @@ void update() {
 		}
 	}
 
-	if (score >= 5 && !(fridge.active)) {
+	if (catsRemaining <= 0 && !(fridge.active)) {
 		fridge.active = 1;
 	}
 
@@ -568,6 +593,31 @@ void draw() {
 		shadowOAM[FRIDGESPACE + 3].attr1 = ATTR1_SIZE64 | (fridge.col + 32);
 		shadowOAM[FRIDGESPACE + 3].attr2 = SPRITEOFFSET16(8, 16);
 	}
+
+		//progress bar
+	for (int i = 0; i < 5; i++) {
+		HEALTH* bc = &barcats[i];
+		if (i < catsRemaining) {
+			shadowOAM[PROGRESSSPRITE + i].attr0 = (ROWMASK & (bc->row));
+			shadowOAM[PROGRESSSPRITE + i].attr1 = ATTR1_SIZE16 | (bc->col - i*18);
+			shadowOAM[PROGRESSSPRITE + i].attr2 = SPRITEOFFSET16(22, 12);
+		} else {
+			shadowOAM[PROGRESSSPRITE + i].attr0 = ATTR0_HIDE;
+		}
+	}
+	if (catsRemaining >= 0) {
+		move = 5 - catsRemaining;
+	} else {
+		move = 5;
+	}
+	shadowOAM[PROGRESSSPRITE + 5].attr0 = (ROWMASK & (barplayer.row));
+	shadowOAM[PROGRESSSPRITE + 5].attr1 = ATTR1_SIZE16 | (barplayer.col + move*18);
+	shadowOAM[PROGRESSSPRITE + 5].attr2 = SPRITEOFFSET16(22, 10);
+
+	shadowOAM[PROGRESSSPRITE + 6].attr0 = ATTR0_TALL | (ROWMASK & (barfridge.row));
+	shadowOAM[PROGRESSSPRITE + 6].attr1 = ATTR1_SIZE32 | (barfridge.col);
+	shadowOAM[PROGRESSSPRITE + 6].attr2 = SPRITEOFFSET16(20, 14);
+
 	waitForVblank();
 	//transfer OAM to shadowOAM
 	DMANow(3, shadowOAM, OAM, 512);

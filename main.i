@@ -459,7 +459,7 @@ extern long double wcstold (const wchar_t *, wchar_t **);
 
 # 27 "main.c" 2
 # 1 "main.h" 1
-# 12 "main.h"
+# 14 "main.h"
 void init();
 void update();
 void draw();
@@ -482,12 +482,7 @@ void updateLose();
 
 void hideSprites();
 
-
-
-
-
-int score;
-int prevScore;
+int catsRemaining;
 int lives;
 int time;
 int timetwo;
@@ -495,6 +490,7 @@ int hOff;
 int gamehOff;
 int hurt;
 int hurtCount;
+int move;
 
 
 int catFrame;
@@ -620,7 +616,7 @@ void updateCat(CAT* c);
 void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
-void updateBullet(BULLET* b, PLAYER* p);
+void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
 # 30 "main.c" 2
@@ -743,6 +739,11 @@ HEALTH hearts[2];
 FRIDGE fridge;
 int chocolateMilk;
 int counter;
+
+HEALTH barplayer;
+HEALTH barcat;
+HEALTH barcats[5];
+HEALTH barfridge;
 
 
 BULLET bullet;
@@ -907,11 +908,31 @@ void initGame() {
   bullets[i] = bullet;
  }
 
- chocolateMilk = 0;
+ barplayer.row = 14;
+ barplayer.col = 112;
+ barplayer.width = 16;
+ barplayer.height = 16;
+ barplayer.active = 1;
 
+ barcat.row = 14;
+ barcat.col = 202;
+ barcat.width = 16;
+ barcat.height = 16;
+ barcat.active = 1;
+
+ barfridge.row = 2;
+ barfridge.col = 220;
+ barfridge.width = 16;
+ barfridge.height = 32;
+ barfridge.active = 1;
+
+ for (int i = 0; i < 5; i++) {
+  barcats[i] = barcat;
+ }
+ chocolateMilk = 0;
  hOff = 0;
  lives = 3;
- score = 0;
+ catsRemaining = 5;
  hurt = 0;
 }
 
@@ -992,14 +1013,14 @@ void updateLose() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
   goToSplash();
  }
- if (counter % 20 == 0) {
+
   DMANow(3, losescreen2Tiles, &((charblock *)0x6000000)[0], 12704/2);
      DMANow(3, losescreen2Map, &((screenblock *)0x6000000)[30], 2048/2);
- } else {
-  DMANow(3, losescreen1Tiles, &((charblock *)0x6000000)[0], 12736/2);
-     DMANow(3, losescreen1Map, &((screenblock *)0x6000000)[30], 2048/2);
- }
- counter++;
+
+
+
+
+
 }
 
 
@@ -1122,7 +1143,7 @@ void update() {
  for(int i = 0; i < 5; i++) {
   BULLET * b = &bullets[i];
   if(b->active) {
-   updateBullet(b, &p);
+   updateBullet(b);
    for(int i = 0; i < 2; i++) {
     CAT * c = &cats[i];
     if(c->active) {
@@ -1161,7 +1182,7 @@ void update() {
   }
  }
 
- if (score >= 5 && !(fridge.active)) {
+ if (catsRemaining <= 0 && !(fridge.active)) {
   fridge.active = 1;
  }
 
@@ -1255,6 +1276,31 @@ void draw() {
   shadowOAM[16 + 3].attr1 = (3 << 14) | (fridge.col + 32);
   shadowOAM[16 + 3].attr2 = (8)*32+(16);
  }
+
+
+ for (int i = 0; i < 5; i++) {
+  HEALTH* bc = &barcats[i];
+  if (i < catsRemaining) {
+   shadowOAM[20 + i].attr0 = ((0xFF) & (bc->row));
+   shadowOAM[20 + i].attr1 = (1 << 14) | (bc->col - i*18);
+   shadowOAM[20 + i].attr2 = (22)*32+(12);
+  } else {
+   shadowOAM[20 + i].attr0 = (2 << 8);
+  }
+ }
+ if (catsRemaining >= 0) {
+  move = 5 - catsRemaining;
+ } else {
+  move = 5;
+ }
+ shadowOAM[20 + 5].attr0 = ((0xFF) & (barplayer.row));
+ shadowOAM[20 + 5].attr1 = (1 << 14) | (barplayer.col + move*18);
+ shadowOAM[20 + 5].attr2 = (22)*32+(10);
+
+ shadowOAM[20 + 6].attr0 = (2 << 14) | ((0xFF) & (barfridge.row));
+ shadowOAM[20 + 6].attr1 = (2 << 14) | (barfridge.col);
+ shadowOAM[20 + 6].attr2 = (20)*32+(14);
+
  waitForVblank();
 
  DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 512);

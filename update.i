@@ -3,7 +3,7 @@
 # 1 "<command-line>"
 # 1 "update.c"
 # 1 "main.h" 1
-# 12 "main.h"
+# 14 "main.h"
 void init();
 void update();
 void draw();
@@ -26,12 +26,7 @@ void updateLose();
 
 void hideSprites();
 
-
-
-
-
-int score;
-int prevScore;
+int catsRemaining;
 int lives;
 int time;
 int timetwo;
@@ -164,7 +159,7 @@ void updateCat(CAT* c);
 void updateFridge(FRIDGE* fridge);
 int collisionEnemyPlayer(PLAYER* p, CAT* c);
 void updateHealth(HEALTH* health, PLAYER* p);
-void updateBullet(BULLET* b, PLAYER* p);
+void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
 # 4 "update.c" 2
@@ -234,7 +229,7 @@ void updateHealth(HEALTH* health, PLAYER* p) {
 
 
 
-void updateBullet(BULLET* b, PLAYER* p) {
+void updateBullet(BULLET* b) {
  if (b->active) {
   if (b->direction == LEFT) {
    b->col -= b->cd;
@@ -256,7 +251,7 @@ void collisionCheckEnemy(BULLET* b, CAT* c) {
     if ((b->row <= c->row + c->height) && (b->row + b->height >= c->row) &&
      ((b->col + b->width <= c->col + c->width && b->col + b->width >= c->col) ||
       (b->col <= c->col + c->width && b->col >= c->col))) {
-     score++;
+     catsRemaining--;
      c->active = 0;
         b->active = 0;
     }

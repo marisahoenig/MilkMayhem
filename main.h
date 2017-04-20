@@ -3,10 +3,12 @@
 #define LIVESPRITE 4 //4-6
 //health = 7, 8, 9
 #define HEALTHNUM 2
-#define FRIDGESPACE 16 //store in 10
+#define FRIDGESPACE 16 //store in 16-19
 
 #define BULLETNUM 5 //number of bullets you can fire
 #define BULLETSPRITE 11 //store in 11-15
+
+#define PROGRESSSPRITE 20
 
 
 void init();
@@ -30,13 +32,8 @@ void goToLose();
 void updateLose();
 
 void hideSprites();
-// void updateScore();
 
-// void drawScore(int place, int num);
-// // void updateScore(int score, int ones, int tens);
-
-int score;
-int prevScore;
+int catsRemaining;
 int lives;
 int time;
 int timetwo;
@@ -44,6 +41,7 @@ int hOff;
 int gamehOff;
 int hurt;
 int hurtCount;
+int move; 
 
 //cat different frames for walking
 int catFrame;

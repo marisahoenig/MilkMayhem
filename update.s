@@ -241,7 +241,7 @@ collisionCheckEnemy:
 	ldr	r2, .L33
 	ldr	ip, [r2, #0]
 	mov	r3, #0
-	add	ip, ip, #1
+	sub	ip, ip, #1
 	str	r3, [r1, #24]
 	str	ip, [r2, #0]
 	str	r3, [r0, #20]
@@ -257,7 +257,7 @@ collisionCheckEnemy:
 .L34:
 	.align	2
 .L33:
-	.word	score
+	.word	catsRemaining
 	.size	collisionCheckEnemy, .-collisionCheckEnemy
 	.align	2
 	.global	collisionFridge
@@ -301,8 +301,7 @@ collisionFridge:
 .L38:
 	.word	goToWin
 	.size	collisionFridge, .-collisionFridge
-	.comm	score,4,4
-	.comm	prevScore,4,4
+	.comm	catsRemaining,4,4
 	.comm	lives,4,4
 	.comm	time,4,4
 	.comm	timetwo,4,4
