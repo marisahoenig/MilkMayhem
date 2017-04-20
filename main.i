@@ -651,33 +651,33 @@ extern const unsigned short winscreenTiles[7264];
 
 extern const unsigned short winscreenMap[1024];
 # 34 "main.c" 2
-# 1 "losescreen1.h" 1
-# 21 "losescreen1.h"
-extern const unsigned short losescreen1Tiles[6368];
-
-
-extern const unsigned short losescreen1Map[1024];
-# 35 "main.c" 2
 # 1 "losescreen2.h" 1
 # 21 "losescreen2.h"
 extern const unsigned short losescreen2Tiles[6352];
 
 
 extern const unsigned short losescreen2Map[1024];
-# 36 "main.c" 2
+# 35 "main.c" 2
 # 1 "pausescreen.h" 1
 # 21 "pausescreen.h"
 extern const unsigned short pausescreenTiles[1568];
 
 
 extern const unsigned short pausescreenMap[1024];
-# 37 "main.c" 2
+# 36 "main.c" 2
 # 1 "movebackground.h" 1
 # 21 "movebackground.h"
 extern const unsigned short movebackgroundTiles[15152];
 
 
 extern const unsigned short movebackgroundMap[4096];
+# 37 "main.c" 2
+# 1 "lights.h" 1
+# 21 "lights.h"
+extern const unsigned short lightsTiles[1120];
+
+
+extern const unsigned short lightsMap[1024];
 # 38 "main.c" 2
 # 1 "controls.h" 1
 # 21 "controls.h"
@@ -686,14 +686,7 @@ extern const unsigned short controlsTiles[4864];
 
 extern const unsigned short controlsMap[1024];
 # 39 "main.c" 2
-# 1 "uke.h" 1
-# 20 "uke.h"
-extern const unsigned char uke[193313];
-# 40 "main.c" 2
-# 1 "meow.h" 1
-# 20 "meow.h"
-extern const unsigned char meow[4874];
-# 41 "main.c" 2
+
 # 1 "sounds.h" 1
 void setupSounds();
 void playSoundA( const unsigned char* sound, int length, int frequency, int loops);
@@ -701,6 +694,8 @@ void playSoundB( const unsigned char* sound, int length, int frequency, int loop
 void muteSound();
 void unmuteSound();
 void stopSound();
+void pauseSound();
+void unpauseSound();
 
 void setupInterrupts();
 void interruptHandler();
@@ -715,14 +710,31 @@ typedef struct {
     int priority;
     int vbCount;
 } SOUND;
+# 41 "main.c" 2
+# 1 "uke.h" 1
+# 20 "uke.h"
+extern const unsigned char uke[193313];
 # 42 "main.c" 2
-# 1 "lights.h" 1
-# 21 "lights.h"
-extern const unsigned short lightsTiles[1120];
-
-
-extern const unsigned short lightsMap[1024];
+# 1 "meow.h" 1
+# 20 "meow.h"
+extern const unsigned char meow[4874];
 # 43 "main.c" 2
+# 1 "milkspill.h" 1
+# 20 "milkspill.h"
+extern const unsigned char milkspill[3547];
+# 44 "main.c" 2
+# 1 "icecream.h" 1
+# 20 "icecream.h"
+extern const unsigned char icecream[145408];
+# 45 "main.c" 2
+# 1 "losesound.h" 1
+# 20 "losesound.h"
+extern const unsigned char losesound[34471];
+# 46 "main.c" 2
+# 1 "winsound.h" 1
+# 20 "winsound.h"
+extern const unsigned char winsound[97294];
+# 47 "main.c" 2
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -761,6 +773,10 @@ int main() {
 
  loadPalette(splashscreenPal);
 
+
+ setupInterrupts();
+ setupSounds();
+
  goToSplash();
 
  while(1) {
@@ -781,6 +797,8 @@ void goToSplash() {
  hOff = 0;
  DMANow(3, splashscreenTiles, &((charblock *)0x6000000)[0], 6560/2);
     DMANow(3, splashscreenMap, &((screenblock *)0x6000000)[31], 2048/2);
+
+    playSoundA(icecream, 145408, 11025, 1);
  state = updateSplash;
 }
 
@@ -826,6 +844,7 @@ void updateControls() {
  }
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
 
+  stopSound();
   initGame();
   goToGame();
  }
@@ -840,10 +859,6 @@ void initGame() {
 
 
     hideSprites();
-
-
- setupInterrupts();
- setupSounds();
 
 
  p.row = ((90) << 8);
@@ -988,12 +1003,14 @@ void updatePause() {
 }
 
 void goToWin() {
+ stopSound();
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
  hOff = 0;
  DMANow(3, winscreenTiles, &((charblock *)0x6000000)[0], 14528/2);
     DMANow(3, winscreenMap, &((screenblock *)0x6000000)[30], 2048/2);
+    playSoundA(winsound, 97294, 11025, 0);
  state = updateWin;
 }
 
@@ -1004,12 +1021,14 @@ void updateWin() {
 }
 
 void goToLose() {
+ stopSound();
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 30 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
  hOff = 0;
  DMANow(3, losescreen2Tiles, &((charblock *)0x6000000)[0], 12704/2);
     DMANow(3, losescreen2Map, &((screenblock *)0x6000000)[30], 2048/2);
+    playSoundA(losesound, 34471, 11025, 0);
  state = updateLose;
 }
 
@@ -1109,7 +1128,7 @@ void update() {
    updateCat(c);
 
    if (!chocolateMilk && collisionEnemyPlayer(&p, c)) {
-    playSoundB(meow, 4874, 11025, 0);
+    playSoundB(milkspill, 3547, 11025, 0);
     c->active = 0;
     lives--;
     hurt = 1;

@@ -404,13 +404,17 @@ setupInterrupts:
 .L30:
 	.word	interruptHandler
 	.size	setupInterrupts, .-setupInterrupts
-	.comm	score,4,4
-	.comm	prevScore,4,4
+	.comm	catsRemaining,4,4
 	.comm	lives,4,4
 	.comm	time,4,4
+	.comm	timetwo,4,4
 	.comm	hOff,4,4
 	.comm	gamehOff,4,4
+	.comm	hurt,4,4
+	.comm	hurtCount,4,4
+	.comm	move,4,4
 	.comm	catFrame,4,4
+	.comm	direction,4,4
 	.comm	soundA,32,4
 	.comm	soundB,32,4
 	.ident	"GCC: (devkitARM release 31) 4.5.0"

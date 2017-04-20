@@ -34,6 +34,7 @@ int hOff;
 int gamehOff;
 int hurt;
 int hurtCount;
+int move;
 
 
 int catFrame;
@@ -163,6 +164,10 @@ void updateBullet(BULLET* b);
 void collisionCheckEnemy(BULLET* b, CAT* c);
 void collisionFridge(FRIDGE* f, PLAYER* p);
 # 4 "update.c" 2
+# 1 "meow.h" 1
+# 20 "meow.h"
+extern const unsigned char meow[4874];
+# 5 "update.c" 2
 
 
 void updateCat(CAT* c) {
@@ -254,6 +259,7 @@ void collisionCheckEnemy(BULLET* b, CAT* c) {
      catsRemaining--;
      c->active = 0;
         b->active = 0;
+        playSoundB(meow, 4874, 11025, 0);
     }
 }
 

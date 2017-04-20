@@ -1,6 +1,7 @@
 #include "main.h"
 #include "myLib.h"
 #include "update.h"
+#include "meow.h"
 
 //make cat move and if go offscreen, make inactive
 void updateCat(CAT* c) {
@@ -92,6 +93,7 @@ void collisionCheckEnemy(BULLET* b, CAT* c) {
     	catsRemaining--; //subtract cats remaining
     	c->active = 0; //both enemy and bullet inactive
         b->active = 0;
+        playSoundB(meow, MEOWLEN, MEOWFREQ, 0);
     }
 }
 

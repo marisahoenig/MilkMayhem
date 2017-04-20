@@ -9,6 +9,8 @@ void playSoundB( const unsigned char* sound, int length, int frequency, int loop
 void muteSound();
 void unmuteSound();
 void stopSound();
+void pauseSound();
+void unpauseSound();
 
 void setupInterrupts();
 void interruptHandler();
@@ -25,7 +27,7 @@ typedef struct {
 } SOUND;
 # 2 "sounds.c" 2
 # 1 "main.h" 1
-# 12 "main.h"
+# 14 "main.h"
 void init();
 void update();
 void draw();
@@ -48,20 +50,22 @@ void updateLose();
 
 void hideSprites();
 
-
-
-
-
-int score;
-int prevScore;
+int catsRemaining;
 int lives;
 int time;
+int timetwo;
 int hOff;
 int gamehOff;
+int hurt;
+int hurtCount;
+int move;
 
 
 int catFrame;
 enum {CNORM, CBACK, CFRONT };
+
+int direction;
+enum { RIGHT, LEFT };
 
 typedef struct {
  int row;
@@ -71,8 +75,8 @@ typedef struct {
  int width;
  int height;
  int moveState;
- int prevMoveState;
  int currFrame;
+ int direction;
  int aniCounter;
  int active;
  int stopRange;
@@ -89,21 +93,11 @@ typedef struct {
  int width;
  int height;
  int active;
+ int living;
  int catFrame;
  int moveState;
- int prevMoveState;
  int aniCounter;
 } CAT;
-
-typedef struct {
- int row;
- int col;
- int rd;
- int cd;
- int width;
- int height;
- int active;
-} HEALTH;
 
 typedef struct {
  int row;
@@ -122,7 +116,17 @@ typedef struct {
  int width;
  int height;
  int active;
+ int direction;
 } BULLET;
+
+typedef struct {
+ int row;
+ int col;
+ int cd;
+ int width;
+ int height;
+ int active;
+} HEALTH;
 # 3 "sounds.c" 2
 # 1 "myLib.h" 1
 typedef unsigned char u8;
@@ -162,7 +166,7 @@ extern DMA *dma;
 # 210 "myLib.h"
 typedef struct { u16 tileimg[8192]; } charblock;
 typedef struct { u16 tilemap[1024]; } screenblock;
-# 271 "myLib.h"
+# 274 "myLib.h"
 typedef struct{
     unsigned short attr0;
     unsigned short attr1;
@@ -200,7 +204,7 @@ void playSoundA( const unsigned char* sound, int length, int frequency, int loop
 
         int ticks = (16777216)/frequency;
 
-        DMANow(1, sound, 0x040000A0, (2 << 21) | (3 << 28) | (1 << 25) | (1 << 26));
+        DMANow(1, sound, (void*)0x040000A0, (2 << 21) | (3 << 28) | (1 << 25) | (1 << 26));
 
         *(volatile unsigned short*)0x4000102 = 0;
 
@@ -222,7 +226,7 @@ void playSoundB( const unsigned char* sound, int length, int frequency, int loop
 
         int ticks = (16777216)/frequency;
 
-        DMANow(2, sound, 0x040000A4, (2 << 21) | (3 << 28) | (1 << 25) | (1 << 26));
+        DMANow(2, sound, (void*)0x040000A4, (2 << 21) | (3 << 28) | (1 << 25) | (1 << 26));
 
         *(volatile unsigned short*)0x4000106 = 0;
 

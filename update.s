@@ -215,41 +215,50 @@ collisionCheckEnemy:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	@ link register save eliminated.
-	str	r4, [sp, #-4]!
+	stmfd	sp!, {r3, r4, r5, lr}
+	mov	ip, r1
 	ldr	r3, [r1, #0]
-	ldr	ip, [r1, #20]
+	ldr	r1, [r1, #20]
 	ldr	r2, [r0, #0]
-	add	ip, r3, ip
-	cmp	r2, ip
+	add	r1, r3, r1
+	cmp	r2, r1
+	mov	r4, r0
 	bgt	.L29
-	ldr	ip, [r0, #16]
-	add	r2, r2, ip
+	ldr	r1, [r0, #16]
+	add	r2, r2, r1
 	cmp	r3, r2
 	bgt	.L29
 	ldr	r3, [r0, #4]
-	ldr	r4, [r0, #12]
-	ldr	r2, [r1, #4]
-	ldr	ip, [r1, #16]
-	add	r4, r3, r4
-	add	ip, r2, ip
-	cmp	r4, ip
+	ldr	r2, [ip, #4]
+	ldr	r0, [r0, #12]
+	ldr	r1, [ip, #16]
+	add	r0, r3, r0
+	add	r1, r2, r1
+	cmp	r0, r1
 	bgt	.L31
-	cmp	r4, r2
+	cmp	r0, r2
 	blt	.L31
 .L32:
-	ldr	r2, .L33
-	ldr	ip, [r2, #0]
+	ldr	lr, .L33
+	ldr	r5, [lr, #0]
 	mov	r3, #0
-	sub	ip, ip, #1
-	str	r3, [r1, #24]
-	str	ip, [r2, #0]
-	str	r3, [r0, #20]
+	mov	r1, #4864
+	mov	r2, #11008
+	sub	r5, r5, #1
+	str	r3, [ip, #24]
+	ldr	r0, .L33+4
+	str	r3, [r4, #20]
+	add	r1, r1, #10
+	add	r2, r2, #17
+	str	r5, [lr, #0]
+	ldr	ip, .L33+8
+	mov	lr, pc
+	bx	ip
 .L29:
-	ldmfd	sp!, {r4}
+	ldmfd	sp!, {r3, r4, r5, lr}
 	bx	lr
 .L31:
-	cmp	r3, ip
+	cmp	r3, r1
 	bgt	.L29
 	cmp	r3, r2
 	bge	.L32
@@ -258,6 +267,8 @@ collisionCheckEnemy:
 	.align	2
 .L33:
 	.word	catsRemaining
+	.word	meow
+	.word	playSoundB
 	.size	collisionCheckEnemy, .-collisionCheckEnemy
 	.align	2
 	.global	collisionFridge
@@ -309,6 +320,7 @@ collisionFridge:
 	.comm	gamehOff,4,4
 	.comm	hurt,4,4
 	.comm	hurtCount,4,4
+	.comm	move,4,4
 	.comm	catFrame,4,4
 	.comm	direction,4,4
 	.ident	"GCC: (devkitARM release 31) 4.5.0"

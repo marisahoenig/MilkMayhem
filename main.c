@@ -31,15 +31,19 @@ COOL THINGS:
 #include "instructions.h"
 #include "spritesheet.h"
 #include "winscreen.h"
-#include "losescreen1.h"
 #include "losescreen2.h"
 #include "pausescreen.h"
 #include "movebackground.h"
+#include "lights.h"
 #include "controls.h"
+
+#include "sounds.h"
 #include "uke.h"
 #include "meow.h"
-#include "sounds.h"
-#include "lights.h"
+#include "milkspill.h"
+#include "icecream.h"
+#include "losesound.h"
+#include "winsound.h"
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -78,6 +82,10 @@ int main() {
 
 	loadPalette(splashscreenPal); //load the background's palette
 
+	//set up the sounds
+	setupInterrupts();
+	setupSounds();
+
 	goToSplash(); //go to splash screen
 
 	while(1) {
@@ -98,6 +106,8 @@ void goToSplash() {
 	hOff = 0;
 	DMANow(3, splashscreenTiles, &CHARBLOCKBASE[0], splashscreenTilesLen/2);
     DMANow(3, splashscreenMap, &SCREENBLOCKBASE[31], splashscreenMapLen/2);
+
+    playSoundA(icecream, ICECREAMLEN, ICECREAMFREQ, 1);
 	state = updateSplash;
 }
 
@@ -143,6 +153,7 @@ void updateControls() {
 	}
 	if (BUTTON_PRESSED(BUTTON_START)) {
 		//press start to init and go to game
+		stopSound();
 		initGame();
 		goToGame(); 
 	}
@@ -157,10 +168,6 @@ void initGame() {
 
     //hide all the sprites at beginning
     hideSprites();
-
-    //set up the sounds
-	setupInterrupts();
-	setupSounds();
 
 	//create player
 	p.row = SHIFTUP(90);
@@ -305,12 +312,14 @@ void updatePause() {
 }
 
 void goToWin() { 
+	stopSound();
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
 	REG_BG0HOFS = 0;
 	hOff = 0;
 	DMANow(3, winscreenTiles, &CHARBLOCKBASE[0], winscreenTilesLen/2);
     DMANow(3, winscreenMap, &SCREENBLOCKBASE[30], winscreenMapLen/2);
+    playSoundA(winsound, WINSOUNDLEN, WINSOUNDFREQ, 0);
 	state = updateWin;
 }
 
@@ -321,12 +330,14 @@ void updateWin() {
 }
 
 void goToLose() {
+	stopSound();
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(30);
 	REG_BG0HOFS = 0;
 	hOff = 0;
 	DMANow(3, losescreen2Tiles, &CHARBLOCKBASE[0], losescreen2TilesLen/2);
     DMANow(3, losescreen2Map, &SCREENBLOCKBASE[30], losescreen2MapLen/2);
+    playSoundA(losesound, LOSESOUNDLEN, LOSESOUNDFREQ, 0);
 	state = updateLose;
 }
 
@@ -426,7 +437,7 @@ void update() {
 			updateCat(c);
 
 			if (!chocolateMilk && collisionEnemyPlayer(&p, c)) {
-				playSoundB(meow, MEOWLEN, MEOWFREQ, 0);
+				playSoundB(milkspill, MILKSPILLLEN, MILKSPILLFREQ, 0);
 				c->active = 0;
 				lives--;
 				hurt = 1;

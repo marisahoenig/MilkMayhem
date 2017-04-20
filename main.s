@@ -18,31 +18,39 @@ goToSplash:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	stmfd	sp!, {r3, r4, r5, lr}
-	mov	ip, #67108864
-	mov	r5, #7936	@ movhi
-	strh	r5, [ip, #8]	@ movhi
 	ldr	r5, .L2
 	mov	lr, #0
 	str	lr, [r5, #0]
+	mov	ip, #67108864
+	mov	r5, #7936	@ movhi
+	strh	r5, [ip, #8]	@ movhi
 	mov	r5, #256	@ movhi
+	strh	lr, [ip, #16]	@ movhi
+	strh	r5, [ip, #0]	@ movhi
+	ldr	r4, .L2+4
 	mov	r0, #3
-	ldr	r1, .L2+4
+	ldr	r1, .L2+8
 	mov	r2, #100663296
 	mov	r3, #3280
-	ldr	r4, .L2+8
-	strh	r5, [ip, #0]	@ movhi
-	strh	lr, [ip, #16]	@ movhi
 	mov	lr, pc
 	bx	r4
 	mov	r2, #100663296
-	add	r2, r2, #63488
-	mov	r3, #1024
 	mov	r0, #3
 	ldr	r1, .L2+12
+	add	r2, r2, #63488
+	mov	r3, #1024
 	mov	lr, pc
 	bx	r4
-	ldr	r2, .L2+16
-	ldr	r3, .L2+20
+	mov	r2, #11008
+	add	r2, r2, #17
+	mov	r3, #1
+	ldr	r0, .L2+16
+	mov	r1, #145408
+	ldr	ip, .L2+20
+	mov	lr, pc
+	bx	ip
+	ldr	r2, .L2+24
+	ldr	r3, .L2+28
 	str	r2, [r3, #0]
 	ldmfd	sp!, {r3, r4, r5, lr}
 	bx	lr
@@ -50,9 +58,11 @@ goToSplash:
 	.align	2
 .L2:
 	.word	hOff
-	.word	splashscreenTiles
 	.word	DMANow
+	.word	splashscreenTiles
 	.word	splashscreenMap
+	.word	icecream
+	.word	playSoundA
 	.word	updateSplash
 	.word	state
 	.size	goToSplash, .-goToSplash
@@ -117,10 +127,16 @@ main:
 	ldr	r3, .L15+4
 	mov	lr, pc
 	bx	r3
+	ldr	r3, .L15+8
+	mov	lr, pc
+	bx	r3
+	ldr	r3, .L15+12
+	mov	lr, pc
+	bx	r3
 	bl	goToSplash
-	ldr	r7, .L15+8
-	ldr	r5, .L15+12
-	ldr	r6, .L15+16
+	ldr	r7, .L15+16
+	ldr	r5, .L15+20
+	ldr	r6, .L15+24
 .L14:
 	ldr	r2, [r5, #0]
 	ldr	r3, [r4, #304]
@@ -135,6 +151,8 @@ main:
 .L15:
 	.word	splashscreenPal
 	.word	loadPalette
+	.word	setupInterrupts
+	.word	setupSounds
 	.word	oldButtons
 	.word	buttons
 	.word	state
@@ -318,13 +336,7 @@ initGame:
 	strh	sl, [r3, #8]!	@ movhi
 	cmp	r3, r2
 	bne	.L35
-	ldr	r3, .L41+16
-	mov	lr, pc
-	bx	r3
-	ldr	r3, .L41+20
-	mov	lr, pc
-	bx	r3
-	ldr	ip, .L41+24
+	ldr	ip, .L41+16
 	mov	r3, #120
 	mov	lr, #0
 	mov	r8, #1
@@ -334,8 +346,8 @@ initGame:
 	stmib	ip, {r3, lr}	@ phole stm
 	mov	r5, ip
 	ldmia	r5!, {r0, r1, r2, r3}
-	ldr	r6, .L41+28
-	ldr	r4, .L41+32
+	ldr	r6, .L41+20
+	ldr	r4, .L41+24
 	mov	r7, #32
 	mov	r9, #64
 	stmia	r6!, {r0, r1, r2, r3}
@@ -369,14 +381,14 @@ initGame:
 	str	lr, [ip, #32]
 	str	lr, [ip, #40]
 	ldmia	r5, {r0, r1, r2}
-	ldr	r4, .L41+28
+	ldr	r4, .L41+20
 	stmia	r6, {r0, r1, r2}
 	ldmia	ip!, {r0, r1, r2, r3}
 	add	sl, r4, #44
 	stmia	sl!, {r0, r1, r2, r3}
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	sl!, {r0, r1, r2, r3}
-	ldr	ip, .L41+36
+	ldr	ip, .L41+28
 	ldmia	r5, {r0, r1, r2}
 	mov	r3, #140
 	stmia	sl, {r0, r1, r2}
@@ -385,7 +397,7 @@ initGame:
 	mov	r3, #240
 	stmib	ip, {r3, r8}	@ phole stm
 	str	r4, [ip, #12]
-	ldr	r6, .L41+40
+	ldr	r6, .L41+32
 	mov	r5, ip
 	ldmia	r5!, {r0, r1, r2, r3}
 	mov	r8, r6
@@ -397,9 +409,9 @@ initGame:
 	ldmia	ip!, {r0, r1, r2, r3}
 	add	r6, r6, #24
 	stmia	r6!, {r0, r1, r2, r3}
-	ldr	r3, .L41+44
+	ldr	r3, .L41+36
 	ldmia	r5, {r0, r1}
-	ldr	ip, .L41+48
+	ldr	ip, .L41+40
 	mov	r2, #208
 	str	r7, [r3, #0]
 	str	r2, [r3, #4]
@@ -410,7 +422,7 @@ initGame:
 	str	r9, [r3, #20]
 	str	lr, [r3, #24]
 	mov	r3, #145
-	ldr	r5, .L41+52
+	ldr	r5, .L41+44
 	stmia	ip, {r3, lr}	@ phole stm
 	str	fp, [ip, #8]
 	str	r4, [ip, #12]
@@ -427,13 +439,13 @@ initGame:
 	cmp	lr, #140
 	stmia	r4, {r0, r1, r2}
 	bne	.L36
-	ldr	r1, .L41+56
+	ldr	r1, .L41+48
 	mov	r2, #16
-	ldr	ip, .L41+60
+	ldr	ip, .L41+52
 	mov	r0, #1
 	mov	lr, #12
 	mov	r4, #112
-	ldr	r3, .L41+64
+	ldr	r3, .L41+56
 	str	r4, [r1, #4]
 	str	r2, [r1, #12]
 	str	r2, [r1, #16]
@@ -453,7 +465,7 @@ initGame:
 	str	r1, [r3, #4]
 	str	r2, [r3, #16]
 	str	r0, [r3, #20]
-	ldr	r6, .L41+68
+	ldr	r6, .L41+60
 	mov	r4, #0
 .L37:
 	mov	r5, ip
@@ -465,26 +477,26 @@ initGame:
 	cmp	r4, #120
 	stmia	lr, {r0, r1}
 	bne	.L37
-	ldr	lr, .L41+72
+	ldr	lr, .L41+64
 	mov	ip, #0
 	str	ip, [lr, #0]
-	ldr	lr, .L41+76
+	ldr	lr, .L41+68
 	str	ip, [lr, #0]
-	ldr	lr, .L41+80
+	ldr	lr, .L41+72
 	mov	r4, #3
 	str	r4, [lr, #0]
-	ldr	lr, .L41+84
+	ldr	lr, .L41+76
 	mov	r4, #5
 	str	r4, [lr, #0]
-	ldr	lr, .L41+88
+	ldr	lr, .L41+80
 	mov	r1, #193536
 	mov	r2, #11008
 	str	ip, [lr, #0]
-	ldr	r0, .L41+92
+	ldr	r0, .L41+84
 	sub	r1, r1, #223
 	add	r2, r2, #17
 	mov	r3, #1
-	ldr	ip, .L41+96
+	ldr	ip, .L41+88
 	mov	lr, pc
 	bx	ip
 	ldmfd	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
@@ -496,8 +508,6 @@ initGame:
 	.word	DMANow
 	.word	spritesheetTiles
 	.word	shadowOAM
-	.word	setupInterrupts
-	.word	setupSounds
 	.word	c
 	.word	cats
 	.word	p
@@ -657,6 +667,9 @@ updateControls:
 	ldmfd	sp!, {r4, lr}
 	bx	lr
 .L57:
+	ldr	r3, .L58+8
+	mov	lr, pc
+	bx	r3
 	bl	initGame
 	ldmfd	sp!, {r4, lr}
 	b	goToGame
@@ -669,6 +682,7 @@ updateControls:
 .L58:
 	.word	oldButtons
 	.word	buttons
+	.word	stopSound
 	.size	updateControls, .-updateControls
 	.align	2
 	.global	goToPause
@@ -726,42 +740,57 @@ goToWin:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	stmfd	sp!, {r3, r4, r5, lr}
+	ldr	r3, .L64
+	mov	lr, pc
+	bx	r3
 	mov	ip, #67108864
-	mov	r5, #7680	@ movhi
-	mov	lr, #0
-	strh	r5, [ip, #8]	@ movhi
-	mov	r5, #256	@ movhi
-	strh	r5, [ip, #0]	@ movhi
-	strh	lr, [ip, #16]	@ movhi
-	ldr	ip, .L64
+	mov	lr, #7680	@ movhi
+	strh	lr, [ip, #8]	@ movhi
+	mov	r4, #0
+	mov	lr, #256	@ movhi
+	strh	lr, [ip, #0]	@ movhi
+	strh	r4, [ip, #16]	@ movhi
+	ldr	ip, .L64+4
 	mov	r3, #7232
+	str	r4, [ip, #0]
 	mov	r0, #3
-	ldr	r1, .L64+4
+	ldr	r1, .L64+8
 	mov	r2, #100663296
 	add	r3, r3, #32
-	ldr	r4, .L64+8
-	str	lr, [ip, #0]
+	ldr	r5, .L64+12
 	mov	lr, pc
-	bx	r4
+	bx	r5
 	mov	r2, #100663296
+	mov	r0, #3
+	ldr	r1, .L64+16
 	add	r2, r2, #61440
 	mov	r3, #1024
-	mov	r0, #3
-	ldr	r1, .L64+12
 	mov	lr, pc
-	bx	r4
-	ldr	r2, .L64+16
-	ldr	r3, .L64+20
+	bx	r5
+	mov	r1, #97280
+	mov	r2, #11008
+	add	r2, r2, #17
+	mov	r3, r4
+	ldr	r0, .L64+20
+	add	r1, r1, #14
+	ldr	ip, .L64+24
+	mov	lr, pc
+	bx	ip
+	ldr	r2, .L64+28
+	ldr	r3, .L64+32
 	str	r2, [r3, #0]
 	ldmfd	sp!, {r3, r4, r5, lr}
 	bx	lr
 .L65:
 	.align	2
 .L64:
+	.word	stopSound
 	.word	hOff
 	.word	winscreenTiles
 	.word	DMANow
 	.word	winscreenMap
+	.word	winsound
+	.word	playSoundA
 	.word	updateWin
 	.word	state
 	.size	goToWin, .-goToWin
@@ -773,42 +802,57 @@ goToLose:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	stmfd	sp!, {r3, r4, r5, lr}
+	ldr	r3, .L67
+	mov	lr, pc
+	bx	r3
 	mov	ip, #67108864
-	mov	r5, #7680	@ movhi
-	mov	lr, #0
-	strh	r5, [ip, #8]	@ movhi
-	mov	r5, #256	@ movhi
-	strh	r5, [ip, #0]	@ movhi
-	strh	lr, [ip, #16]	@ movhi
-	ldr	ip, .L67
+	mov	lr, #7680	@ movhi
+	strh	lr, [ip, #8]	@ movhi
+	mov	r4, #0
+	mov	lr, #256	@ movhi
+	strh	lr, [ip, #0]	@ movhi
+	strh	r4, [ip, #16]	@ movhi
+	ldr	ip, .L67+4
 	mov	r3, #6336
+	str	r4, [ip, #0]
 	mov	r0, #3
-	ldr	r1, .L67+4
+	ldr	r1, .L67+8
 	mov	r2, #100663296
 	add	r3, r3, #16
-	ldr	r4, .L67+8
-	str	lr, [ip, #0]
+	ldr	r5, .L67+12
 	mov	lr, pc
-	bx	r4
+	bx	r5
 	mov	r2, #100663296
+	mov	r0, #3
+	ldr	r1, .L67+16
 	add	r2, r2, #61440
 	mov	r3, #1024
-	mov	r0, #3
-	ldr	r1, .L67+12
 	mov	lr, pc
-	bx	r4
-	ldr	r2, .L67+16
-	ldr	r3, .L67+20
+	bx	r5
+	mov	r1, #34560
+	mov	r2, #11008
+	add	r2, r2, #17
+	mov	r3, r4
+	ldr	r0, .L67+20
+	sub	r1, r1, #89
+	ldr	ip, .L67+24
+	mov	lr, pc
+	bx	ip
+	ldr	r2, .L67+28
+	ldr	r3, .L67+32
 	str	r2, [r3, #0]
 	ldmfd	sp!, {r3, r4, r5, lr}
 	bx	lr
 .L68:
 	.align	2
 .L67:
+	.word	stopSound
 	.word	hOff
 	.word	losescreen2Tiles
 	.word	DMANow
 	.word	losescreen2Map
+	.word	losesound
+	.word	playSoundA
 	.word	updateLose
 	.word	state
 	.size	goToLose, .-goToLose
@@ -988,9 +1032,9 @@ update:
 	bx	r3
 	cmp	r0, #0
 	beq	.L89
-	mov	r1, #4864
+	mov	r1, #3536
 	mov	r2, #11008
-	add	r1, r1, #10
+	add	r1, r1, #11
 	add	r2, r2, #17
 	ldr	r3, [sp, #4]
 	ldr	r0, .L137+60
@@ -1300,7 +1344,7 @@ update:
 	.word	updateCat
 	.word	chocolateMilk
 	.word	collisionEnemyPlayer
-	.word	meow
+	.word	milkspill
 	.word	playSoundB
 	.word	lives
 	.word	updateFridge
