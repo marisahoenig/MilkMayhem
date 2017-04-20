@@ -767,12 +767,12 @@ goToWin:
 	mov	r3, #1024
 	mov	lr, pc
 	bx	r5
-	mov	r1, #97280
+	mov	r1, #98304
 	mov	r2, #11008
 	add	r2, r2, #17
 	mov	r3, r4
 	ldr	r0, .L64+20
-	add	r1, r1, #14
+	sub	r1, r1, #247
 	ldr	ip, .L64+24
 	mov	lr, pc
 	bx	ip

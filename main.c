@@ -319,7 +319,7 @@ void goToWin() {
 	hOff = 0;
 	DMANow(3, winscreenTiles, &CHARBLOCKBASE[0], winscreenTilesLen/2);
     DMANow(3, winscreenMap, &SCREENBLOCKBASE[30], winscreenMapLen/2);
-    playSoundA(winsound, WINSOUNDLEN, WINSOUNDFREQ, 0);
+    playSoundA(winsound, WINSOUNDLEN, WINSOUNDFREQ, 1);
 	state = updateWin;
 }
 

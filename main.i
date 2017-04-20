@@ -733,7 +733,7 @@ extern const unsigned char losesound[34471];
 # 46 "main.c" 2
 # 1 "winsound.h" 1
 # 20 "winsound.h"
-extern const unsigned char winsound[97294];
+extern const unsigned char winsound[98057];
 # 47 "main.c" 2
 
 unsigned int buttons;
@@ -1010,7 +1010,7 @@ void goToWin() {
  hOff = 0;
  DMANow(3, winscreenTiles, &((charblock *)0x6000000)[0], 14528/2);
     DMANow(3, winscreenMap, &((screenblock *)0x6000000)[30], 2048/2);
-    playSoundA(winsound, 97294, 11025, 0);
+    playSoundA(winsound, 98057, 11025, 0);
  state = updateWin;
 }
 
