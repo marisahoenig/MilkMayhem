@@ -95,6 +95,7 @@ void goToSplash() {
 	REG_DISPCTL = MODE0 | BG0_ENABLE;
 	REG_BG0CNT = BG_SIZE0 | CBB(0) | SBB(31);
 	REG_BG0HOFS = 0;
+	hOff = 0;
 	DMANow(3, splashscreenTiles, &CHARBLOCKBASE[0], splashscreenTilesLen/2);
     DMANow(3, splashscreenMap, &SCREENBLOCKBASE[31], splashscreenMapLen/2);
 	state = updateSplash;
@@ -225,13 +226,13 @@ void initGame() {
 		bullets[i] = bullet;
 	}
 
-	barplayer.row = 14;
+	barplayer.row = 12;
 	barplayer.col = 112;
 	barplayer.width = 16;
 	barplayer.height = 16;
 	barplayer.active = 1;
 
-	barcat.row = 14;
+	barcat.row = 12;
 	barcat.col = 202;
 	barcat.width = 16;
 	barcat.height = 16;
@@ -330,14 +331,6 @@ void updateLose() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
 		goToSplash();
 	}
-	// if (counter % 20 == 0) {
-		DMANow(3, losescreen2Tiles, &CHARBLOCKBASE[0], losescreen2TilesLen/2);
-    	DMANow(3, losescreen2Map, &SCREENBLOCKBASE[30], losescreen2MapLen/2);
-	// } else {
-	// 	DMANow(3, losescreen1Tiles, &CHARBLOCKBASE[0], losescreen1TilesLen/2);
-	//     DMANow(3, losescreen1Map, &SCREENBLOCKBASE[30], losescreen1MapLen/2);
-	// }
-	// counter++;
 }
 
 /** OTHER METHODS **/

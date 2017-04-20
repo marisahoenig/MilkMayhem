@@ -778,6 +778,7 @@ void goToSplash() {
  (*(u16 *)0x4000000) = 0 | (1<<8);
  *(volatile unsigned short*)0x4000008 = 0<<14 | 0 << 2 | 31 << 8;
  *(volatile unsigned short *)0x04000010 = 0;
+ hOff = 0;
  DMANow(3, splashscreenTiles, &((charblock *)0x6000000)[0], 6560/2);
     DMANow(3, splashscreenMap, &((screenblock *)0x6000000)[31], 2048/2);
  state = updateSplash;
@@ -908,13 +909,13 @@ void initGame() {
   bullets[i] = bullet;
  }
 
- barplayer.row = 14;
+ barplayer.row = 12;
  barplayer.col = 112;
  barplayer.width = 16;
  barplayer.height = 16;
  barplayer.active = 1;
 
- barcat.row = 14;
+ barcat.row = 12;
  barcat.col = 202;
  barcat.width = 16;
  barcat.height = 16;
@@ -1013,14 +1014,6 @@ void updateLose() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
   goToSplash();
  }
-
-  DMANow(3, losescreen2Tiles, &((charblock *)0x6000000)[0], 12704/2);
-     DMANow(3, losescreen2Map, &((screenblock *)0x6000000)[30], 2048/2);
-
-
-
-
-
 }
 
 
