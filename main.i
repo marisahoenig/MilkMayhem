@@ -935,6 +935,8 @@ void initGame() {
  lives = 3;
  catsRemaining = 5;
  hurt = 0;
+ playSoundA(uke, 193313, 11025, 1);
+
 }
 
 void goToGame() {
@@ -953,7 +955,6 @@ void goToGame() {
 
  *(volatile unsigned short *)0x04000014 = hOff;
  *(volatile unsigned short *)0x04000010 = hOff/2;
- playSoundA(uke, 193313, 11025, 1);
  state = updateGame;
 }
 
@@ -972,11 +973,13 @@ void goToPause() {
  *(volatile unsigned short *)0x04000014 = 0;
  DMANow(3, pausescreenTiles, &((charblock *)0x6000000)[1], 3136/2);
     DMANow(3, pausescreenMap, &((screenblock *)0x6000000)[30], 2048/2);
+    pauseSound();
  state = updatePause;
 }
 
 void updatePause() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
+  unpauseSound();
   goToGame();
  }
  if ((!(~oldButtons&(4))&&(~buttons&(4)))) {

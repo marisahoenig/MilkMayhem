@@ -295,13 +295,13 @@ initGame:
 	stmfd	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
 	mov	ip, #67108864
 	mov	r2, #83886080
-	mov	r7, #4864	@ movhi
+	mov	r8, #4864	@ movhi
 	mov	r0, #3
 	ldr	r1, .L41
 	add	r2, r2, #512
 	mov	r3, #256
 	ldr	r4, .L41+4
-	strh	r7, [ip, #0]	@ movhi
+	strh	r8, [ip, #0]	@ movhi
 	mov	lr, pc
 	bx	r4
 	mov	r2, #100663296
@@ -314,8 +314,8 @@ initGame:
 	ldr	r3, .L41+12
 	add	r2, r3, #1016
 .L35:
-	mov	r9, #512	@ movhi
-	strh	r9, [r3, #8]!	@ movhi
+	mov	sl, #512	@ movhi
+	strh	sl, [r3, #8]!	@ movhi
 	cmp	r3, r2
 	bne	.L35
 	ldr	r3, .L41+16
@@ -326,117 +326,118 @@ initGame:
 	bx	r3
 	ldr	ip, .L41+24
 	mov	r3, #120
-	mov	r5, #0
-	mov	sl, #1
+	mov	lr, #0
+	mov	r8, #1
 	str	r3, [ip, #0]
 	mov	r3, #230
-	stmib	ip, {r3, r5, sl}	@ phole stm
-	mov	r4, ip
+	str	r8, [ip, #12]
+	stmib	ip, {r3, lr}	@ phole stm
+	mov	r5, ip
+	ldmia	r5!, {r0, r1, r2, r3}
 	ldr	r6, .L41+28
-	ldmia	r4!, {r0, r1, r2, r3}
-	ldr	r7, .L41+32
-	mov	r9, #23040
-	mov	r8, #32
-	mov	fp, #64
-	stmia	r7!, {r0, r1, r2, r3}
-	str	r9, [r6, #0]
-	mov	r9, #112
-	str	fp, [ip, #16]
-	str	r8, [ip, #20]
-	str	r5, [ip, #24]
-	str	r5, [ip, #28]
-	str	r9, [r6, #4]
-	mov	r9, #2
-	str	r9, [r6, #12]
-	mov	r9, #10
-	ldmia	r4!, {r0, r1, r2, r3}
-	str	r9, [r6, #44]
-	mov	r9, #1280
-	str	r9, [r6, #48]
-	mov	r9, #40
-	str	sl, [r6, #40]
-	str	r5, [r6, #8]
-	str	r8, [r6, #16]
-	str	fp, [r6, #20]
-	str	r5, [r6, #24]
-	str	r5, [r6, #28]
-	str	r5, [r6, #32]
-	str	r5, [r6, #36]
-	str	r9, [r6, #52]
-	stmia	r7!, {r0, r1, r2, r3}
-	str	r5, [ip, #36]
-	str	r5, [ip, #32]
-	str	r5, [ip, #40]
-	ldmia	r4, {r0, r1, r2}
-	stmia	r7, {r0, r1, r2}
-	ldr	r7, .L41+32
-	ldmia	ip!, {r0, r1, r2, r3}
-	add	r6, r7, #44
+	ldr	r4, .L41+32
+	mov	r7, #32
+	mov	r9, #64
 	stmia	r6!, {r0, r1, r2, r3}
-	ldmia	ip!, {r0, r1, r2, r3}
+	mov	sl, #23040
+	str	r9, [ip, #16]
+	str	r7, [ip, #20]
+	str	lr, [ip, #24]
+	str	lr, [ip, #28]
+	str	sl, [r4, #0]
+	mov	sl, #112
+	str	sl, [r4, #4]
+	mov	sl, #10
+	ldmia	r5!, {r0, r1, r2, r3}
+	str	sl, [r4, #44]
+	mov	sl, #1280
+	mov	fp, #2
+	str	sl, [r4, #48]
+	mov	sl, #40
+	str	r8, [r4, #40]
+	str	lr, [r4, #8]
+	str	fp, [r4, #12]
+	str	r7, [r4, #16]
+	str	r9, [r4, #20]
+	str	lr, [r4, #24]
+	str	lr, [r4, #28]
+	str	lr, [r4, #32]
+	str	lr, [r4, #36]
+	str	sl, [r4, #52]
 	stmia	r6!, {r0, r1, r2, r3}
-	ldr	ip, .L41+36
-	ldmia	r4, {r0, r1, r2}
-	mov	r3, #140
+	str	lr, [ip, #36]
+	str	lr, [ip, #32]
+	str	lr, [ip, #40]
+	ldmia	r5, {r0, r1, r2}
+	ldr	r4, .L41+28
 	stmia	r6, {r0, r1, r2}
+	ldmia	ip!, {r0, r1, r2, r3}
+	add	sl, r4, #44
+	stmia	sl!, {r0, r1, r2, r3}
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	sl!, {r0, r1, r2, r3}
+	ldr	ip, .L41+36
+	ldmia	r5, {r0, r1, r2}
+	mov	r3, #140
+	stmia	sl, {r0, r1, r2}
 	mov	r4, #16
 	str	r3, [ip, #0]
 	mov	r3, #240
-	stmib	ip, {r3, sl}	@ phole stm
+	stmib	ip, {r3, r8}	@ phole stm
 	str	r4, [ip, #12]
 	ldr	r6, .L41+40
-	mov	r7, ip
-	ldmia	r7!, {r0, r1, r2, r3}
-	mov	r9, r6
-	stmia	r9!, {r0, r1, r2, r3}
+	mov	r5, ip
+	ldmia	r5!, {r0, r1, r2, r3}
+	mov	r8, r6
+	stmia	r8!, {r0, r1, r2, r3}
 	str	r4, [ip, #16]
-	str	r5, [ip, #20]
-	ldmia	r7, {r0, r1}
-	stmia	r9, {r0, r1}
+	str	lr, [ip, #20]
+	ldmia	r5, {r0, r1}
+	stmia	r8, {r0, r1}
 	ldmia	ip!, {r0, r1, r2, r3}
 	add	r6, r6, #24
 	stmia	r6!, {r0, r1, r2, r3}
 	ldr	r3, .L41+44
-	ldmia	r7, {r0, r1}
+	ldmia	r5, {r0, r1}
 	ldr	ip, .L41+48
-	mov	sl, #2
 	mov	r2, #208
-	str	r8, [r3, #0]
+	str	r7, [r3, #0]
 	str	r2, [r3, #4]
 	stmia	r6, {r0, r1}
-	str	r5, [r3, #8]
-	str	sl, [r3, #12]
-	str	r8, [r3, #16]
-	str	fp, [r3, #20]
-	str	r5, [r3, #24]
+	str	lr, [r3, #8]
+	str	fp, [r3, #12]
+	str	r7, [r3, #16]
+	str	r9, [r3, #20]
+	str	lr, [r3, #24]
 	mov	r3, #145
-	ldr	r7, .L41+52
-	stmia	ip, {r3, r5, sl}	@ phole stm
+	ldr	r5, .L41+52
+	stmia	ip, {r3, lr}	@ phole stm
+	str	fp, [ip, #8]
 	str	r4, [ip, #12]
 	str	r4, [ip, #16]
-	str	r5, [ip, #20]
-	str	r5, [ip, #24]
+	str	lr, [ip, #20]
+	str	lr, [ip, #24]
 .L36:
 	mov	r6, ip
 	ldmia	r6!, {r0, r1, r2, r3}
-	add	r4, r7, r5
+	add	r4, r5, lr
 	stmia	r4!, {r0, r1, r2, r3}
-	add	r5, r5, #28
+	add	lr, lr, #28
 	ldmia	r6, {r0, r1, r2}
-	cmp	r5, #140
+	cmp	lr, #140
 	stmia	r4, {r0, r1, r2}
 	bne	.L36
 	ldr	r1, .L41+56
 	mov	r2, #16
 	ldr	ip, .L41+60
 	mov	r0, #1
-	mov	r4, #12
-	mov	r5, #112
+	mov	lr, #12
+	mov	r4, #112
 	ldr	r3, .L41+64
-	str	r5, [r1, #4]
+	str	r4, [r1, #4]
 	str	r2, [r1, #12]
 	str	r2, [r1, #16]
-	str	r4, [r1, #0]
+	str	lr, [r1, #0]
 	str	r0, [r1, #20]
 	mov	r1, #202
 	str	r1, [ip, #4]
@@ -447,36 +448,45 @@ initGame:
 	str	r2, [r3, #12]
 	mov	r1, #220
 	mov	r2, #32
-	str	r4, [ip, #0]
+	str	lr, [ip, #0]
 	str	r0, [ip, #20]
 	str	r1, [r3, #4]
 	str	r2, [r3, #16]
 	str	r0, [r3, #20]
-	ldr	r7, .L41+68
-	mov	r5, #0
+	ldr	r6, .L41+68
+	mov	r4, #0
 .L37:
-	mov	r6, ip
-	ldmia	r6!, {r0, r1, r2, r3}
-	add	r4, r7, r5
-	stmia	r4!, {r0, r1, r2, r3}
-	add	r5, r5, #24
-	ldmia	r6, {r0, r1}
-	cmp	r5, #120
-	stmia	r4, {r0, r1}
+	mov	r5, ip
+	ldmia	r5!, {r0, r1, r2, r3}
+	add	lr, r6, r4
+	stmia	lr!, {r0, r1, r2, r3}
+	add	r4, r4, #24
+	ldmia	r5, {r0, r1}
+	cmp	r4, #120
+	stmia	lr, {r0, r1}
 	bne	.L37
-	ldr	r2, .L41+72
-	mov	r3, #0
-	str	r3, [r2, #0]
-	ldr	r2, .L41+76
-	str	r3, [r2, #0]
-	ldr	r2, .L41+80
-	mov	r1, #3
-	str	r1, [r2, #0]
-	ldr	r2, .L41+84
-	mov	r1, #5
-	str	r1, [r2, #0]
-	ldr	r2, .L41+88
-	str	r3, [r2, #0]
+	ldr	lr, .L41+72
+	mov	ip, #0
+	str	ip, [lr, #0]
+	ldr	lr, .L41+76
+	str	ip, [lr, #0]
+	ldr	lr, .L41+80
+	mov	r4, #3
+	str	r4, [lr, #0]
+	ldr	lr, .L41+84
+	mov	r4, #5
+	str	r4, [lr, #0]
+	ldr	lr, .L41+88
+	mov	r1, #193536
+	mov	r2, #11008
+	str	ip, [lr, #0]
+	ldr	r0, .L41+92
+	sub	r1, r1, #223
+	add	r2, r2, #17
+	mov	r3, #1
+	ldr	ip, .L41+96
+	mov	lr, pc
+	bx	ip
 	ldmfd	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
 	bx	lr
 .L42:
@@ -489,8 +499,8 @@ initGame:
 	.word	setupInterrupts
 	.word	setupSounds
 	.word	c
-	.word	p
 	.word	cats
+	.word	p
 	.word	health
 	.word	hearts
 	.word	fridge
@@ -505,6 +515,8 @@ initGame:
 	.word	lives
 	.word	catsRemaining
 	.word	hurt
+	.word	uke
+	.word	playSoundA
 	.size	initGame, .-initGame
 	.align	2
 	.global	goToGame
@@ -516,12 +528,12 @@ goToGame:
 	mvn	ip, #9664
 	stmfd	sp!, {r4, r5, r6, lr}
 	sub	ip, ip, #59
-	mov	lr, #4864	@ movhi
 	mov	r4, #67108864
+	mov	lr, #4864	@ movhi
 	mov	r6, #100663296
 	mov	r3, #15104
-	strh	lr, [r4, #0]	@ movhi
 	ldr	r5, .L44
+	strh	lr, [r4, #0]	@ movhi
 	strh	ip, [r4, #10]	@ movhi
 	mov	r0, #3
 	ldr	r1, .L44+4
@@ -536,40 +548,31 @@ goToGame:
 	mov	lr, pc
 	bx	r5
 	mov	ip, #6400	@ movhi
-	strh	ip, [r4, #8]	@ movhi
 	mov	r0, #3
 	ldr	r1, .L44+12
 	mov	r2, r6
 	mov	r3, #1120
+	strh	ip, [r4, #8]	@ movhi
 	mov	lr, pc
 	bx	r5
-	mov	r0, #3
 	ldr	r1, .L44+16
 	add	r2, r6, #51200
 	mov	r3, #1024
+	mov	r0, #3
 	mov	lr, pc
 	bx	r5
 	ldr	r3, .L44+20
-	ldr	lr, [r3, #0]
-	add	ip, lr, lr, lsr #31
-	mov	ip, ip, asl #15
-	mov	lr, lr, asl #16
-	mov	lr, lr, lsr #16
-	mov	ip, ip, lsr #16
-	mov	r1, #193536
-	mov	r2, #11008
-	add	r2, r2, #17
-	mov	r3, #1
-	strh	lr, [r4, #20]	@ movhi
-	ldr	r0, .L44+24
-	strh	ip, [r4, #16]	@ movhi
-	sub	r1, r1, #223
-	ldr	ip, .L44+28
-	mov	lr, pc
-	bx	ip
-	ldr	r2, .L44+32
-	ldr	r3, .L44+36
-	str	r2, [r3, #0]
+	ldr	r3, [r3, #0]
+	add	r2, r3, r3, lsr #31
+	mov	r3, r3, asl #16
+	mov	r3, r3, lsr #16
+	strh	r3, [r4, #20]	@ movhi
+	mov	r2, r2, asl #15
+	ldr	r1, .L44+24
+	ldr	r3, .L44+28
+	mov	r2, r2, lsr #16
+	str	r1, [r3, #0]
+	strh	r2, [r4, #16]	@ movhi
 	ldmfd	sp!, {r4, r5, r6, lr}
 	bx	lr
 .L45:
@@ -581,8 +584,6 @@ goToGame:
 	.word	lightsTiles
 	.word	lightsMap
 	.word	hOff
-	.word	uke
-	.word	playSoundA
 	.word	updateGame
 	.word	state
 	.size	goToGame, .-goToGame
@@ -616,6 +617,9 @@ updatePause:
 	ldmfd	sp!, {r4, lr}
 	b	goToSplash
 .L49:
+	ldr	r3, .L51+8
+	mov	lr, pc
+	bx	r3
 	bl	goToGame
 	ldr	r3, [r4, #0]
 	b	.L47
@@ -624,6 +628,7 @@ updatePause:
 .L51:
 	.word	oldButtons
 	.word	buttons
+	.word	unpauseSound
 	.size	updatePause, .-updatePause
 	.align	2
 	.global	updateControls
@@ -681,22 +686,25 @@ goToPause:
 	strh	lr, [ip, #0]	@ movhi
 	mov	r5, #100663296
 	mov	lr, #0	@ movhi
+	strh	lr, [ip, #20]	@ movhi
 	mov	r0, #3
 	ldr	r1, .L61
 	add	r2, r5, #16384
 	mov	r3, #1568
 	ldr	r4, .L61+4
-	strh	lr, [ip, #20]	@ movhi
 	mov	lr, pc
 	bx	r4
 	add	r2, r5, #61440
-	mov	r3, #1024
 	mov	r0, #3
 	ldr	r1, .L61+8
+	mov	r3, #1024
 	mov	lr, pc
 	bx	r4
-	ldr	r2, .L61+12
-	ldr	r3, .L61+16
+	ldr	r3, .L61+12
+	mov	lr, pc
+	bx	r3
+	ldr	r2, .L61+16
+	ldr	r3, .L61+20
 	str	r2, [r3, #0]
 	ldmfd	sp!, {r3, r4, r5, lr}
 	bx	lr
@@ -706,6 +714,7 @@ goToPause:
 	.word	pausescreenTiles
 	.word	DMANow
 	.word	pausescreenMap
+	.word	pauseSound
 	.word	updatePause
 	.word	state
 	.size	goToPause, .-goToPause

@@ -252,6 +252,8 @@ void initGame() {
 	lives = 3;
 	catsRemaining = 5;
 	hurt = 0;
+	playSoundA(uke, UKELEN, UKEFREQ, 1);
+
 }
 
 void goToGame() {
@@ -270,7 +272,6 @@ void goToGame() {
 
 	REG_BG1HOFS = hOff;
 	REG_BG0HOFS = hOff/2;
-	playSoundA(uke, UKELEN, UKEFREQ, 1);
 	state = updateGame;
 }
 
@@ -289,11 +290,13 @@ void goToPause() {
 	REG_BG1HOFS = 0;
 	DMANow(3, pausescreenTiles, &CHARBLOCKBASE[1], pausescreenTilesLen/2);
     DMANow(3, pausescreenMap, &SCREENBLOCKBASE[30], pausescreenMapLen/2);
+    pauseSound();
 	state = updatePause;
 }
 
 void updatePause() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
+		unpauseSound();
 		goToGame();
 	}
 	if (BUTTON_PRESSED(BUTTON_SELECT)) {
