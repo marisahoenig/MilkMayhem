@@ -131,48 +131,55 @@ updateHealth:
 	ldr	r3, [r0, #20]
 	cmp	r3, #0
 	beq	.L18
-	ldr	ip, [r1, #0]
-	ldr	r2, [r0, #0]
-	ldmib	r0, {r3, r4}
-	sub	r3, r3, r4
-	mov	ip, ip, asr #8
-	cmp	ip, r2
+	ldr	r3, [r0, #4]
+	ldr	r2, [r0, #8]
+	rsb	r3, r2, r3
 	str	r3, [r0, #4]
-	ble	.L21
-.L20:
+	mov	ip, #67108864
+	ldr	ip, [ip, #304]
+	tst	ip, #32
+	ldr	ip, [r1, #0]
+	addeq	r3, r3, r2, asl #1
+	ldr	r2, [r0, #0]
+	mov	ip, ip, asr #8
+	streq	r3, [r0, #4]
+	cmp	ip, r2
+	ble	.L23
+.L21:
 	cmp	r3, #0
 	movle	r3, #0
 	strle	r3, [r0, #20]
 .L18:
 	ldmfd	sp!, {r4, r5}
 	bx	lr
-.L21:
+.L23:
 	ldr	r5, [r1, #20]
 	ldr	r4, [r0, #16]
 	add	ip, ip, r5
 	add	r2, r2, r4
 	cmp	ip, r2
-	blt	.L20
+	ldrlt	r3, [r0, #4]
+	blt	.L21
 	ldr	r2, [r1, #4]
 	ldr	r1, [r1, #16]
 	add	r1, r2, r1
-	cmp	r3, r1
-	bgt	.L20
+	cmp	r1, r3
+	blt	.L21
 	ldr	r1, [r0, #12]
 	add	r1, r3, r1
 	cmp	r2, r1
-	bgt	.L20
-	ldr	r2, .L22
+	bgt	.L21
+	ldr	r2, .L24
 	ldr	r1, [r2, #0]
 	cmp	r1, #2
 	addle	r1, r1, #1
 	movle	ip, #0
 	strle	ip, [r0, #20]
 	strle	r1, [r2, #0]
-	b	.L20
-.L23:
+	b	.L21
+.L25:
 	.align	2
-.L22:
+.L24:
 	.word	lives
 	.size	updateHealth, .-updateHealth
 	.align	2
@@ -188,7 +195,7 @@ updateBullet:
 	bxeq	lr
 	ldr	r3, [r0, #24]
 	cmp	r3, #1
-	beq	.L28
+	beq	.L30
 	ldmib	r0, {r2, r3}
 	add	r3, r3, r2
 	ldr	r2, [r0, #12]
@@ -196,17 +203,17 @@ updateBullet:
 	cmp	r2, #239
 	str	r3, [r0, #4]
 	bxle	lr
-.L27:
+.L29:
 	mov	r3, #0
 	str	r3, [r0, #20]
 	bx	lr
-.L28:
+.L30:
 	ldmib	r0, {r2, r3}
 	sub	r3, r2, r3
 	cmp	r3, #0
 	str	r3, [r0, #4]
 	bxge	lr
-	b	.L27
+	b	.L29
 	.size	updateBullet, .-updateBullet
 	.align	2
 	.global	collisionCheckEnemy
@@ -223,11 +230,11 @@ collisionCheckEnemy:
 	add	r1, r3, r1
 	cmp	r2, r1
 	mov	r4, r0
-	bgt	.L29
+	bgt	.L31
 	ldr	r1, [r0, #16]
 	add	r2, r2, r1
 	cmp	r3, r2
-	bgt	.L29
+	bgt	.L31
 	ldr	r3, [r0, #4]
 	ldr	r2, [ip, #4]
 	ldr	r0, [r0, #12]
@@ -235,37 +242,37 @@ collisionCheckEnemy:
 	add	r0, r3, r0
 	add	r1, r2, r1
 	cmp	r0, r1
-	bgt	.L31
+	bgt	.L33
 	cmp	r0, r2
-	blt	.L31
-.L32:
-	ldr	lr, .L33
+	blt	.L33
+.L34:
+	ldr	lr, .L35
 	ldr	r5, [lr, #0]
 	mov	r3, #0
 	mov	r1, #4864
 	mov	r2, #11008
 	sub	r5, r5, #1
 	str	r3, [ip, #24]
-	ldr	r0, .L33+4
+	ldr	r0, .L35+4
 	str	r3, [r4, #20]
 	add	r1, r1, #10
 	add	r2, r2, #17
 	str	r5, [lr, #0]
-	ldr	ip, .L33+8
+	ldr	ip, .L35+8
 	mov	lr, pc
 	bx	ip
-.L29:
+.L31:
 	ldmfd	sp!, {r3, r4, r5, lr}
 	bx	lr
-.L31:
-	cmp	r3, r1
-	bgt	.L29
-	cmp	r3, r2
-	bge	.L32
-	b	.L29
-.L34:
-	.align	2
 .L33:
+	cmp	r3, r1
+	bgt	.L31
+	cmp	r3, r2
+	bge	.L34
+	b	.L31
+.L36:
+	.align	2
+.L35:
 	.word	catsRemaining
 	.word	meow
 	.word	playSoundB
@@ -284,11 +291,11 @@ collisionFridge:
 	mov	r2, r2, asr #8
 	add	ip, r3, ip
 	cmp	r2, ip
-	bgt	.L35
+	bgt	.L37
 	ldr	ip, [r1, #20]
 	add	r2, r2, ip
 	cmp	r3, r2
-	bgt	.L35
+	bgt	.L37
 	ldr	ip, [r1, #16]
 	ldr	r2, [r1, #4]
 	ldr	r3, [r0, #4]
@@ -296,20 +303,20 @@ collisionFridge:
 	add	r2, ip, r2
 	add	r1, r3, r1
 	cmp	r2, r1
-	bgt	.L35
+	bgt	.L37
 	cmp	r2, r3
-	bge	.L37
-.L35:
+	bge	.L39
+.L37:
 	ldmfd	sp!, {r3, lr}
 	bx	lr
-.L37:
-	ldr	r3, .L38
+.L39:
+	ldr	r3, .L40
 	mov	lr, pc
 	bx	r3
-	b	.L35
-.L39:
+	b	.L37
+.L41:
 	.align	2
-.L38:
+.L40:
 	.word	goToWin
 	.size	collisionFridge, .-collisionFridge
 	.comm	catsRemaining,4,4

@@ -52,6 +52,9 @@ int collisionEnemyPlayer(PLAYER* p, CAT* c) {
 void updateHealth(HEALTH* health, PLAYER* p) {
 	if (health->active) {
 		health->col -= health->cd;
+		if (BUTTON_HELD(BUTTON_LEFT)) {
+			health->col += 2*health->cd;
+		}
 		int shiftedRow = SHIFTDOWN(p->row);
 		if ((shiftedRow <= health->row && shiftedRow + p->height >= health->row + health->height)
 			&& (p->col + p->width >= health->col) && (p->col <= health->col + health->width)) {

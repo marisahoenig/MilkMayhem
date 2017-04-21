@@ -218,6 +218,9 @@ int collisionEnemyPlayer(PLAYER* p, CAT* c) {
 void updateHealth(HEALTH* health, PLAYER* p) {
  if (health->active) {
   health->col -= health->cd;
+  if ((~((*(volatile unsigned int *)0x04000130)) & 32)) {
+   health->col += 2*health->cd;
+  }
   int shiftedRow = ((p->row) >> 8);
   if ((shiftedRow <= health->row && shiftedRow + p->height >= health->row + health->height)
    && (p->col + p->width >= health->col) && (p->col <= health->col + health->width)) {
