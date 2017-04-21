@@ -9,6 +9,8 @@ void playSoundB( const unsigned char* sound, int length, int frequency, int loop
 void muteSound();
 void unmuteSound();
 void stopSound();
+void stopSoundA();
+void stopSoundB();
 void pauseSound();
 void unpauseSound();
 
@@ -264,6 +266,18 @@ void stopSound() {
  *(volatile unsigned short*)0x4000102 = 0;
  soundB.isPlaying = 0;
  *(volatile unsigned short*)0x4000106 = 0;
+}
+
+void stopSoundA() {
+    dma[1].cnt = 0;
+    soundA.isPlaying = 0;
+    *(volatile unsigned short*)0x4000102 = 0;
+}
+
+void stopSoundB() {
+    dma[2].cnt = 0;
+    soundB.isPlaying = 0;
+    *(volatile unsigned short*)0x4000106 = 0;
 }
 
 void setupInterrupts() {

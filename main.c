@@ -19,7 +19,7 @@ COOL THINGS:
 - Palette Row Swapping for harm to player and chocolate milk
 - Gravity
 - Function Pointers
-- Custom Art (and sound! The main music is me playing ukulele)
+- Custom Art - all sprites (and sound! The gameplay music is me playing ukulele)
 
 ******************************************/
 
@@ -44,6 +44,7 @@ COOL THINGS:
 #include "icecream.h"
 #include "losesound.h"
 #include "winsound.h"
+#include "pausesound.h"
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -298,16 +299,15 @@ void goToPause() {
 	DMANow(3, pausescreenTiles, &CHARBLOCKBASE[1], pausescreenTilesLen/2);
     DMANow(3, pausescreenMap, &SCREENBLOCKBASE[30], pausescreenMapLen/2);
     pauseSound();
+    playSoundB(pausesound, PAUSESOUNDLEN, PAUSESOUNDFREQ, 1);
 	state = updatePause;
 }
 
 void updatePause() {
 	if (BUTTON_PRESSED(BUTTON_START)) {
+		stopSoundB();
 		unpauseSound();
 		goToGame();
-	}
-	if (BUTTON_PRESSED(BUTTON_SELECT)) {
-		goToSplash();
 	}
 }
 

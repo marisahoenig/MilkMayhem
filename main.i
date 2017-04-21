@@ -694,6 +694,8 @@ void playSoundB( const unsigned char* sound, int length, int frequency, int loop
 void muteSound();
 void unmuteSound();
 void stopSound();
+void stopSoundA();
+void stopSoundB();
 void pauseSound();
 void unpauseSound();
 
@@ -713,7 +715,7 @@ typedef struct {
 # 41 "main.c" 2
 # 1 "uke.h" 1
 # 20 "uke.h"
-extern const unsigned char uke[193313];
+extern const unsigned char uke[190728];
 # 42 "main.c" 2
 # 1 "meow.h" 1
 # 20 "meow.h"
@@ -735,6 +737,10 @@ extern const unsigned char losesound[34471];
 # 20 "winsound.h"
 extern const unsigned char winsound[98057];
 # 47 "main.c" 2
+# 1 "pausesound.h" 1
+# 20 "pausesound.h"
+extern const unsigned char pausesound[80960];
+# 48 "main.c" 2
 
 unsigned int buttons;
 unsigned int oldButtons;
@@ -950,7 +956,7 @@ void initGame() {
  lives = 3;
  catsRemaining = 5;
  hurt = 0;
- playSoundA(uke, 193313, 11025, 1);
+ playSoundA(uke, 190728, 11025, 1);
 
 }
 
@@ -989,16 +995,15 @@ void goToPause() {
  DMANow(3, pausescreenTiles, &((charblock *)0x6000000)[1], 3136/2);
     DMANow(3, pausescreenMap, &((screenblock *)0x6000000)[30], 2048/2);
     pauseSound();
+    playSoundB(pausesound, 80960, 11025, 1);
  state = updatePause;
 }
 
 void updatePause() {
  if ((!(~oldButtons&(8))&&(~buttons&(8)))) {
+  stopSoundB();
   unpauseSound();
   goToGame();
- }
- if ((!(~oldButtons&(4))&&(~buttons&(4)))) {
-  goToSplash();
  }
 }
 
@@ -1010,7 +1015,7 @@ void goToWin() {
  hOff = 0;
  DMANow(3, winscreenTiles, &((charblock *)0x6000000)[0], 14528/2);
     DMANow(3, winscreenMap, &((screenblock *)0x6000000)[30], 2048/2);
-    playSoundA(winsound, 98057, 11025, 0);
+    playSoundA(winsound, 98057, 11025, 1);
  state = updateWin;
 }
 

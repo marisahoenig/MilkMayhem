@@ -1,5 +1,5 @@
 PRODUCT_NAME       = Project
-SOURCES            = myLib.c main.c update.c movebackground.c splashscreen.c instructions.c spritesheet.c winscreen.c losescreen2.c pausescreen.c controls.c sounds.c lights.c uke.c meow.c milkspill.c icecream.c losesound.c winsound.c
+SOURCES            = myLib.c main.c update.c movebackground.c splashscreen.c instructions.c spritesheet.c winscreen.c losescreen2.c pausescreen.c controls.c sounds.c lights.c uke.c meow.c milkspill.c icecream.c losesound.c winsound.c pausesound.c
 DKPATH             = C:/devkitARM/bin
 CCPATH             = C:/cygwin/bin
 VBASIM             = C:/vba/vba.exe

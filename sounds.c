@@ -88,6 +88,18 @@ void stopSound() {
 	REG_TM1CNT = 0;
 }
 
+void stopSoundA() {
+    dma[1].cnt = 0;
+    soundA.isPlaying = 0;
+    REG_TM0CNT = 0;
+}
+
+void stopSoundB() {
+    dma[2].cnt = 0;
+    soundB.isPlaying = 0;
+    REG_TM1CNT = 0;
+}
+
 void setupInterrupts() {
 	REG_IME = 0;
 	REG_INTERRUPT = (unsigned int) interruptHandler;

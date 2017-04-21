@@ -4,6 +4,8 @@ void playSoundB( const unsigned char* sound, int length, int frequency, int loop
 void muteSound();
 void unmuteSound();
 void stopSound();
+void stopSoundA();
+void stopSoundB();
 void pauseSound();
 void unpauseSound();
 

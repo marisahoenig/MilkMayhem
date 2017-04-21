@@ -375,6 +375,56 @@ stopSound:
 	.word	soundB
 	.size	stopSound, .-stopSound
 	.align	2
+	.global	stopSoundA
+	.type	stopSoundA, %function
+stopSoundA:
+	@ Function supports interworking.
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	@ link register save eliminated.
+	ldr	r3, .L30
+	ldr	r1, [r3, #0]
+	mov	r2, #0
+	add	r1, r1, #12
+	str	r2, [r1, #8]
+	mov	r3, #67108864
+	ldr	r1, .L30+4
+	add	r3, r3, #256
+	str	r2, [r1, #12]
+	strh	r2, [r3, #2]	@ movhi
+	bx	lr
+.L31:
+	.align	2
+.L30:
+	.word	dma
+	.word	soundA
+	.size	stopSoundA, .-stopSoundA
+	.align	2
+	.global	stopSoundB
+	.type	stopSoundB, %function
+stopSoundB:
+	@ Function supports interworking.
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	@ link register save eliminated.
+	ldr	r3, .L33
+	ldr	r1, [r3, #0]
+	mov	r2, #0
+	add	r1, r1, #24
+	str	r2, [r1, #8]
+	mov	r3, #67108864
+	ldr	r1, .L33+4
+	add	r3, r3, #256
+	str	r2, [r1, #12]
+	strh	r2, [r3, #6]	@ movhi
+	bx	lr
+.L34:
+	.align	2
+.L33:
+	.word	dma
+	.word	soundB
+	.size	stopSoundB, .-stopSoundB
+	.align	2
 	.global	setupInterrupts
 	.type	setupInterrupts, %function
 setupInterrupts:
@@ -388,7 +438,7 @@ setupInterrupts:
 	ldrh	r0, [r2, #4]
 	ldrh	ip, [r3, #0]
 	mov	r1, #50331648
-	ldr	r4, .L30
+	ldr	r4, .L36
 	add	r1, r1, #28672
 	orr	ip, ip, #1
 	orr	r0, r0, #8
@@ -399,9 +449,9 @@ setupInterrupts:
 	strh	r2, [r3, #8]	@ movhi
 	ldmfd	sp!, {r4}
 	bx	lr
-.L31:
+.L37:
 	.align	2
-.L30:
+.L36:
 	.word	interruptHandler
 	.size	setupInterrupts, .-setupInterrupts
 	.comm	catsRemaining,4,4
